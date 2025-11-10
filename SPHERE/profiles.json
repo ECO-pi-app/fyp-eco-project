@@ -1,0 +1,844 @@
+{
+  "18 Part": {
+    "transport_rows": [
+      {
+        "transport": "Freight Flights",
+        "variation": "International",
+        "fuel": "International",
+        "origin": "China",
+        "destination": "Singapore",
+        "mode": "plane",
+        "value_label": 0.13516
+      }
+    ],
+    "machine_process_rows": [
+      {
+        "part": "Part 1",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "60",
+        "carbon_emission": "2.73"
+      },
+      {
+        "part": "Part 2",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 2",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 3",
+        "row": 1,
+        "machine_type": "Surface Grinder (S.G)",
+        "energy_use": 5.4,
+        "machining_time": "60",
+        "carbon_emission": "5.86"
+      },
+      {
+        "part": "Part 4",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 5",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 5",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 6",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 7",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 8",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "90",
+        "carbon_emission": "5.53"
+      },
+      {
+        "part": "Part 8",
+        "row": 2,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "1380",
+        "carbon_emission": "62.88"
+      },
+      {
+        "part": "Part 9",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "120",
+        "carbon_emission": "7.38"
+      },
+      {
+        "part": "Part 10",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 11",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 12",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "3120",
+        "carbon_emission": "142.16"
+      },
+      {
+        "part": "Part 13",
+        "row": 1,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "90",
+        "carbon_emission": "4.39"
+      },
+      {
+        "part": "Part 14",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 15",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 16",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 17",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 18",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      }
+    ],
+    "product_name": "18 Part",
+    "total_emission": 330.91,
+    "transport_country_combo": "China",
+    "material_combo": "Aluminium",
+    "weight_entry": "3.68995129",
+    "quantity_entry_weight": "1",
+    "weight_after_entry": "2.58297",
+    "weight_after_quantity_entry": "1",
+    "packaging_dropdown": "Aluminium",
+    "metal_recycling_dropdown": "Aluminium",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "Singapore",
+    "quantity_entry": "1"
+  },
+  "1": {
+    "product_name": "1",
+    "description": "",
+    "total_emission": 277.89,
+    "transport_country_combo": "",
+    "material_combo": "",
+    "weight_entry": "",
+    "quantity_entry_weight": "",
+    "weight_after_entry": "",
+    "weight_after_quantity_entry": "",
+    "packaging_dropdown": "",
+    "metal_recycling_dropdown": "",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "",
+    "quantity_entry": "1",
+    "transport_rows": [],
+    "machine_process_rows": []
+  },
+  "2": {
+    "product_name": "2",
+    "description": "",
+    "total_emission": 55.74999999999999,
+    "transport_country_combo": "China",
+    "material_combo": "Aluminium",
+    "weight_entry": "3.68995129",
+    "quantity_entry_weight": "1",
+    "weight_after_entry": "2.58297",
+    "weight_after_quantity_entry": "1",
+    "packaging_dropdown": "Aluminium",
+    "metal_recycling_dropdown": "Aluminium",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "Singapore",
+    "quantity_entry": "1",
+    "transport_rows": [
+      {
+        "transport": "Freight Flights",
+        "variation": "International",
+        "fuel": "International",
+        "origin": "China",
+        "destination": "Singapore",
+        "mode": "plane",
+        "value_label": 0.13516
+      }
+    ],
+    "machine_process_rows": [
+      {
+        "part": "Part 1",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "60",
+        "carbon_emission": "2.73"
+      }
+    ]
+  },
+  "3": {
+    "product_name": "3",
+    "description": "",
+    "total_emission": 330.91,
+    "transport_country_combo": "China",
+    "material_combo": "Aluminium",
+    "weight_entry": "3.68995129",
+    "quantity_entry_weight": "1",
+    "weight_after_entry": "2.58297",
+    "weight_after_quantity_entry": "1",
+    "packaging_dropdown": "Aluminium",
+    "metal_recycling_dropdown": "Aluminium",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "Singapore",
+    "quantity_entry": "1",
+    "transport_rows": [
+      {
+        "transport": "Freight Flights",
+        "variation": "International",
+        "fuel": "International",
+        "origin": "China",
+        "destination": "Singapore",
+        "mode": "plane",
+        "value_label": 0.13516
+      }
+    ],
+    "machine_process_rows": [
+      {
+        "part": "Part 1",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "60",
+        "carbon_emission": "2.73"
+      },
+      {
+        "part": "Part 2",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 2",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 3",
+        "row": 1,
+        "machine_type": "Surface Grinder (S.G)",
+        "energy_use": 5.4,
+        "machining_time": "60",
+        "carbon_emission": "5.86"
+      },
+      {
+        "part": "Part 4",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 5",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 5",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 6",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 7",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 8",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "90",
+        "carbon_emission": "5.53"
+      },
+      {
+        "part": "Part 8",
+        "row": 2,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "1380",
+        "carbon_emission": "62.88"
+      },
+      {
+        "part": "Part 9",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "120",
+        "carbon_emission": "7.38"
+      },
+      {
+        "part": "Part 10",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 11",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 12",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "3120",
+        "carbon_emission": "142.16"
+      },
+      {
+        "part": "Part 13",
+        "row": 1,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "90",
+        "carbon_emission": "4.39"
+      },
+      {
+        "part": "Part 14",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 15",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 16",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 17",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 18",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      }
+    ]
+  },
+  "4": {
+    "product_name": "4",
+    "description": "",
+    "total_emission": 330.91,
+    "transport_country_combo": "China",
+    "material_combo": "Aluminium",
+    "weight_entry": "3.68995129",
+    "quantity_entry_weight": "1",
+    "weight_after_entry": "2.58297",
+    "weight_after_quantity_entry": "1",
+    "packaging_dropdown": "Aluminium",
+    "metal_recycling_dropdown": "Aluminium",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "Singapore",
+    "quantity_entry": "1",
+    "transport_rows": [
+      {
+        "transport": "Freight Flights",
+        "variation": "International",
+        "fuel": "International",
+        "origin": "China",
+        "destination": "Singapore",
+        "mode": "plane",
+        "value_label": 0.13516
+      }
+    ],
+    "machine_process_rows": [
+      {
+        "part": "Part 1",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "60",
+        "carbon_emission": "2.73"
+      },
+      {
+        "part": "Part 2",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 2",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 3",
+        "row": 1,
+        "machine_type": "Surface Grinder (S.G)",
+        "energy_use": 5.4,
+        "machining_time": "60",
+        "carbon_emission": "5.86"
+      },
+      {
+        "part": "Part 4",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 5",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 5",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 6",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 7",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 8",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "90",
+        "carbon_emission": "5.53"
+      },
+      {
+        "part": "Part 8",
+        "row": 2,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "1380",
+        "carbon_emission": "62.88"
+      },
+      {
+        "part": "Part 9",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "120",
+        "carbon_emission": "7.38"
+      },
+      {
+        "part": "Part 10",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 11",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 12",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "3120",
+        "carbon_emission": "142.16"
+      },
+      {
+        "part": "Part 13",
+        "row": 1,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "90",
+        "carbon_emission": "4.39"
+      },
+      {
+        "part": "Part 14",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 15",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 16",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 17",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 18",
+        "row": 1,
+        "machine_type": "",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      }
+    ]
+  },
+  "5": {
+    "product_name": "5",
+    "description": "",
+    "total_emission": 330.91,
+    "transport_country_combo": "China",
+    "material_combo": "Aluminium",
+    "weight_entry": "3.68995129",
+    "quantity_entry_weight": "1",
+    "weight_after_entry": "2.58297",
+    "weight_after_quantity_entry": "1",
+    "packaging_dropdown": "Aluminium",
+    "metal_recycling_dropdown": "Aluminium",
+    "machine_process_quantity_entry": "18",
+    "manufacturing_country_combo": "Singapore",
+    "quantity_entry": "1",
+    "transport_rows": [
+      {
+        "transport": "Freight Flights",
+        "variation": "International",
+        "fuel": "International",
+        "origin": "China",
+        "destination": "Singapore",
+        "mode": "plane",
+        "value_label": 0.13516
+      }
+    ],
+    "machine_process_rows": [
+      {
+        "part": "Part 1",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "60",
+        "carbon_emission": "2.73"
+      },
+      {
+        "part": "Part 2",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 2",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 3",
+        "row": 1,
+        "machine_type": "Surface Grinder (S.G)",
+        "energy_use": 5.4,
+        "machining_time": "60",
+        "carbon_emission": "5.86"
+      },
+      {
+        "part": "Part 4",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 5",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": 2.18,
+        "machining_time": "150",
+        "carbon_emission": "5.91"
+      },
+      {
+        "part": "Part 5",
+        "row": 2,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "360",
+        "carbon_emission": "17.57"
+      },
+      {
+        "part": "Part 6",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 7",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 8",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "90",
+        "carbon_emission": "5.53"
+      },
+      {
+        "part": "Part 8",
+        "row": 2,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "1380",
+        "carbon_emission": "62.88"
+      },
+      {
+        "part": "Part 9",
+        "row": 1,
+        "machine_type": "CNC (RB8)",
+        "energy_use": 3.4,
+        "machining_time": "120",
+        "carbon_emission": "7.38"
+      },
+      {
+        "part": "Part 10",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 11",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 12",
+        "row": 1,
+        "machine_type": "Rokou Roku Micro Fine Precision Machine Center",
+        "energy_use": 2.52,
+        "machining_time": "3120",
+        "carbon_emission": "142.16"
+      },
+      {
+        "part": "Part 13",
+        "row": 1,
+        "machine_type": "CNC (YCM4)",
+        "energy_use": 2.7,
+        "machining_time": "90",
+        "carbon_emission": "4.39"
+      },
+      {
+        "part": "Part 14",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 15",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 16",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 17",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      },
+      {
+        "part": "Part 18",
+        "row": 1,
+        "machine_type": "CNC (YCM1)",
+        "energy_use": "0.0",
+        "machining_time": "",
+        "carbon_emission": "0.0"
+      }
+    ]
+  }
+}
