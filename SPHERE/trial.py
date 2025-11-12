@@ -768,9 +768,11 @@ def get_machinedata():
     """
     machine information
     """
-    return {
-        "machines":machine_value_list
-    }
+    
+    return (
+        values_list = list(machine_value_list.items())
+        print(values_list)
+    )
 
 @app.get("/meta/options")
 def get_options():
