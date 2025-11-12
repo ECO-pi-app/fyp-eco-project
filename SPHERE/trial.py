@@ -71,6 +71,7 @@ sheet3 = book['Transport WTT']
 sheet4 = book['Machine Types']
 sheet5 = book['Recycling']
 sheet6 = book['Packaging']
+sheet7 = book["Materials"]
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -89,6 +90,14 @@ def extract_list(cells):
     values = []
     for cell in cells:
         value = cell[0].value if cell[0].value is not None else ""
+        values.append(value)
+    return values
+def extract_material_list(cells):
+    values=[]
+    for cell in cells:
+        value = cell[0].value if cell[0].value is not None else ""
+        if value == "":
+            break
         values.append(value)
     return values
 
@@ -123,6 +132,7 @@ cement_cells         = sheet['E2':'E999']
 electricity_cells    = sheet['F2':'F999']
 plastic_cells        = sheet['G2':'G999']
 carbon_fiber_cells   = sheet['H2':'H999']
+materials_cells      = sheet7['A2':'A999']
 
 Transport_cells      = sheet2['A2':'A999']
 
@@ -187,6 +197,7 @@ cement_list       = extract_list(cement_cells)
 electricity_list  = extract_list(electricity_cells)
 plastic_list      = extract_list(plastic_cells)
 carbon_fiber_list = extract_list(carbon_fiber_cells)
+material_list     = extract_material_list(materials_cells)
 
 transport_list    = extract_transport_list(Transport_cells)
 
@@ -243,8 +254,6 @@ metal_recycling_emission_list = extract_emission_list(metal_recycling_emission_c
 packaging_types_list          = extract_selection_list(packaging_types_cells)
 packaging_box_frame_list      = extract_emission_list(packaging_box_frame_cells)
 
-materials = ["Steel", "Aluminium", "Cement", "Plastic", "Carbon Fiber"]  # SPHERE globals :contentReference[oaicite:4]{index=4}
-
 ###############################################################################
 # --------- 3. GEODATA CACHE (used by transport + sourcing) ------------------#
 ###############################################################################
@@ -274,8 +283,10 @@ country_coords_cache = build_country_coords_cache(country_list)
 def get_material_emission(material: str, country_index: int) -> float:
     """
     Return CO2e/kg for a given material in a given country.
-    Uses custom_emission_factors first if present. :contentReference[oaicite:6]{index=6}
+    Uses custom_emission_factors first if present.
     """
+    key = (material or "").strip().lower()
+
     material_lists = {
         "Steel": steel_list,
         "Aluminium": aluminium_list,
@@ -284,7 +295,7 @@ def get_material_emission(material: str, country_index: int) -> float:
         "Carbon Fiber": carbon_fiber_list,
     }
 
-    # custom override (user-edited factors saved to disk in SPHERE.py) :contentReference[oaicite:7]{index=7}
+    # custom override (user-edited factors saved to disk in SPHERE.py)
     override = custom_emission_factors.get("materials", {}).get(material)
     if override is not None:
         return float(override)
@@ -638,10 +649,12 @@ def get_best_material_and_country(
     min_total_emission = float("inf")
 
     # Which materials to consider:
-    if current_material and current_material in materials:
-        test_materials = [current_material]
+    if current_material:
+        test_materials = [current_material] if any(
+            current_material.strip().lower() == m.strip().lower() for m in material_list
+        )else material_list
     else:
-        test_materials = materials
+        test_materials = material_list
 
     for mat in test_materials:
         for cidx, src_country in enumerate(country_list):
@@ -768,12 +781,18 @@ def get_machinedata():
     """
     machine information
     """
+    return{
+        "machines":machine_value_list
+    } 
     
-    return (
-        values_list = list(machine_value_list.items())
-        print(values_list)
-    )
-
+@app.get("/meta/material type")
+def get_materialdata():
+    """
+    material data 
+    """
+    return {
+        "material types":material_list
+    }
 @app.get("/meta/options")
 def get_options():
     """
@@ -787,7 +806,7 @@ def get_options():
     """
     return {
         "countries": country_list,
-        "materials": materials,
+        "materials": material_list,
         "machines": machine_value_list,
         "packaging_types": packaging_types_list,
         "recycling_types": metal_recycling_types_list,
