@@ -172,7 +172,7 @@ Future<void> fetchColumnData() async {
                               padding: const EdgeInsets.symmetric(vertical: 3),
                               child: 
                               Container(
-                                height: 30,
+                                height: 25,
                                 padding: EdgeInsets.all(3),
                                 decoration: BoxDecoration(
                                   color: Apptheme.widgetsecondaryclr,
@@ -207,6 +207,8 @@ Future<void> fetchColumnData() async {
                                     Expanded(
                                       child: widget.isTextFieldColumn[col]
                                           ? TextField(
+                                            cursorColor: Apptheme.textclrlight,
+                                            cursorHeight: 15,
                                               keyboardType: TextInputType.number,
                                               inputFormatters: [
                                                 FilteringTextInputFormatter.allow(
@@ -218,7 +220,7 @@ Future<void> fetchColumnData() async {
                                                 isDense: true,
                                                 border: OutlineInputBorder(),
                                                 contentPadding: EdgeInsets.symmetric(
-                                                    horizontal: 4, vertical: 6),
+                                                    horizontal: 4, vertical: 0),
                                               ),
                                               onChanged: (val) {
                                                 setState(() {
@@ -228,6 +230,19 @@ Future<void> fetchColumnData() async {
                                             )
                                           : DropdownButtonHideUnderline(
                                               child: DropdownButton<String>(
+                                                dropdownColor: Apptheme.widgetsecondaryclr,
+                                                icon:
+                                                 Icon(Icons.arrow_drop_down,
+                                                   color: Apptheme.iconslight,
+                                                   size: 20,
+                                                   
+                                                 ),
+                                                padding: EdgeInsets.zero,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Apptheme.textclrlight,
+                                                  fontWeight: FontWeight.w500
+                                                ),
                                                 value: selections[col][row],
                                                 isExpanded: true,
                                                 items: col == 0
@@ -235,7 +250,7 @@ Future<void> fetchColumnData() async {
                                                         .map(
                                                           (item) => DropdownMenuItem(
                                                             value: item,
-                                                            child: Text(item),
+                                                            child: Text(item,),
                                                           ),
                                                         )
                                                         .toList()
@@ -275,15 +290,21 @@ Future<void> fetchColumnData() async {
                               ),
                             ),
                           if (col == 0)
-                            ElevatedButton.icon(
-                              onPressed: _addRow,
-                              icon: const Icon(Icons.add),
-                              label: Text(widget.addButtonLabel),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Apptheme.auxilary,
-                                foregroundColor: Colors.white,
+                            Center(
+                              child: SizedBox(
+                                width: 200,
+                                height: 20,
+                                child: ElevatedButton.icon(
+                                  onPressed: _addRow,
+                                  icon: const Icon(Icons.add, size: 16),
+                                  label: Text(widget.addButtonLabel),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Apptheme.auxilary,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
+                            )
                         ],
                       ),
                     ),

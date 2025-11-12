@@ -26,32 +26,24 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
       Labels(title: 'Attribute: Materials',),
       Widgets1(aspectratio: 16/9, maxheight: 300,
       child: 
-        DynamicDropdownGroup(
-        columnTitles: ['Select materials', 'Select transport type', 'Distance (km)'], 
-        dropdownItems: [
-          ['Aluminium', 'Copper', 'Brass'],
-          ['Flight', 'Maritime Shipping', 'Rail', 'HGV', 'Light Truck', 'Van']
-        ], 
+        DynamicDropdownMaterialAcquisition(
+        columnTitles: ['Materials', 'Transport', 'Distance'], 
         isTextFieldColumn: [false, false, true], 
-        addButtonLabel: 'Add Process',
-        padding: 5,
-        ),
+        addButtonLabel: 'Add material', 
+        padding: 5, 
+        apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'])
       ),
      
       //--ROW 2--
       Labels(title: 'Attribute: Production',),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
-        DynamicDropdownGroup(
-        columnTitles: ['Process Type', 'Equipment', 'Time'], 
-        dropdownItems: [
-          ['CNC: Milling', 'CNC: Turning', 'CNC: Grinding'],
-          ['TCV2000A', 'TCV3000A', 'Surface Grinder', 'Fanuc Robodrill', 'Wire Cut', 'Rokou Rokou Micro Fine Precision Machine']
-        ], 
+      DynamicDropdownMaterialAcquisition(
+        columnTitles: ['Process', 'Equipment', 'Time'], 
         isTextFieldColumn: [false, false, true], 
-        addButtonLabel: 'Add Process',
-        padding: 5,
-        ),
+        addButtonLabel: 'Add material', 
+        padding: 5, 
+        apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'])
       ),
 
       if (selectedBoundary == 'Grave') ...[
@@ -74,15 +66,15 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 4--
       Labels(title: 'Activity: Usage',),
-      Widgets1(aspectratio: 16/9, maxheight: 200,
+      Widgets1(aspectratio: 16/9, maxheight: 400,
       child:
       DynamicDropdownGroup(
-        columnTitles: ['Select materials', 'Select transport type', 'Distance (km)'], 
+        columnTitles: ['Capital Consumption', 'Power', 'Time',], 
         dropdownItems: [
           ['Aluminium', 'Copper', 'Brass'],
-          ['Flight', 'Maritime Shipping', 'Rail', 'HGV', 'Light Truck', 'Van']
+          ['Aluminium', 'Copper', 'Brass']
         ], 
-        isTextFieldColumn: [false, false, true], 
+        isTextFieldColumn: [false, false, true,], 
         addButtonLabel: 'Add Process',
         padding: 5,
         ),
@@ -90,14 +82,18 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 5--
       Labels(title: 'Activity: End of Life',),
-      Widgets1(aspectratio: 16/9, maxheight: 200,
+      Widgets1(aspectratio: 16/9, maxheight: 400,
       child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Materials', 'Transport', 'Distance'], 
-        isTextFieldColumn: [false, false, true], 
-        addButtonLabel: 'Add material', 
-        padding: 5, 
-        apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'])
+      DynamicDropdownGroup(
+        columnTitles: ['Capital Consumption', 'Power', 'Time',], 
+        dropdownItems: [
+          ['Aluminium', 'Copper', 'Brass'],
+          ['Aluminium', 'Copper', 'Brass']
+        ], 
+        isTextFieldColumn: [false, false, true,], 
+        addButtonLabel: 'Add Process',
+        padding: 5,
+        ),
       ),
     ]
 
