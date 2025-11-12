@@ -97,7 +97,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         isTextFieldColumn: [false, false, true], 
         addButtonLabel: 'Add material', 
         padding: 5, 
-        apiEndpoints: ['', ''])
+        apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'])
       ),
     ]
 
