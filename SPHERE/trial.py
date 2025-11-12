@@ -763,6 +763,15 @@ class SourcingOptimizeRequest(BaseModel):
 
 app = FastAPI(title="SPHERE Backend API (no Tkinter)")
 
+@app.get("/meta/machines")
+def get_machinedata():
+    """
+    machine information
+    """
+    return {
+        "machines":machine_value_list
+    }
+
 @app.get("/meta/options")
 def get_options():
     """
