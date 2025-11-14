@@ -72,6 +72,7 @@ sheet4 = book['Machine Types']
 sheet5 = book['Recycling']
 sheet6 = book['Packaging']
 sheet7 = book["Materials"]
+sheet8 = book["GWP of GHG_gases"]
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -188,6 +189,10 @@ metal_recycling_emission_cells = sheet5['B2':'B999']
 packaging_types_cells    = sheet6['A2':'A999']
 packaging_box_frame_cells = sheet6['B2':'B999']
 
+Indicator_GHG_cells    = sheet8["A2":"A999"]
+GHG_values_cells       = sheet8["B2":"B999"]
+GWP_for_GHG_cells      = sheet8["C2":"C999"]
+
 # turn into lists
 country_list      = extract_selection_list(country_cells)
 distance_list     = extract_list(distance_cells)
@@ -254,11 +259,28 @@ metal_recycling_emission_list = extract_emission_list(metal_recycling_emission_c
 packaging_types_list          = extract_selection_list(packaging_types_cells)
 packaging_box_frame_list      = extract_emission_list(packaging_box_frame_cells)
 
+Indicator_GHG   = extract_selection_list(Indicator_GHG_cells)
+GHG_values      = extract_selection_list(GHG_values_cells)
+GWP_for_GHG     = extract_selection_list(GWP_for_GHG_cells)
 ###############################################################################
 # --------- 3. GEODATA CACHE (used by transport + sourcing) ------------------#
 ###############################################################################
 
+def build_country_coords_cache(country_list_input):
+    geolocator = Nominatim(user_agent="emission_app_backend")  # similar to SPHERE usage :contentReference[oaicite:5]{index=5}
+    cache = {}
+    for country in country_list_input:
+        try:
+            loc = geolocator.geocode(country, timeout=5)
+            if loc:
+                cache[country] = (loc.latitude, loc.longitude)
+            else:
+                cache[country] = None
+        except Exception:
+            cache[country] = None
+    return cache
 
+country_coords_cache = build_country_coords_cache(country_list)
 
 ###############################################################################
 # --------- 4. PURE CALC HELPERS (ported/adapted from SPHERE.py) -------------#
@@ -314,7 +336,30 @@ def calc_raw_material_emission(
 
 # ---------- Transport Emissions ----------
 
+def calc_transport_emission(
+    origin_country: str,
+    dest_country: str,
+    total_weight_kg: float,
+    emission_factor_per_ton_km: float = 0.01,
+):
+    """
+    SPHERE uses geodesic distance between origin and destination countries, then:
+      transport_emission = total_weight * distance_km * factor / 1000
+    where factor is CO2e per ton-km. :contentReference[oaicite:9]{index=9}
+    """
+    ocoords = country_coords_cache.get(origin_country)
+    dcoords = country_coords_cache.get(dest_country)
+    if not ocoords or not dcoords:
+        return None
 
+    distance_km = geodesic(ocoords, dcoords).km
+    transport_emission = (
+        total_weight_kg * distance_km * emission_factor_per_ton_km / 1000.0
+    )
+    return {
+        "distance_km": distance_km,
+        "transport_emission": transport_emission
+    }
 
 
 # ---------- Machine Process Emissions ----------
@@ -756,6 +801,24 @@ def get_materialdata():
     return {
         "material types":material_list
     }
+@app.get("/meta/Grid_intensity_of_all_countries")
+def Grid_intensity_of_all_countries():
+    """
+    Grid intensity for different countries
+    """
+    return {
+        "countries": country_list,
+        "materials": electricity_cells,
+    }
+@app.get("/meta/transport(cargotype)")
+def get_transport_types():
+    """
+    different transport types
+    """
+    return {
+        "transport_types": transport_list
+    }
+
 @app.get("/meta/options")
 def get_options():
     """
