@@ -258,21 +258,7 @@ packaging_box_frame_list      = extract_emission_list(packaging_box_frame_cells)
 # --------- 3. GEODATA CACHE (used by transport + sourcing) ------------------#
 ###############################################################################
 
-def build_country_coords_cache(country_list_input):
-    geolocator = Nominatim(user_agent="emission_app_backend")  # similar to SPHERE usage :contentReference[oaicite:5]{index=5}
-    cache = {}
-    for country in country_list_input:
-        try:
-            loc = geolocator.geocode(country, timeout=5)
-            if loc:
-                cache[country] = (loc.latitude, loc.longitude)
-            else:
-                cache[country] = None
-        except Exception:
-            cache[country] = None
-    return cache
 
-country_coords_cache = build_country_coords_cache(country_list)
 
 ###############################################################################
 # --------- 4. PURE CALC HELPERS (ported/adapted from SPHERE.py) -------------#
@@ -328,30 +314,7 @@ def calc_raw_material_emission(
 
 # ---------- Transport Emissions ----------
 
-def calc_transport_emission(
-    origin_country: str,
-    dest_country: str,
-    total_weight_kg: float,
-    emission_factor_per_ton_km: float = 0.01,
-):
-    """
-    SPHERE uses geodesic distance between origin and destination countries, then:
-      transport_emission = total_weight * distance_km * factor / 1000
-    where factor is CO2e per ton-km. :contentReference[oaicite:9]{index=9}
-    """
-    ocoords = country_coords_cache.get(origin_country)
-    dcoords = country_coords_cache.get(dest_country)
-    if not ocoords or not dcoords:
-        return None
 
-    distance_km = geodesic(ocoords, dcoords).km
-    transport_emission = (
-        total_weight_kg * distance_km * emission_factor_per_ton_km / 1000.0
-    )
-    return {
-        "distance_km": distance_km,
-        "transport_emission": transport_emission
-    }
 
 
 # ---------- Machine Process Emissions ----------
