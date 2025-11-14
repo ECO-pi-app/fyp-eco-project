@@ -6,6 +6,7 @@ import os #lets python interact with operation systems. e.g.windows,macOS,Linux
 from typing import List, Dict, Optional 
 from geopy.distance import geodesic #used to calculate the shortest distance btw two point on the earth, using latitude and longitude
 from geopy.geocoders import Nominatim #converting a place name like "Germany" into latitude and longtiude coordinates
+import re 
 
                 #1.File Storage Setup#
 
@@ -56,6 +57,9 @@ def save_custom_emission_factors(data):
         json.dump(data, f, indent=2)
 
 custom_emission_factors = load_custom_emission_factors()
+
+# ------------- User ID and password set-up-----------------------#
+
 
 # 2. LOAD EXCEL DATA
 
@@ -319,7 +323,7 @@ def calc_raw_material_emission(
     return per_kg_factor * total_weight
 
 
-# ---------- Transport Emissions ----------
+# ---------- Transport Emissions ----------#
 
 def calc_transport_emission(
     origin_country: str,
@@ -346,7 +350,7 @@ def calc_transport_emission(
         "transport_emission": transport_emission
     }
 
-# ---------- Machine Process Emissions ----------
+# ---------- Machine Process Emissions ----------#
 
 def calc_machine_emission(
     machine_rows: List[dict],
@@ -398,7 +402,7 @@ def calc_machine_emission(
     return total_emission, details
 
 
-# ---------- Packaging Emissions ----------
+# ---------- Packaging Emissions ----------#
 
 def calc_packaging_emission(
     packaging_type: Optional[str],
@@ -425,7 +429,7 @@ def calc_packaging_emission(
     return 0.0
 
 
-# ---------- Recycling Emissions ----------
+# ---------- Recycling Emissions ----------#
 
 def calc_recycling_emission(
     recycling_type: str,
