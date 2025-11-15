@@ -40,7 +40,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add material', 
         padding: 5, 
         apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['materials', 'transport_types'],
+        jsonKeys: ['materials', 'transport types'],
         ),
       ),
      
@@ -69,7 +69,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add transport cycle', 
         padding: 5, 
         apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['transport_types'],
+        jsonKeys: ['transport types'],
         ),
       ),
 
@@ -83,7 +83,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add facility', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', '', 'http://127.0.0.1:8000/meta/options' ],
-        jsonKeys: [ 'Facilities', '', '', 'GHG'],
+        jsonKeys: [ 'facilities', '', '', 'GHG'],
         ),
       ),
       
@@ -98,7 +98,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add use cycle', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'Usage types'],
+        jsonKeys: [ 'usage types'],
         ),
       ),
 
@@ -112,7 +112,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add disassembly cycle', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'Disassembly by industry'],
+        jsonKeys: [ 'disassembly by industry'],
         ),
       ),
 
@@ -126,7 +126,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add process', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'Process', 'materials', ''],
+        jsonKeys: [ 'process', 'materials', ''],
         ),
       ),
 
