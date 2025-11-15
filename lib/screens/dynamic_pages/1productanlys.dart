@@ -40,7 +40,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add material', 
         padding: 5, 
         apiEndpoints: ['http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['materials', 'transport types'],
+        jsonKeys: ['materials', 'transport_types'],
         ),
       ),
      
@@ -69,7 +69,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add transport cycle', 
         padding: 5, 
         apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['transport types'],
+        jsonKeys: ['transport_types'],
         ),
       ),
 
@@ -98,7 +98,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add use cycle', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'usage types'],
+        jsonKeys: [ 'usage_types'],
         ),
       ),
 
@@ -112,7 +112,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add disassembly cycle', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'disassembly by industry'],
+        jsonKeys: [ 'disassembly_by_industry'],
         ),
       ),
 

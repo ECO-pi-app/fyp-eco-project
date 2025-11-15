@@ -756,17 +756,17 @@ def get_options():
         "countries": country_list,
         "materials": material_list,
         "machines": machine_value_list,
-        "packaging types": packaging_types_list,
-        "recycling types": metal_recycling_types_list,
-        "grid intensity": electricity_list,
-        "transport types": transport_list,
-        "Indicator": Indicator_GHG,
+        "packaging_types": packaging_types_list,
+        "recycling_types": metal_recycling_types_list,
+        "grid_intensity": electricity_list,
+        "transport_types": transport_list,
+        "indicator": Indicator_GHG,
         "GHG": GHG_values,
         "GWP": GWP_for_GHG,
         "process": Process,
         "facilities": Facilities,
-        "usage types": Usage_type,
-        "disassembly by industry": Disassembly_by_Industry
+        "usage_types": Usage_type,
+        "disassembly_by_industry": Disassembly_by_Industry
     }
 
 
