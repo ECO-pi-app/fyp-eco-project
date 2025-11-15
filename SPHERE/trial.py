@@ -730,6 +730,11 @@ def get_options():
       - machine types
       - packaging types
       - recycling types
+      - machine information
+      - material data 
+      - Grid intensity for different countries
+      - different transport types
+      - Values of the Indicator, GHG, and GWP values
     """
     return {
         "countries": country_list,
@@ -737,6 +742,14 @@ def get_options():
         "machines": machine_value_list,
         "packaging_types": packaging_types_list,
         "recycling_types": metal_recycling_types_list,
+        "machines": machine_value_list,
+        "material types": material_list,
+        "countries": country_list,
+        "materials": electricity_list,
+        "transport_types": transport_list,
+        "Indicator": Indicator_GHG,
+        "GHG": GHG_values,
+        "GWP": GWP_for_GHG
     }
 
 
