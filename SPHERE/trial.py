@@ -770,6 +770,7 @@ def get_options():
     }
 
 
+
 @app.post("/emissions/calculate")
 def calculate_emissions(req: EmissionRequest):
     """
