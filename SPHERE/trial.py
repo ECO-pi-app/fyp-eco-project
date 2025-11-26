@@ -81,6 +81,7 @@ sheet9 = book["Disassembly by Industry"]
 sheet10 = book["Usage Types"]
 sheet11 = book["Facilities"]
 sheet12 = book["Process"]
+sheet13 = book['Machine_Process']
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
     """Stops reading when it finds an empty cell."""
@@ -192,6 +193,7 @@ specific_machine_energy_use_cells   = sheet4['B2':'B999']
 
 metal_recycling_types_cells    = sheet5['A2':'A999']
 metal_recycling_emission_cells = sheet5['B2':'B999']
+machine_types                       = sheet13['A2':'A999']
 
 packaging_types_cells    = sheet6['A2':'A999']
 packaging_box_frame_cells = sheet6['B2':'B999']
@@ -264,6 +266,7 @@ roro_value_list      = extract_list(roro_value_cells)
 
 machine_value_list               = extract_selection_list(machine_value_cells)
 specific_machine_energy_use_list = extract_list(specific_machine_energy_use_cells)
+machine_types                       = extract_selection_list(machine_types)
 
 metal_recycling_types_list    = extract_selection_list(metal_recycling_types_cells)
 metal_recycling_emission_list = extract_emission_list(metal_recycling_emission_cells)
@@ -751,6 +754,7 @@ def get_options():
       - Facilities
       - Usage Types
       - Disassembly by Industry
+      - Machine Types
     """
     return {
         "countries": country_list,
@@ -766,7 +770,17 @@ def get_options():
         "process": Process,
         "facilities": Facilities,
         "usage_types": Usage_type,
-        "disassembly_by_industry": Disassembly_by_Industry
+        "disassembly_by_industry": Disassembly_by_Industry,
+        "machine_type": machine_types
+    }
+
+@app.get("/meta/machines_type")
+def get_machinetypes():
+    '''
+    Flutter calls down machine info like milling etc.
+    '''
+    return {
+        "machine_type": machine_types,
     }
 
 
