@@ -797,12 +797,10 @@ def get_machinetypes():
     '''
     return {
         "machine_type": machine_types,
-        "YCM_types":YCM_machine_model,
-        "Amada_types":Amada_machine_model,
-        "Mazak_types":Mazak_machine_model
     }
-
-
+@app.get("/meta/YCM_model")
+def get_machinetypes_YCM():
+    
 
 @app.post("/emissions/calculate")
 def calculate_emissions(req: EmissionRequest):
