@@ -27,12 +27,26 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Material', 'Mass', 'Distance', 'Transport Mode'], 
-        isTextFieldColumn: [false, true, true, false,], 
+        columnTitles: ['Material', 'Mass'], 
+        isTextFieldColumn: [false, true], 
         addButtonLabel: 'Add material', 
         padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', '', 'http://127.0.0.1:8000/meta/options' ],
-        jsonKeys: [ 'materials', '', '', 'transport_types'],
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', ],
+        jsonKeys: [ 'materials', ''],
+        ),
+      ),
+
+      //--ROW 2--
+      Labels(title: 'Attribute: Transport',),
+      Widgets1(aspectratio: 16/9, maxheight: 200,
+      child:
+      DynamicDropdownMaterialAcquisition(
+        columnTitles: ['Transport', 'Distance'], 
+        isTextFieldColumn: [false, true], 
+        addButtonLabel: 'Add material', 
+        padding: 5, 
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', ''],
+        jsonKeys: [ 'transport_types', ''],
         ),
       ),
     ];
@@ -49,7 +63,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         addButtonLabel: 'Add GHG', 
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'machine_types'],
+        jsonKeys: [ 'Mazak_types'],
         ),
       ),
      

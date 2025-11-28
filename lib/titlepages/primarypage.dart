@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Dynamicprdanalysis(settingstogglee: settingstoggle),
       Dynamicboundary(settingstogglee: settingstoggle),
       Dynamicextra(settingstogglee: settingstoggle),
-      DynamicAllocation(settingstogglee: settingstoggle),
+      DynamicAllocation(),
       DynamicSustainabilityNews(settingstogglee: settingstoggle),
       DynamicCredits(settingstogglee: settingstoggle),
     ];
