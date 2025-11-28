@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes.dart';
+import 'package:test_app/design/primary_elements(to_set_up_pages)/manual_tab_3pages.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes_linked.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.dart';
 
@@ -15,19 +15,12 @@ class Dynamicprdanalysis extends StatefulWidget {
 }
 
 class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
-  String? selectedBoundary = 'Cradle';
+
 
   @override
   Widget build(BuildContext context) {
 
-    final List<Widget> widgetofthispage=[
-
-      //--Buffer--
-
-      SizedBox(
-        width: double.infinity,
-        height: 180,
-      ),
+    final List<Widget> widgetofpage1=[
 
       //--ROW 1--
       Labels(title: 'Attribute: Materials',),
@@ -42,9 +35,26 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         jsonKeys: [ 'materials', '', '', 'transport_types'],
         ),
       ),
+    ];
+
+    final List<Widget> widgetofpage2=[
+
+      //--ROW 1--
+      Labels(title: 'Attribute: Machining',),
+      Widgets1(aspectratio: 16/9, maxheight: 200,
+      child:
+      DynamicDropdownMaterialAcquisition(
+        columnTitles: ['Machine', 'Total time', 'Remaining Charge'], 
+        isTextFieldColumn: [false, true, true,], 
+        addButtonLabel: 'Add GHG', 
+        padding: 5, 
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
+        jsonKeys: [ 'machine_types'],
+        ),
+      ),
      
       //--ROW 2--
-      Labels(title: 'Attribute: Production',),
+      Labels(title: 'Attribute: Fugitive',),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -56,8 +66,9 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         jsonKeys: [ 'GHG'],
         ),
       ),
+    ];
 
-      if (selectedBoundary == 'Grave') ...[
+    final List<Widget> widgetofpage3=[
       //--ROW 3--
       Labels(title: 'Attribute: Distribution',),
       Widgets1(aspectratio: 16/9, maxheight: 200,
@@ -128,25 +139,10 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         jsonKeys: [ 'process', 'materials', ''],
         ),
       ),
-
-      //--ROW Example--
-      Labels(title: 'Example',),
-      Widgets1(aspectratio: 16/9, maxheight: 400,
-      child:
-      DynamicDropdownGroup(
-        columnTitles: ['Example', 'Example', 'Example',], 
-        dropdownItems: [
-          ['Aluminium', 'Copper', 'Brass'],
-          ['Aluminium', 'Copper', 'Brass']
-        ], 
-        isTextFieldColumn: [false, false, true,], 
-        addButtonLabel: 'Add Example',
-        padding: 5,
-        ),
-      ),
-    ]
-
     ];
+
+    
+
 
     return SizedBox(
         child: 
@@ -156,20 +152,76 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
             //--Main Page--
             ClipRRect(
               borderRadius: BorderRadiusGeometry.circular(10),
-              child: Padding(padding: EdgeInsetsGeometry.all(15),
+              child: Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
               child: 
-              ListView.builder(
-                shrinkWrap: true,
-                physics: AlwaysScrollableScrollPhysics(),
-                itemCount: widgetofthispage.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 0,
-                    color: Apptheme.transparentcheat,
-                    child: widgetofthispage[index],
-                  );
-                },
-                )
+              Container(
+                padding: EdgeInsets.only(bottom: 15, top:220),
+                child: ManualTabpages(
+                  tab1: 'Upstream', 
+                  tab1fontsize: 15, 
+                  tab2: 'Production', 
+                  tab2fontsize: 15, 
+                  tab3: 'Downstream', 
+                  tab3fontsize: 15, 
+                  
+                  pg1flexValue1: 1, 
+                  pg1flexValue2: 1, 
+                
+                  pg2flexValue1: 1, 
+                  pg2flexValue2: 1, 
+                
+                  pg3flexValue1: 1, 
+                  pg3flexValue2: 1, 
+                  
+                  firstchildof1: ListView.builder(
+                    shrinkWrap: true,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: widgetofpage1.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 0,
+                        color: Apptheme.transparentcheat,
+                        child: widgetofpage1[index],
+                      );
+                    },
+                  ), 
+
+                  secondchildof1: Container(), 
+
+                  firstchildof2: ListView.builder(
+                    shrinkWrap: true,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: widgetofpage2.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 0,
+                        color: Apptheme.transparentcheat,
+                        child: widgetofpage2[index],
+                      );
+                    },
+                  ), 
+
+                  secondchildof2: Container(),
+
+                  firstchildof3: ListView.builder(
+                    shrinkWrap: true,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: widgetofpage3.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 0,
+                        color: Apptheme.transparentcheat,
+                        child: widgetofpage3[index],
+                      );
+                    },
+                  ), 
+
+                  secondchildof3: Container(),
+
+                  
+                  ),
+              )
+
               ),
             ),
 
@@ -224,86 +276,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                     ),
                                   
                                     //--Boundary Definer--
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                                      child: 
-                                      SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          children: [
-                                        
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    selectedBoundary = 'Cradle';
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  width: 140,
-                                                  decoration: BoxDecoration(
-                                                    color: Apptheme.widgetsecondaryclr,
-                                                    borderRadius: BorderRadius.circular(15)
-                                                  ),
-                                                  child: Tabtext(words: 'Cradle', specifysize: 20),
-                                                ),
-                                              ),
-                                            ),
-                                        
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    selectedBoundary = 'Gate';
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  width: 140,
-                                                  decoration: BoxDecoration(
-                                                    color: selectedBoundary == 'Gate'
-                                                    ? Apptheme.widgetsecondaryclr
-                                                    : Apptheme.unselected,
-                                                    borderRadius: BorderRadius.circular(15)
-                                                  ),
-                                                  child: Tabtext(words: 'Gate', specifysize: 20),
-                                                ),
-                                              ),
-                                            ),
-                                        
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    if (selectedBoundary == 'Cradle') {
-                                                            selectedBoundary = null;
-                                                          } else {
-                                                            selectedBoundary = 'Grave';
-                                                          }
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  width: 140,
-                                                  decoration: BoxDecoration(
-                                                    color: selectedBoundary == 'Grave'
-                                                    ? Apptheme.widgetsecondaryclr
-                                                    : Apptheme.unselected,
-                                                    borderRadius: BorderRadius.circular(15)
-                                                  ),
-                                                  child: Tabtext(words: 'Grave', specifysize: 20),
-                                                ),
-                                              ),
-                                            ),
-                                        
-                                          ],
-                                        ),
-                                      ),
-                                    )
+                                   
                                   ],
                                 ),
                                 ),

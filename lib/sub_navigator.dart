@@ -11,8 +11,7 @@ class RootScaffold extends StatefulWidget {
   @override
   State<RootScaffold> createState() => RootScaffoldState();
 
-  // ✅ Access this root scaffold from any widget
-  static RootScaffoldState? of(BuildContext context) {
+    static RootScaffoldState? of(BuildContext context) {
     return context.findAncestorStateOfType<RootScaffoldState>();
   }
 }

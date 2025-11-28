@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_app/design/apptheme/colors.dart';
 
-class DynamicDropdownMaterialAcquisition extends StatefulWidget {
+class DynamicDropdownMaterialAcq extends StatefulWidget {
   final List<String> columnTitles;
   final List<bool> isTextFieldColumn;
   final String addButtonLabel;
@@ -14,7 +14,7 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
   final List<String> apiEndpoints;
   final List<String?> jSONkeys;
 
-  const DynamicDropdownMaterialAcquisition({
+  const DynamicDropdownMaterialAcq({
     super.key,
     required this.columnTitles,
     required this.isTextFieldColumn,
@@ -25,12 +25,12 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
   });
 
   @override
-  State<DynamicDropdownMaterialAcquisition> createState() =>
-      _DynamicDropdownMaterialAcquisitionState();
+  State<DynamicDropdownMaterialAcq> createState() =>
+      _DynamicDropdownMaterialAcqState();
 }
 
-class _DynamicDropdownMaterialAcquisitionState
-    extends State<DynamicDropdownMaterialAcquisition> {
+class _DynamicDropdownMaterialAcqState
+    extends State<DynamicDropdownMaterialAcq> {
   late List<List<String?>> selections;
   Map<int, List<String>> dropdownData ={};
 

@@ -54,19 +54,6 @@ class BackgroundDrawer extends StatelessWidget {
     final List<Widget> bookmarks=[
      
                   
-      Leftdrawerlisttilelight(
-          title: 'Downstream', 
-          whathappens: () {}),
-                  
-      Leftdrawerlisttilelight(
-          title: 'Production', 
-          whathappens: () {}),
-                  
-      Leftdrawerlisttilelight(
-          title: 'Upstream', 
-          whathappens: () {}),
-
-      Divider(color: Apptheme.dividers,thickness: 2,indent: 35,endIndent: 35,),
 
       Leftdrawerlisttilelight(
           title: 'Category Example ', 

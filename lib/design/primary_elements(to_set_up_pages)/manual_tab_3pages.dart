@@ -83,7 +83,7 @@ class _ManualTabpages extends State<ManualTabpages> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     return Scaffold(
 
-      backgroundColor: Apptheme.tabbedpageclr,
+      backgroundColor: Apptheme.transparentcheat,
       body: DefaultTabController(
           length: 3,
           child: Column(
@@ -119,14 +119,22 @@ class _ManualTabpages extends State<ManualTabpages> with SingleTickerProviderSta
 
 
               Expanded(
-                child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
-                  controller: _tabController,
-                  children: [
-                    ManualColumn(childof1: widget.firstchildof1, childof2: widget.secondchildof1, flexValue1: widget.pg1flexValue1, flexValue2: widget.pg1flexValue1),
-                    ManualColumn(childof1: widget.firstchildof2, childof2: widget.secondchildof2, flexValue1: widget.pg2flexValue1, flexValue2: widget.pg2flexValue2),
-                    ManualColumn(childof1: widget.firstchildof3, childof2: widget.secondchildof3, flexValue1: widget.pg3flexValue1, flexValue2: widget.pg3flexValue2)
-                  ],
+                child: ClipRRect(
+                  borderRadius: BorderRadiusGeometry.only(
+                    bottomLeft: Radius.circular(28), 
+                    bottomRight: Radius.circular(28)),
+                  child: Container(
+                    color: Apptheme.tabbedpageclr,
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      controller: _tabController,
+                      children: [
+                        ManualColumn(childof1: widget.firstchildof1, childof2: widget.secondchildof1, flexValue1: widget.pg1flexValue1, flexValue2: widget.pg1flexValue1),
+                        ManualColumn(childof1: widget.firstchildof2, childof2: widget.secondchildof2, flexValue1: widget.pg2flexValue1, flexValue2: widget.pg2flexValue2),
+                        ManualColumn(childof1: widget.firstchildof3, childof2: widget.secondchildof3, flexValue1: widget.pg3flexValue1, flexValue2: widget.pg3flexValue2)
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -180,12 +188,12 @@ class _ManualColumnState extends State<ManualColumn> {
   @override
   Widget build(BuildContext context) {
     return
-    Padding(padding: EdgeInsetsGeometry.all(15),
+    Padding(padding: EdgeInsetsGeometry.only(left: 5, right: 5, top: 10, bottom:10),
     child: 
       Align(
         alignment: AlignmentGeometry.topCenter,
         child:
-        FlexboxManual3pg(childof1: widget.childof1, childof2: widget.childof2, flexValue1: widget.flexValue1, flexValue2: widget.flexValue2)
+        FlexboxManual3pg(childof1: widget.childof1, )
         )
     );
   }
@@ -196,16 +204,10 @@ class _ManualColumnState extends State<ManualColumn> {
 class FlexboxManual3pg extends StatelessWidget {
 
   final Widget childof1;
-  final Widget childof2;
-  final int flexValue1;
-  final int flexValue2;
 
   const FlexboxManual3pg({
     super.key,
     required this.childof1,
-    required this.childof2,
-    required this.flexValue1,
-    required this.flexValue2,
 
   });
 
@@ -218,9 +220,8 @@ class FlexboxManual3pg extends StatelessWidget {
         //--INDIVIDUAL FLEXIBLE BOX 1--
         Flexible(
           fit: FlexFit.tight,
-          flex: flexValue1,
           child:
-          Padding(padding: EdgeInsetsGeometry.all(5),
+          Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 5),
           child: 
             Container(
             decoration: BoxDecoration(
@@ -232,24 +233,6 @@ class FlexboxManual3pg extends StatelessWidget {
           ),
         ),
         //--INDIVIDUAL FLEXIBLE BOX 1--
-
-        //--INDIVIDUAL FLEXIBLE BOX 2--
-        Flexible(
-          fit: FlexFit.tight,
-          flex: flexValue2,
-          child:
-          Padding(padding: EdgeInsetsGeometry.all(5),
-          child: 
-            Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: Apptheme.widgetclrlight,
-            ),
-            child: childof2,
-            ),
-          ),
-        ),
-        //--INDIVIDUAL FLEXIBLE BOX 2--
 
       ],
     );
