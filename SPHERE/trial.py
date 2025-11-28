@@ -472,9 +472,10 @@ def get_best_material_and_country(
 # --------- 5. API REQUEST / RESPONSE MODELS ---------------------------------#
 
 
-class SimpleCalcRequest(BaseModel):
-    emission_factor:float
-    mass:float
+class MaterialEmissionReq(BaseModel):
+    material: str  #e.g.Steel,Aluminum,etc.
+    country: str   #e.g.Singapore,Malaysia,China,etc.
+    mass_kg: float #mass from flutter ui
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
@@ -615,11 +616,33 @@ def get_machinetypes_YCM():
         "Sub Spindle":Mazak_sub_spindle
     }
 
-@app.post("/emissions/calculate")
-def calculate_emissions():
-    '''
-    Calculations for emi
-    '''
-    return{
+@app.post("/calculate/material_emission")
+def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
+    if req.country not in country_list:
+        raise HTTPException(status_code=400,detail="Country not found in Data Sheet") #find the row for the given country Data Sheet.
+    cidx=country_list.index(req.country)
+    materials={
+        "Steel":steel_list,
+        "Aluminum":aluminium_list,
+        "Cement":cement_list,
+        "Plastic":plastic_list,
+        "Carbon Fiber":carbon_fiber_list
+    }
+    if req.material not in materials:
+        raise HTTPException(status_code=400,detail="Material not supported for calculation")
+    ef_list = materials[req.material]
 
+    try:
+        emisson_factor=float(ef_list[cidx])#emission factor for that country and the material.
+    except:
+        raise HTTPException(status_code=500,detail="Emission factor missing in Data Sheet.")
+    
+    calculated_emission=emisson_factor*req.mass_kg
+
+    return{
+        "country":req.country,
+        "material":req.material,
+        "mass_kg":req.mass_kg,
+        "material_emission_factor":emisson_factor,
+        "calculated_emission":calculated_emission
     }
