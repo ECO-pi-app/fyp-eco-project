@@ -472,54 +472,10 @@ def get_best_material_and_country(
 # --------- 5. API REQUEST / RESPONSE MODELS ---------------------------------#
 
 
-class MachineRow(BaseModel):
-    machine_type: str
-    machining_time: float  # minutes
-
-class EmissionRequest(BaseModel):
-    # material + weight before machining
-    material: str
-    raw_weight_kg: float
-    raw_weight_qty: int
-
-    # after machining
-    weight_after_kg: float
-    weight_after_qty: int
-
-    # geography
-    manufacturing_country: str
-    transport_origin_country: str
-    transport_dest_country: str
-
-    # packaging + recycling
-    packaging_type: Optional[str] = None
-    recycling_type: Optional[str] = None  # new
-
-    # machine process rows
-    machine_rows: List[MachineRow] = []
-
-class ProfileSaveRequest(BaseModel):
-    profile_name: str
-    description: Optional[str] = ""
-    data: dict  # arbitrary blob from Flutter (full form state)
-
-class EmissionFactorsUpdateRequest(BaseModel):
-    materials: Dict[str, float]  # e.g. {"Steel": 1.23, "Aluminium": 4.5}
-
-class MachineOptimizeRequest(BaseModel):
-    current_machine: str
-    machining_time_min: float
-    weight_after_kg: float
-    weight_after_qty: int
-    manufacturing_country: str
-
-class SourcingOptimizeRequest(BaseModel):
-    total_weight_kg: float
-    user_country: str
-    current_material: Optional[str] = None
-
+class SimpleCalcRequest(BaseModel):
+    emission_factor:float
+    mass:float
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
-
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
 
@@ -661,3 +617,9 @@ def get_machinetypes_YCM():
 
 @app.post("/emissions/calculate")
 def calculate_emissions():
+    '''
+    Calculations for emi
+    '''
+    return{
+
+    }
