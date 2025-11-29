@@ -702,6 +702,24 @@ def get_machinetypes_YCM():
         "Sub Spindle":Mazak_sub_spindle
     }
 
+@app.get("/profiles/{profile_name}")
+def get_profile(profile_name: str):
+    """
+    Load a specific profile by name.
+    """
+    profiles = load_profiles()
+    if profile_name not in profiles:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profiles[profile_name]
+
+@app.get("/profiles")
+def list_profiles():
+    """
+    List all available profile names.
+    """
+    profiles = load_profiles()
+    return {"profiles": list(profiles.keys())}
+
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
     if req.country not in country_list:
@@ -810,3 +828,15 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
         "emissions_kgco2e": emissions_kgco2e
     }
 
+@app.post("/profiles/save")
+def save_profile(req: ProfileSaveRequest):
+    """
+    Save a full UI state as a named profile.
+    """
+    profiles = load_profiles()
+    profiles[req.profile_name] = {
+        "description": req.description,
+        "data": req.data,
+    }
+    save_profiles(profiles)
+    return {"status": "ok", "saved_profile": req.profile_name}
