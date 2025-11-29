@@ -555,6 +555,11 @@ class TransportCalcRequest(BaseModel):
     # mass_tonnes is optional – only needed if your EF is in kgCO2e per ton-km
     mass_tonnes: float | None = None
 
+class FugitiveEmissionFromExcelRequest(BaseModel):
+    gas_indicator: str          # must match an entry in Indicator_GHG (e.g. "R134a")
+    total_charged_amount_kg: float
+    current_charge_amount_kg: float
+
 
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
@@ -657,6 +662,7 @@ def get_machinetypes():
     return {
         "machine_type": machine_types,
     }
+
 @app.get("/meta/YCM_model")
 def get_machinetypes_YCM():
     '''
@@ -726,6 +732,7 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "material_emission_factor":emisson_factor,
         "calculated_emission":calculated_emission
     }
+
 @app.post("/calculate/transport_emissions")
 def calculate_transport_emissions(req: TransportCalcRequest):
     mode_key = req.mode.lower()
@@ -774,4 +781,31 @@ def calculate_transport_emissions(req: TransportCalcRequest):
         "mass_tonnes": req.mass_tonnes,
         "emission_factor": ef_value,
         "transport_emissions": emissions
+    }
+
+@app.post("/calculate/fugitive_emissions")
+def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
+    if req.gas_indicator not in Indicator_GHG:
+        raise HTTPException(status_code=400, detail="Gas indicator not found in GWP sheet")
+
+    gidx = Indicator_GHG.index(req.gas_indicator)
+
+    try:
+        gwp = float(GWP_for_GHG[gidx])
+    except Exception:
+        raise HTTPException(status_code=500, detail="GWP value missing for this gas")
+
+    mass_released_kg = req.total_charged_amount_kg - req.current_charge_amount_kg
+    if mass_released_kg < 0:
+        mass_released_kg = 0  # no negative mass
+
+    emissions_kgco2e = gwp * mass_released_kg
+
+    return {
+        "gas_indicator": req.gas_indicator,
+        "total_charged_amount_kg": req.total_charged_amount_kg,
+        "current_charge_amount_kg": req.current_charge_amount_kg,
+        "mass_of_ghg_released_kg": mass_released_kg,
+        "gwp": gwp,
+        "emissions_kgco2e": emissions_kgco2e
     }
