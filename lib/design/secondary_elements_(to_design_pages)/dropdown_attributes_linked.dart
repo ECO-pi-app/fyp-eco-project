@@ -13,6 +13,8 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
   final String addButtonLabel;
   final double padding;
 
+  final void Function(double)? onTotalEmissionCalculated;
+
 
   const DynamicDropdownMaterialAcquisition({
     super.key,
@@ -22,6 +24,7 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
     required this.jsonKeys,
     required this.addButtonLabel,
     required this.padding,
+    this.onTotalEmissionCalculated,
   });
 
   @override
@@ -29,10 +32,70 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
       DynamicDropdownMaterialAcquisitionState();
 }
 
-class DynamicDropdownMaterialAcquisitionState
-    extends State<DynamicDropdownMaterialAcquisition> {
+class DynamicDropdownMaterialAcquisitionState extends State<DynamicDropdownMaterialAcquisition> {
+
   late List<List<String?>> selections;
   Map<int, List<String>> dropdownData = {};
+  
+  String? result;
+  List<dynamic> tableData = [];
+
+
+  static const String apiBaseUrl = "http://127.0.0.1:8000/calculate/material_emission";
+
+Future<void> calculateAndSendAllRows() async {
+  if (selections.isEmpty || selections[0].isEmpty) return;
+
+  setState(() => result = null);
+  double totalEmission = 0;
+
+  final Map<String, String> apiKeyMap = {
+    "Country": "country",
+    "Material": "material",
+    "Mass (kg)": "mass_kg",
+  };
+
+  final int numRows = selections[0].length;
+
+  try {
+    for (int row = 0; row < numRows; row++) {
+      final data = <String, dynamic>{};
+
+      for (int col = 0; col < widget.columnTitles.length; col++) {
+        final apiKey = apiKeyMap[widget.columnTitles[col]];
+        if (apiKey == null) continue;
+
+        if (widget.isTextFieldColumn[col]) {
+          final textValue = selections[col][row] ?? '0';
+          data[apiKey] = double.tryParse(textValue) ?? 0;
+        } else {
+          data[apiKey] = selections[col][row];
+        }
+      }
+
+      final response = await http.post(
+        Uri.parse(apiBaseUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        totalEmission += (json["calculated_emission"] ?? 0).toDouble();
+      } else {
+        debugPrint("API error on row $row: ${response.statusCode}");
+      }
+    }
+
+    setState(() => result = totalEmission.toStringAsFixed(2));
+    if (widget.onTotalEmissionCalculated != null) {
+      widget.onTotalEmissionCalculated!(totalEmission);
+    }
+  } catch (e) {
+    setState(() => result = "Error: $e");
+  }
+}
+
 
   @override
   void initState() {
@@ -116,6 +179,8 @@ class DynamicDropdownMaterialAcquisitionState
   print(body);
 }
 
+
+
   @override
   Widget build(BuildContext context) {
     final numRows = selections.isNotEmpty ? selections[0].length : 0;
@@ -125,16 +190,16 @@ class DynamicDropdownMaterialAcquisitionState
         const double columnwidthmin = 180;
         final double parentwidth = constraints.maxWidth;
         final int columnno = widget.columnTitles.length;
-
+    
         double paddingcompensate = ((widget.padding*2) * columnno);
-
+    
         double calculatedwidth = (parentwidth - paddingcompensate)/columnno;
-
+    
         double columnwidth = calculatedwidth < columnwidthmin
         ? columnwidthmin
         : calculatedwidth;
-
-
+    
+    
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: 
@@ -151,7 +216,7 @@ class DynamicDropdownMaterialAcquisitionState
                       decoration: BoxDecoration(
                         border: Border.all(
                           width: 1, 
-                          color: Apptheme.drawer
+                          color: Apptheme.widgetborderdark
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -180,7 +245,7 @@ class DynamicDropdownMaterialAcquisitionState
                                 ),
                               child: Row(
                                 children: [
-
+    
                                   Padding(
                                       padding: const EdgeInsets.only(right: 4),
                                       child: Container(
@@ -225,31 +290,31 @@ class DynamicDropdownMaterialAcquisitionState
                                                     color: Apptheme.unselected,
                                                   )
                                                 ),
-
+    
                                                 focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                     color: Apptheme.widgetborderlight
                                                   )
                                                 ),
-
+    
                                                 errorBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                     color: Apptheme.error,
                                                   )
                                                 ),
-
+    
                                                 focusedErrorBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                     color: Apptheme.error,
                                                   )
                                                 ),
-
+    
                                                 disabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                     color: Apptheme.widgetsecondaryclr,
                                                   )
                                                 ),
-
+    
                                                 contentPadding: EdgeInsets.symmetric(
                                                     horizontal: 4, vertical: 0),
                                               ),
@@ -296,7 +361,7 @@ class DynamicDropdownMaterialAcquisitionState
                                             ),
                                           ),
                                   ),
-
+    
                                   if (col == 0)
                                     Container(
                                         height: 20,
@@ -316,26 +381,25 @@ class DynamicDropdownMaterialAcquisitionState
                               ),
                             ),
                           ),
-                        if (col == 0)
-                          Center(
-                            child: 
-                            SizedBox(
-                              width: 200,
-                              height: 20,
-                              child: ElevatedButton.icon(
-                                onPressed: _addRow,
-                                icon: const Icon(Icons.add, size: 16),
-                                label: Text(widget.addButtonLabel),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Apptheme.auxilary,
-                                  foregroundColor: Colors.white,
-                                  padding: EdgeInsets.zero,
+                          if (col == 0)
+                            Center(
+                              child: 
+                              SizedBox(
+                                width: 200,
+                                height: 20,
+                                child: ElevatedButton.icon(
+                                  onPressed: _addRow,
+                                  icon: const Icon(Icons.add, size: 16),
+                                  label: Text(widget.addButtonLabel),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Apptheme.auxilary,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.zero,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-
-
+    
                           if (widget.isTextFieldColumn[col])
                             Center(
                               child: SizedBox(
@@ -343,7 +407,7 @@ class DynamicDropdownMaterialAcquisitionState
                                 height: 20,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    postSelections();
+                                    calculateAndSendAllRows();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Apptheme.widgetsecondaryclr,
@@ -353,12 +417,17 @@ class DynamicDropdownMaterialAcquisitionState
                                   child: const Text("Save"),
                                 ),
                               ),
-                            )
+                            ),
                        
                       ],
                     ),
+                  
+                  
                   ),
+    
+                  
                 ),
+                
             ],
           ),
         );

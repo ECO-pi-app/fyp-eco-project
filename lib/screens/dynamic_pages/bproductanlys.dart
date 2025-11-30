@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
-import 'package:test_app/design/primary_elements(to_set_up_pages)/manual_tab_3pages.dart';
+import 'package:test_app/design/primary_elements(to_set_up_pages)/auto_tab_3pages.dart';
+import 'package:test_app/design/primary_elements(to_set_up_pages)/auto_tab_2pages.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes_linked.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Dynamicprdanalysis extends StatefulWidget {
   final VoidCallback settingstogglee;
-  const Dynamicprdanalysis({super.key, required this.settingstogglee});
+
+  const Dynamicprdanalysis({super.key, 
+  required this.settingstogglee,
+  });
 
   @override
   State<Dynamicprdanalysis> createState() => _DynamicprdanalysisState();
@@ -16,6 +21,49 @@ class Dynamicprdanalysis extends StatefulWidget {
 
 class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
+  String? result;
+  List<dynamic> tableData = [];
+  double materialupstreamEmission = 0;
+  double materialtransportEmission = 0;
+  bool showThreePageTabs = true;
+
+
+  static const String apiBaseUrl = "http://127.0.0.1:8000/calculate/material_emission";
+
+  Future<void> calculateAndSend() async {
+    final url = Uri.parse("$apiBaseUrl");
+
+    final data = {
+      "country": "Belgium",
+      "material": "Steel",
+      "mass_kg": 20,
+    };
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      setState(() => result = json["calculated_emission"].toString());
+    }
+  }
+
+//Future<void> fetchTableData() async {
+//final url = Uri.parse("$apiBaseUrl");
+
+//final response = await http.get(url);
+//if (response.statusCode == 200) {
+//   setState(() => tableData = jsonDecode(response.body));
+//   }
+//}
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,21 +71,32 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
     final List<Widget> widgetofpage1=[
 
       //--ROW 1--
-      Labels(title: 'Attribute: Materials', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Material Emissions: ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂', 
+        color: Apptheme.textclrlight,
+      ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Material', 'Mass'], 
-        isTextFieldColumn: [false, true], 
+        columnTitles: ['Country','Material', 'Mass (kg)'], 
+        isTextFieldColumn: [false, false, true], 
         addButtonLabel: 'Add material', 
         padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', ],
-        jsonKeys: [ 'materials', ''],
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options','http://127.0.0.1:8000/meta/options', '', ],
+        jsonKeys: [ 'countries','materials', ''],
+        onTotalEmissionCalculated: (total) {
+          setState(() {
+            materialupstreamEmission = total;
+          });
+        },
         ),
       ),
 
       //--ROW 2--
-      Labels(title: 'Attribute: Transport', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Transport Emissions: ${materialtransportEmission.toStringAsFixed(2)} kg CO₂', 
+        color: Apptheme.textclrlight,
+      ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -47,6 +106,11 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', ''],
         jsonKeys: [ 'transport_types', ''],
+        onTotalEmissionCalculated: (total) {
+          setState(() {
+            materialtransportEmission = total;
+          });
+        },
         ),
       ),
     ];
@@ -170,69 +234,134 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
               child: 
               Container(
                 padding: EdgeInsets.only(bottom: 15, top:220),
-                child: ManualTabpages(
-                  tab1: 'Upstream', 
-                  tab1fontsize: 15, 
-                  tab2: 'Production', 
-                  tab2fontsize: 15, 
-                  tab3: 'Downstream', 
-                  tab3fontsize: 15, 
+                child: 
+                showThreePageTabs 
+                ?ManualTab3pages(
+                    tab1: 'Upstream', 
+                    tab1fontsize: 15, 
+                    tab2: 'Production', 
+                    tab2fontsize: 15, 
+                    tab3: 'Downstream', 
+                    tab3fontsize: 15, 
+                    
+                    pg1flexValue1: 1, 
+                    pg1flexValue2: 1, 
                   
-                  pg1flexValue1: 1, 
-                  pg1flexValue2: 1, 
-                
-                  pg2flexValue1: 1, 
-                  pg2flexValue2: 1, 
-                
-                  pg3flexValue1: 1, 
-                  pg3flexValue2: 1, 
+                    pg2flexValue1: 1, 
+                    pg2flexValue2: 1, 
                   
-                  firstchildof1: ListView.builder(
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: widgetofpage1.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 0,
-                        color: Apptheme.transparentcheat,
-                        child: widgetofpage1[index],
-                      );
-                    },
-                  ), 
+                    pg3flexValue1: 1, 
+                    pg3flexValue2: 1, 
+                    
+                    firstchildof1: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage1.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage1[index],
+                        );
+                      },
+                    ), 
 
-                  secondchildof1: Container(), 
+                    secondchildof1: Container(), 
 
-                  firstchildof2: ListView.builder(
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: widgetofpage2.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 0,
-                        color: Apptheme.transparentcheat,
-                        child: widgetofpage2[index],
-                      );
-                    },
-                  ), 
+                    firstchildof2: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage2.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage2[index],
+                        );
+                      },
+                    ), 
 
-                  secondchildof2: Container(),
+                    secondchildof2: Container(),
 
-                  firstchildof3: ListView.builder(
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: widgetofpage3.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 0,
-                        color: Apptheme.transparentcheat,
-                        child: widgetofpage3[index],
-                      );
-                    },
-                  ), 
+                    firstchildof3: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage3.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage3[index],
+                        );
+                      },
+                    ), 
 
-                  secondchildof3: Container(),
+                    secondchildof3: Container(),
+                  )
 
+                : ManualTab2pages(
+                    tab1: 'Upstream', 
+                    tab1fontsize: 15, 
+                    tab2: 'Production', 
+                    tab2fontsize: 15, 
+                    tab3: 'Not included anymore', 
+                    tab3fontsize: 15, 
+                    
+                    pg1flexValue1: 1, 
+                    pg1flexValue2: 1, 
                   
+                    pg2flexValue1: 1, 
+                    pg2flexValue2: 1, 
+                  
+                    pg3flexValue1: 1, 
+                    pg3flexValue2: 1, 
+                    
+                    firstchildof1: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage1.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage1[index],
+                        );
+                      },
+                    ), 
+
+                    secondchildof1: Container(), 
+
+                    firstchildof2: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage2.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage2[index],
+                        );
+                      },
+                    ), 
+
+                    secondchildof2: Container(),
+
+                    firstchildof3: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: widgetofpage3.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 0,
+                          color: Apptheme.transparentcheat,
+                          child: widgetofpage3[index],
+                        );
+                      },
+                    ), 
+
+                    secondchildof3: Container(),
+
+                    
                   ),
               )
 
@@ -273,7 +402,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                     Text('Attributes',
                                     style: TextStyle(
                                       color: Apptheme.textclrlight,
-                                      fontSize: 20,
+                                      fontSize: 30,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     textAlign: TextAlign.left,
@@ -290,7 +419,41 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                     ),
                                   
                                     //--Boundary Definer--
-                                   
+                                   Align(
+                                    alignment: Alignment.centerLeft,
+                                     child: 
+                                     TextButton(
+                                      child: Container(
+                                        height: 50,
+                                        width: 200,
+                                        decoration: BoxDecoration(
+                                          color: Apptheme.widgetsecondaryclr,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: 
+                                        showThreePageTabs 
+                                      ? Align(
+                                          alignment: Alignment.centerLeft,
+                                        child: Labelsinbuttons(
+                                          title: 'Cradle to Grave', 
+                                          color: Apptheme.textclrlight, 
+                                          fontsize: 20),
+                                      )
+                                      : Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Labelsinbuttons(
+                                          title: 'Cradle to Gate', 
+                                          color: Apptheme.textclrlight, 
+                                          fontsize: 20),
+                                      )
+                                      ),
+                                        onPressed: () {
+                                          setState(() {
+                                            showThreePageTabs = !showThreePageTabs;
+                                          });
+                                        },
+                                      ),
+                                   )
                                   ],
                                 ),
                                 ),

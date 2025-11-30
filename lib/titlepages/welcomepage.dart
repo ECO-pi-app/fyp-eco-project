@@ -39,7 +39,7 @@ class _WelcomepageState extends State<Welcomepage> {
               flex: 1,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20),
-                child: Bigfocusedtext(),
+                child: Bigfocusedtext(title: 'ECO-pi',),
               ),
             ),
         

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dart';
-import 'package:test_app/design/primary_elements(to_set_up_pages)/manual_tab_3pages.dart';
+import 'package:test_app/design/primary_elements(to_set_up_pages)/auto_tab_3pages.dart';
 
 
 class TabWidget extends StatefulWidget {

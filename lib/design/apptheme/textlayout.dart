@@ -151,7 +151,8 @@ class _TypehereState extends State<Typehere> {
 
 //--Big Focused Text--
 class Bigfocusedtext extends StatefulWidget {
-  const Bigfocusedtext({super.key});
+  final String title;
+  const Bigfocusedtext({super.key, required this.title});
 
   @override
   State<Bigfocusedtext> createState() => _BigfocusedtextState();
@@ -162,7 +163,7 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      child: Text('S P H E R E',
+      child: Text(widget.title,
       style: TextStyle(
         fontSize: 30,
         fontWeight: FontWeight.bold,
@@ -215,10 +216,12 @@ class _SubtitlesummaryState extends State<Subtitlesummary> {
 class Labels extends StatelessWidget {
   final String title;
   final Color color;
+  final double fontsize;
 
   const Labels({super.key, 
   required this.title,
-  required this.color
+  required this.color,
+  this.fontsize = 20,
   });
 
   @override
@@ -232,8 +235,41 @@ class Labels extends StatelessWidget {
         Text(title, style: TextStyle(
           color: color,
           fontWeight: FontWeight.w700,
-          fontSize: 20,
+          fontSize: fontsize,
         ),)
+      );
+    } 
+
+    );
+  }
+}
+
+class Labelsinbuttons extends StatelessWidget {
+  final String title;
+  final Color color;
+  final double fontsize;
+
+  const Labelsinbuttons({super.key, 
+  required this.title,
+  required this.color,
+  this.fontsize = 20,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder( builder: (BuildContext context, BoxConstraints constraints) {
+      
+      return
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        child: 
+        Center(
+          child: Text(title, style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w700,
+            fontSize: fontsize,
+          ),),
+        )
       );
     } 
 

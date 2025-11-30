@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dart';
-import 'package:test_app/design/primary_elements(to_set_up_pages)/manual_tab_2pages.dart';
+import 'package:test_app/design/primary_elements(to_set_up_pages)/home_tab.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widget_autosum.dart';
 
 
@@ -25,7 +25,7 @@ class _DynamichomeState extends State<Dynamichome> {
           children: [
 
             //--Custom Header for Home--
-            PageHeaderTwo(title: "SPHERE", whathappens:widget.settingstogglee,),
+            PageHeaderTwo(title: "ECO-pi", whathappens:widget.settingstogglee,),
             
             //--Main Page--
             Expanded(

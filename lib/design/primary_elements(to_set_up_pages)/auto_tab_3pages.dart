@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 
 //--THESE ARE THE TABS, IMPORT THIS IN INTENDED PAGE--
-class ManualTabpages extends StatefulWidget {
+class ManualTab3pages extends StatefulWidget {
   final String tab1;
   final double tab1fontsize;
   final String tab2;
@@ -25,7 +25,7 @@ class ManualTabpages extends StatefulWidget {
 
   final Color backgroundcolor;
 
-  const ManualTabpages({super.key, 
+  const ManualTab3pages({super.key, 
   required this.tab1,
   required this.tab1fontsize,
   required this.tab2,
@@ -55,10 +55,10 @@ class ManualTabpages extends StatefulWidget {
   });
 
   @override
-  State<ManualTabpages> createState() => _ManualTabpages();
+  State<ManualTab3pages> createState() => _ManualTab3pages();
 }
 
-class _ManualTabpages extends State<ManualTabpages> with SingleTickerProviderStateMixin {
+class _ManualTab3pages extends State<ManualTab3pages> with SingleTickerProviderStateMixin {
 
   late TabController _tabController;
 

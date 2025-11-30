@@ -25,7 +25,7 @@ class _DynamicAllocationState extends State<DynamicAllocation> {
     final data = {
       "country": "Belgium",
       "material": "Steel",
-      "mass_kg":20,
+      "mass_kg": 20,
     };
 
     final response = await http.post(
