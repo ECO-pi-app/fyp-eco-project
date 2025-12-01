@@ -36,19 +36,12 @@ class BackgroundDrawer extends StatelessWidget {
     
       Leftdrawerlisttile(
           title: 'Allocation', 
-          whathappens: () => onSelectPage(4)),
+          whathappens: () => onSelectPage(2)),
 
       Leftdrawerlisttile(
         title: 'Sustainability News', 
-        whathappens: () => onSelectPage(5)),
+        whathappens: () => onSelectPage(3)),
                   
-      Leftdrawerlisttile(
-          title: 'About Us', 
-          whathappens: () => onSelectPage(6)),
-                 
-
-      
-
     ];
 
     final List<Widget> bookmarks=[

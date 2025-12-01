@@ -14,6 +14,8 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
   final double padding;
 
   final void Function(double)? onTotalEmissionCalculated;
+  final String endpoint; 
+  final Map<String, String> apiKeyMap; 
 
 
   const DynamicDropdownMaterialAcquisition({
@@ -24,7 +26,10 @@ class DynamicDropdownMaterialAcquisition extends StatefulWidget {
     required this.jsonKeys,
     required this.addButtonLabel,
     required this.padding,
+
     this.onTotalEmissionCalculated,
+    required this.endpoint,
+    required this.apiKeyMap,
   });
 
   @override
@@ -41,7 +46,8 @@ class DynamicDropdownMaterialAcquisitionState extends State<DynamicDropdownMater
   List<dynamic> tableData = [];
 
 
-  static const String apiBaseUrl = "http://127.0.0.1:8000/calculate/material_emission";
+ 
+
 
 Future<void> calculateAndSendAllRows() async {
   if (selections.isEmpty || selections[0].isEmpty) return;
@@ -49,32 +55,30 @@ Future<void> calculateAndSendAllRows() async {
   setState(() => result = null);
   double totalEmission = 0;
 
-  final Map<String, String> apiKeyMap = {
-    "Country": "country",
-    "Material": "material",
-    "Mass (kg)": "mass_kg",
-  };
-
   final int numRows = selections[0].length;
 
-  try {
+  try { 
     for (int row = 0; row < numRows; row++) {
       final data = <String, dynamic>{};
 
       for (int col = 0; col < widget.columnTitles.length; col++) {
-        final apiKey = apiKeyMap[widget.columnTitles[col]];
-        if (apiKey == null) continue;
+        final apiKey = widget.apiKeyMap[widget.columnTitles[col]];
+      if (apiKey == null) continue;
+
+
 
         if (widget.isTextFieldColumn[col]) {
           final textValue = selections[col][row] ?? '0';
           data[apiKey] = double.tryParse(textValue) ?? 0;
         } else {
-          data[apiKey] = selections[col][row];
+          data[apiKey] = selections[col][row] ?? '';
         }
       }
 
+      debugPrint("POST payload: $data");
+
       final response = await http.post(
-        Uri.parse(apiBaseUrl),
+        Uri.parse(widget.endpoint),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(data),
       );
@@ -82,12 +86,14 @@ Future<void> calculateAndSendAllRows() async {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         totalEmission += (json["calculated_emission"] ?? 0).toDouble();
+        totalEmission += (json["emissions_kgco2e"] ?? 0).toDouble();
       } else {
         debugPrint("API error on row $row: ${response.statusCode}");
       }
     }
-
+    
     setState(() => result = totalEmission.toStringAsFixed(2));
+    debugPrint("Total emission calculated: $result");
     if (widget.onTotalEmissionCalculated != null) {
       widget.onTotalEmissionCalculated!(totalEmission);
     }

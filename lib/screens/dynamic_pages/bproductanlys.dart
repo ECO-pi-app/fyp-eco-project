@@ -5,8 +5,6 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/auto_tab_3page
 import 'package:test_app/design/primary_elements(to_set_up_pages)/auto_tab_2pages.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes_linked.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class Dynamicprdanalysis extends StatefulWidget {
   final VoidCallback settingstogglee;
@@ -25,31 +23,23 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
   List<dynamic> tableData = [];
   double materialupstreamEmission = 0;
   double materialtransportEmission = 0;
+  double fugitiveemissions = 0;
+  double totalemissions = 0;
   bool showThreePageTabs = true;
 
+  final  Map<String, String> apiKeymaterials = {
+      "Country": "country",
+      "Material": "material",
+      "Mass (kg)": "mass_kg",
+  };
 
-  static const String apiBaseUrl = "http://127.0.0.1:8000/calculate/material_emission";
-
-  Future<void> calculateAndSend() async {
-    final url = Uri.parse("$apiBaseUrl");
-
-    final data = {
-      "country": "Belgium",
-      "material": "Steel",
-      "mass_kg": 20,
+    final  Map<String, String> apiKeyfugitive = 
+    {
+      "GHG": "ghg_name",
+      "Total Charge": "total_charged_amount_kg",
+      "Remaining Charge": "current_charge_amount_kg",
     };
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      setState(() => result = json["calculated_emission"].toString());
-    }
-  }
 
 //Future<void> fetchTableData() async {
 //final url = Uri.parse("$apiBaseUrl");
@@ -89,6 +79,8 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
             materialupstreamEmission = total;
           });
         },
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
 
@@ -111,6 +103,8 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
             materialtransportEmission = total;
           });
         },
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
     ];
@@ -118,7 +112,10 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
     final List<Widget> widgetofpage2=[
 
       //--ROW 1--
-      Labels(title: 'Attribute: Machining', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -128,27 +125,44 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
         jsonKeys: [ 'Mazak_types'],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
      
       //--ROW 2--
-      Labels(title: 'Attribute: Fugitive', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Fugitive Emissions: ${fugitiveemissions.toStringAsFixed(2)} kg CO₂', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Select GHG', 'Total Charge', 'Remaining Charge'], 
+        columnTitles: ['GHG', 'Total Charge', 'Remaining Charge'], 
         isTextFieldColumn: [false, true, true,], 
         addButtonLabel: 'Add GHG', 
         padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'GHG'],
+        apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
+        jsonKeys: ['GHG' ],
+        onTotalEmissionCalculated: (total) {
+          setState(() {
+            fugitiveemissions = total;
+          });
+        },
+        apiKeyMap: apiKeyfugitive,
+        endpoint: 'http://127.0.0.1:8000/calculate/fugitive_emissions',
         ),
       ),
+
+
     ];
 
     final List<Widget> widgetofpage3=[
       //--ROW 3--
-      Labels(title: 'Attribute: Distribution', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -158,11 +172,16 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
         jsonKeys: ['transport_types'],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
 
       //--ROW 3.A--
-      Labels(title: 'Attribute: Storage', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -172,12 +191,17 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', '', 'http://127.0.0.1:8000/meta/options' ],
         jsonKeys: [ 'facilities', '', '', 'GHG'],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
       
 
       //--ROW 4--
-      Labels(title: 'Attribute: Usage Cycle', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -187,11 +211,16 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
         jsonKeys: [ 'usage_types'],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
 
       //--ROW 5--
-      Labels(title: 'Attribute: Disassembly', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -201,11 +230,16 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
         jsonKeys: [ 'disassembly_by_industry'],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
 
       //--ROW 6--
-      Labels(title: 'Attribute: End of Life', color: Apptheme.textclrlight,),
+      Labels(
+        title: 'Attribute: Machining', 
+        color: Apptheme.textclrlight,
+        ),
       Widgets1(aspectratio: 16/9, maxheight: 200,
       child:
       DynamicDropdownMaterialAcquisition(
@@ -215,6 +249,8 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         padding: 5, 
         apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
         jsonKeys: [ 'process', 'materials', ''],
+        apiKeyMap: apiKeymaterials,
+        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
         ),
       ),
     ];
@@ -410,42 +446,76 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                     softWrap: false,
                                     ),
 
-                                    //--Summary--
-                                    Padding(
-                                      padding: const EdgeInsets.all(14),
-                                      child: Subtitlesummary(
-                                        words: 'Define product parameters. All excluded categories must be declared in the declaration section', 
-                                        color: Apptheme.widgetsecondaryclr,),
-                                    ),
+
                                   
                                     //--Boundary Definer--
                                    Align(
                                     alignment: Alignment.centerLeft,
                                      child: 
                                      TextButton(
-                                      child: Container(
-                                        height: 50,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          color: Apptheme.widgetsecondaryclr,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
+                                      child: 
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 20),
                                         child: 
-                                        showThreePageTabs 
-                                      ? Align(
-                                          alignment: Alignment.centerLeft,
-                                        child: Labelsinbuttons(
-                                          title: 'Cradle to Grave', 
-                                          color: Apptheme.textclrlight, 
-                                          fontsize: 20),
-                                      )
-                                      : Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Labelsinbuttons(
-                                          title: 'Cradle to Gate', 
-                                          color: Apptheme.textclrlight, 
-                                          fontsize: 20),
-                                      )
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxWidth: 240,
+                                          ),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Apptheme.widgetsecondaryclr,
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: 
+                                            showThreePageTabs 
+                                          ? Align(
+                                              alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 20),
+                                                  child: Icon(Icons.swap_horiz,
+                                                  size: 30,
+                                                  color: Apptheme.iconslight,
+                                                  ),
+                                                ),
+                                          
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 10),
+                                                  child: Labelsinbuttons(
+                                                    title: 'Cradle to Grave', 
+                                                    color: Apptheme.textclrlight, 
+                                                    fontsize: 20),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                          : Align(
+                                              alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 20),
+                                                  child: Icon(Icons.swap_horiz,
+                                                  size: 30,
+                                                  color: Apptheme.iconslight,
+                                                  ),
+                                                ),
+                                          
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 10),
+                                                  child: Labelsinbuttons(
+                                                    title: 'Cradle to Gate', 
+                                                    color: Apptheme.textclrlight, 
+                                                    fontsize: 20),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                          ),
+                                        ),
                                       ),
                                         onPressed: () {
                                           setState(() {

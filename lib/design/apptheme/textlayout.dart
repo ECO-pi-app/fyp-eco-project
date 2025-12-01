@@ -244,6 +244,8 @@ class Labels extends StatelessWidget {
   }
 }
 
+
+//--Labels for texts inside buttons--
 class Labelsinbuttons extends StatelessWidget {
   final String title;
   final Color color;
@@ -266,13 +268,46 @@ class Labelsinbuttons extends StatelessWidget {
         Center(
           child: Text(title, style: TextStyle(
             color: color,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             fontSize: fontsize,
-          ),),
+          ),
+          overflow: TextOverflow.fade,
+          maxLines: 1,
+          softWrap: false,
+          )
         )
       );
     } 
 
+    );
+  }
+}
+
+
+//--Title texts for pages--
+class Titletext extends StatelessWidget {
+
+  final String title;
+  final Color color;
+  final double fontsize;
+
+  const Titletext({super.key,
+  required this.title,
+  this. color = Apptheme.textclrlight,
+  this.fontsize = 30,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Attributes',
+      style: TextStyle(
+        color: Apptheme.textclrlight,
+        fontSize: 30,
+        fontWeight: FontWeight.bold,
+      ),
+      textAlign: TextAlign.left,
+      overflow: TextOverflow.fade,
+      softWrap: false,
     );
   }
 }
