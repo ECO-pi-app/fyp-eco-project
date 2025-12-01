@@ -721,6 +721,7 @@ def list_profiles():
     profiles = load_profiles()
     return {"profiles": list(profiles.keys())}
 
+
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
     if req.country not in country_list:
@@ -811,7 +812,11 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
     if req.GHG_name not in GHG_values:
         raise HTTPException(status_code=400,detail="GHG value is not found in GWP sheet")
     ghgidx = GHG_values.index(req.GHG_name)
-
+        
+    try:
+        gwp=float(GWP_for_GHG[ghgidx])
+    except Exception:
+        raise HTTPException(status_code=500, detail="GHG value is missing.")
     try:
         gwp = float(GWP_for_GHG[gidx])
     except Exception:
@@ -825,7 +830,7 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
 
     return {
         "gas_indicator": req.gas_indicator,
-        "GHG_values": Indicator_GHG,
+        "GHG_values": req.GHG_name,
         "total_charged_amount_kg": req.total_charged_amount_kg,
         "current_charge_amount_kg": req.current_charge_amount_kg,
         "mass_of_ghg_released_kg": mass_released_kg,
