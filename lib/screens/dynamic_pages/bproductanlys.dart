@@ -24,6 +24,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
   double materialupstreamEmission = 0;
   double materialtransportEmission = 0;
   double fugitiveemissions = 0;
+  double totalemissions = 0;
   bool showThreePageTabs = true;
 
   final  Map<String, String> apiKeymaterials = {
@@ -32,11 +33,12 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
       "Mass (kg)": "mass_kg",
   };
 
-    final  Map<String, String> apiKeyfugitive = {
-      "GHG": "GHG_values",
+    final  Map<String, String> apiKeyfugitive = 
+    {
+      "GHG": "ghg_name",
       "Total Charge": "total_charged_amount_kg",
       "Remaining Charge": "current_charge_amount_kg",
-  };
+    };
 
 
 //Future<void> fetchTableData() async {
@@ -152,28 +154,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         ),
       ),
 
-      Labels(
-        title: 'Fugitive Emissions: ${fugitiveemissions.toStringAsFixed(2)} kg CO₂', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1(aspectratio: 16/9, maxheight: 200,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['GHG', 'Total Charge', 'Remaining Charge'], 
-        isTextFieldColumn: [true, true, true,], 
-        addButtonLabel: 'Add GHG', 
-        padding: 5, 
-        apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['GHG' ],
-        onTotalEmissionCalculated: (total) {
-          setState(() {
-            fugitiveemissions = total;
-          });
-        },
-        apiKeyMap: apiKeyfugitive,
-        endpoint: 'http://127.0.0.1:8000/calculate/fugitive_emissions',
-        ),
-      ),
+
     ];
 
     final List<Widget> widgetofpage3=[

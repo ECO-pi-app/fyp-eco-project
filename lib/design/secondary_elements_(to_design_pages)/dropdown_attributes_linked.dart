@@ -63,7 +63,7 @@ Future<void> calculateAndSendAllRows() async {
 
       for (int col = 0; col < widget.columnTitles.length; col++) {
         final apiKey = widget.apiKeyMap[widget.columnTitles[col]];
-if (apiKey == null) continue;
+      if (apiKey == null) continue;
 
 
 
@@ -75,7 +75,7 @@ if (apiKey == null) continue;
         }
       }
 
-      debugPrint("Fugitive POST payload: $data");
+      debugPrint("POST payload: $data");
 
       final response = await http.post(
         Uri.parse(widget.endpoint),
@@ -86,12 +86,14 @@ if (apiKey == null) continue;
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         totalEmission += (json["calculated_emission"] ?? 0).toDouble();
+        totalEmission += (json["emissions_kgco2e"] ?? 0).toDouble();
       } else {
         debugPrint("API error on row $row: ${response.statusCode}");
       }
     }
-
+    
     setState(() => result = totalEmission.toStringAsFixed(2));
+    debugPrint("Total emission calculated: $result");
     if (widget.onTotalEmissionCalculated != null) {
       widget.onTotalEmissionCalculated!(totalEmission);
     }
