@@ -614,7 +614,6 @@ def getGWPvalues():
         
     } 
 
-
 @app.get("/meta/options")
 def get_options():
     """
@@ -625,7 +624,7 @@ def get_options():
       - packaging types
       - recycling types
       - Grid intensity
-      - different transport types
+      - transport types
       - Values of the Indicator, GHG, and GWP values
       - Process
       - Facilities
@@ -641,6 +640,7 @@ def get_options():
         "recycling_types": metal_recycling_types_list,
         "grid_intensity": electricity_list,
         "transport_types": transport_list,
+        "van "
         "indicator": Indicator_GHG,
         "GHG": GHG_values,
         "GWP": GWP_for_GHG,
@@ -652,6 +652,25 @@ def get_options():
         "YCM_types":YCM_machine_model,
         "Amada_types":Amada_machine_model,
         "Mazak_types":Mazak_machine_model
+    }
+
+@app.get("/meta/transport/options/{mode}")
+def get_transport_options(mode:str):
+    """Return classes and variants for a given transport mode.
+    mode must be a ket in TRANPORT_CONFIG(e.g. 'van',' hgv', 'flight', 'rail', 'sea_cargo')
+    """
+    mode_key=mode.lower()
+    if mode_key not in TRANSPORT_CONFIG:
+        raise HTTPException(status_code=400,detail="Unknown transport mode")
+    
+    config = TRANSPORT_CONFIG[mode_key]
+    classes=config["classes"]
+    variants=list(config["variants"]).keys()
+
+    return {
+        "mode":mode_key,
+        "classes":classes,
+        "variants":variants
     }
 
 @app.get("/meta/machines_type")
@@ -828,7 +847,6 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
         "gwp": gwp,
         "emissions_kgco2e": emissions_kgco2e
     }
-
 
 @app.post("/profiles/save")
 def save_profile(req: ProfileSaveRequest):
