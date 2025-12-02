@@ -4,7 +4,7 @@ class Apptheme{
   //--contents color theme--
   static const Color lightpallete1 = Color(0xFFF7F4EB);//--White Backgrounds--
   static const Color lightpallete2 = Color(0xFFEFE8DF); //--For parent widgets--
-  static const Color palleteaccentual1 = Color.fromARGB(255, 131, 141, 117) ; //--Primary inner widgets--
+  static const Color palleteaccentual1 = Color(0xFF838D75) ; //--Primary inner widgets--
   static const Color palleteaccentual2 = Color(0xFF595E48); //--Headers and main--
   static const Color darkpallete5 = Color(0xFF4E5454); //--
   static const Color darkpallete6 = Color(0xFF2B343F);

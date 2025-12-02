@@ -83,26 +83,29 @@ class _SigninFieldState extends State<SigninField> {
                         child: 
                           Align(
                             alignment: AlignmentGeometry.centerLeft,
-                            child: TextField(  
-                              
-                              controller: usernameController,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500 ,
-                                color: Apptheme.textclrdark,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 5),
+                              child: TextField(  
+                                
+                                controller: usernameController,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500 ,
+                                  color: Apptheme.textclrdark,
+                                ),
+                              textAlign: TextAlign.left,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 0),
+                                hintText: 'Email (example@gmail.com)',
+                                hintStyle: TextStyle(
+                                  color: Apptheme.texthintclrdark,
+                                  fontWeight: FontWeight.w100,
+                                                                    
+                                ),
                               ),
-                            textAlign: TextAlign.left,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(bottom: 0),
-                              hintText: 'Email (example@gmail.com)',
-                              hintStyle: TextStyle(
-                                color: Apptheme.texthintclrdark,
-                                fontWeight: FontWeight.w100,
-                                                                  
-                              ),
+                                                                        ),
                             ),
-                                                                      ),
                           )
                       );
                     }
@@ -131,27 +134,30 @@ class _SigninFieldState extends State<SigninField> {
                         child: 
                           Align(
                             alignment: AlignmentGeometry.centerLeft,
-                            child: TextField(  
-                              controller: passwordController,
-                              obscureText: true,
-                              obscuringCharacter: '*',
-                                      
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500 ,
-                                color: Apptheme.textclrdark,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 5),
+                              child: TextField(  
+                                controller: passwordController,
+                                obscureText: true,
+                                obscuringCharacter: '*',
+                                        
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500 ,
+                                  color: Apptheme.textclrdark,
+                                ),
+                              textAlign: TextAlign.left,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 0),
+                                hintText: 'Password',
+                                hintStyle: TextStyle(
+                                  color: Apptheme.texthintclrdark,
+                                  fontWeight: FontWeight.w100,
+                                                                    
+                                ),
                               ),
-                            textAlign: TextAlign.left,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(bottom: 0),
-                              hintText: 'Password',
-                              hintStyle: TextStyle(
-                                color: Apptheme.texthintclrdark,
-                                fontWeight: FontWeight.w100,
-                                                                  
                               ),
-                            ),
                             ),
                           )
                       );
