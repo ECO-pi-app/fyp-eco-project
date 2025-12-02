@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/loginfield.dart';
+import 'package:test_app/design/secondary_elements_(to_design_pages)/signin_field.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
@@ -19,17 +20,17 @@ class _WelcomepageState extends State<Welcomepage> {
       backgroundColor: Apptheme.drawerbackground,
       body: LayoutBuilder( builder: (BuildContext context, BoxConstraints constraints) {
         double parentheight = constraints.maxHeight;
+        double parentwidth = constraints.maxWidth;
 
         return 
         Row(
           children: [
-                        Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Flexible(
-                    flex: 2,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Welcomepagelogo(
@@ -38,53 +39,49 @@ class _WelcomepageState extends State<Welcomepage> {
                         pad: 0,
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
 
-            Column(
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Welcomepagelogo(
-                      whathappens: null,
-                      choosecolor: Apptheme.error,
-                      pad: 0,
+            SizedBox(
+              width: parentwidth/2,
+              child: ListView(
+                children: [
+
+              
+                  SizedBox(
+                    child: 
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 100),
+                        child: Bigfocusedtext(title: 'ECO-pi',),
+                      ),
                     ),
                   ),
-                ),
-            
-                Flexible(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Bigfocusedtext(title: 'ECO-pi',),
-                  ),
-                ),
-            
-                SizedBox(
-                  height: parentheight/2.5,
-                
-                  child: AspectRatio(
-                    aspectRatio: 16/9,
-                    child: Loginfield())),
-                
-                Container(
-                  color: Apptheme.error,
-                  height: parentheight/4,
-                  child: Center(
-                    child: IconButton(
-                      onPressed: () {RootScaffold.of(context)?.goToHomePage();
-                      },
-                      icon: const Icon(Icons.alarm),
-                      color: Apptheme.iconslight,
+              
+                  SizedBox(
+                    height: 330,
+                    width: 150,
+                    child: AspectRatio(
+                      aspectRatio: 16/9,
+                      child: SigninField())),
+                  
+                  Container(
+                    color: Apptheme.transparentcheat,
+                    height: 50,
+                    child: Center(
+                      child: IconButton(
+                        onPressed: () {RootScaffold.of(context)?.goToHomePage();
+                        },
+                        icon: const Icon(Icons.alarm),
+                        color: Apptheme.iconslight,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           
           ],

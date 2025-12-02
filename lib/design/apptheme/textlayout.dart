@@ -165,7 +165,7 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
     return SizedBox(
       child: Text(widget.title,
       style: TextStyle(
-        fontSize: 30,
+        fontSize: 60,
         fontWeight: FontWeight.bold,
         color: Apptheme.textclrspecial,
       ),

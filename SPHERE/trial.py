@@ -665,7 +665,7 @@ def get_transport_options(mode:str):
     
     config = TRANSPORT_CONFIG[mode_key]
     classes=config["classes"]
-    variants=list(config["variants"]).keys()
+    variants=list(config["variants"].keys())
 
     return {
         "mode":mode_key,

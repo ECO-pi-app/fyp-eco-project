@@ -96,8 +96,8 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         isTextFieldColumn: [false, false, false, true], 
         addButtonLabel: 'Add transport cycle', 
         padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'transport_types', 'insert', 'insert'],
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/transport/options/{mode}', 'http://127.0.0.1:8000/meta/transport/options/{mode}'],
+        jsonKeys: [ 'transport_types', 'classes', 'variants'],
         onTotalEmissionCalculated: (total) {
           setState(() {
             materialtransportEmission = total;
