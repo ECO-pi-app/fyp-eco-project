@@ -274,7 +274,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
               child: Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
               child: 
               Container(
-                padding: EdgeInsets.only(bottom: 15, top:220),
+                padding: EdgeInsets.only(bottom: 15, top:170),
                 child: 
                 showThreePageTabs 
                 ?ManualTab3pages(
@@ -414,7 +414,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
             //--Custom Header for Home--
             Container(
-            height: 200,
+            height: 140,
             width: double.infinity,
             decoration: 
             BoxDecoration(
@@ -443,15 +443,9 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                   children: [
 
                                     //--TITLE--
-                                    Text('Attributes',
-                                    style: TextStyle(
+                                    Titletext(
+                                      title: 'Product Analysis',
                                       color: Apptheme.textclrlight,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
                                     ),
 
 

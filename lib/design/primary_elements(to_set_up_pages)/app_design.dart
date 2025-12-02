@@ -164,15 +164,10 @@ class PageHeaderTwo extends StatelessWidget {
                               Container(
                                 padding: EdgeInsets.only(bottom: 12),
                                 color: Apptheme.transparentcheat,
-                                child: Text(title,
-                                style: TextStyle(
-                                  color: Apptheme.textclrlight,
-                                  fontSize: 60,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.visible,
-                                softWrap: false,
+                                child: Center(
+                                  child: Bigfocusedtext(
+                                    title: title,
+                                  ),
                                 ),
                               ),
                             ),
@@ -350,7 +345,7 @@ class PageHeaderFour extends StatelessWidget {
                                     
                                       Padding(
                                         padding: const EdgeInsets.all(14),
-                                        child: Subtitlesummary(words: summary, color: color,),
+                                        child: Headertext(words: summary, color: color,),
                                       )
                                     ],
                                   ),

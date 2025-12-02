@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/loginfield.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/signin_field.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/apptheme/colors.dart';
@@ -19,7 +18,9 @@ class _WelcomepageState extends State<Welcomepage> {
     return Scaffold(
       backgroundColor: Apptheme.drawerbackground,
       body: LayoutBuilder( builder: (BuildContext context, BoxConstraints constraints) {
+        // ignore: unused_local_variable
         double parentheight = constraints.maxHeight;
+        // ignore: unused_local_variable
         double parentwidth = constraints.maxWidth;
 
         return 
@@ -115,7 +116,7 @@ class _WelcomepageState extends State<Welcomepage> {
                         ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 20),
+                      padding: const EdgeInsets.only(left: 20, top: 20, right: 20),
                       child: Column(
                         children: [
                           Align(
@@ -162,7 +163,7 @@ class _WelcomepageState extends State<Welcomepage> {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Labels(
-                                    title: 'Product 1', 
+                                    title: 'Product 2', 
                                     color: Apptheme.textclrlight
                                   )
                                 ),
@@ -184,7 +185,7 @@ class _WelcomepageState extends State<Welcomepage> {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Labels(
-                                    title: 'Product 1', 
+                                    title: 'Product 3', 
                                     color: Apptheme.textclrlight
                                   )
                                 ),
@@ -206,7 +207,7 @@ class _WelcomepageState extends State<Welcomepage> {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Labels(
-                                    title: 'Product 1', 
+                                    title: 'Product 4', 
                                     color: Apptheme.textclrlight
                                   )
                                 ),
@@ -228,7 +229,7 @@ class _WelcomepageState extends State<Welcomepage> {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Labels(
-                                    title: 'Product 1', 
+                                    title: 'Product 5', 
                                     color: Apptheme.textclrlight
                                   )
                                 ),
@@ -250,7 +251,7 @@ class _WelcomepageState extends State<Welcomepage> {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Labels(
-                                    title: 'Product 1', 
+                                    title: 'Product 6', 
                                     color: Apptheme.textclrlight
                                   )
                                 ),

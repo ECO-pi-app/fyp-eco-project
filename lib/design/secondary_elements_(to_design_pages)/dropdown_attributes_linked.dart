@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_app/design/apptheme/colors.dart';
+import 'package:test_app/design/apptheme/textlayout.dart';
 
 
 class DynamicDropdownMaterialAcquisition extends StatefulWidget {
@@ -402,8 +403,11 @@ Future<void> calculateAndSendAllRows() async {
                                     height: 20,
                                     child: ElevatedButton.icon(
                                       onPressed: _addRow,
-                                      icon: const Icon(Icons.add, size: 16),
-                                      label: Text(widget.addButtonLabel),
+                                      label: Labelsinbuttons(
+                                        title: widget.addButtonLabel,
+                                        color: Apptheme.textclrlight,
+                                        fontsize: 12,
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Apptheme.auxilary,
                                         foregroundColor: Colors.white,
@@ -437,7 +441,11 @@ Future<void> calculateAndSendAllRows() async {
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.zero,
                     ),
-                    child: const Text("Calculate"),
+                    child: const Labelsinbuttons(
+                      title: 'Calculate Emissions',
+                      color: Apptheme.textclrlight,
+                      fontsize: 17,
+                      ),
                   ),
                 ),
               ),

@@ -32,36 +32,7 @@ class _TabtextState extends State<Tabtext> {
 }
 
 
-//--Texts inside Setting drawer--
-class Stgdrawertext extends StatelessWidget {
-  final String title;
-
-  const Stgdrawertext({
-    super.key,
-    required this.title
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return  
-    Container(
-      padding: EdgeInsets.only(left: 10),
-      child: 
-      Text(title,
-        style: TextStyle(
-          color: Apptheme.textclrdark,
-          fontSize: 30,
-          fontWeight: FontWeight.w500,
-        ),
-        textAlign: TextAlign.left,
-      ),
-      );
-
-  }
-}
-
-
-//--Textfield for sensitive info--
+//--Textfield for sensitive info (passwords)--
 class Typeheresensitive extends StatefulWidget {
   final String title;
   const Typeheresensitive({super.key, required this.title});
@@ -149,7 +120,7 @@ class _TypehereState extends State<Typehere> {
 }
 
 
-//--Big Focused Text--
+//--Big Focused Text (APP NAME)--
 class Bigfocusedtext extends StatefulWidget {
   final String title;
   const Bigfocusedtext({super.key, required this.title});
@@ -178,17 +149,17 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
 }
 
 
-//--Summaries in each page--
-class Subtitlesummary extends StatefulWidget {
+//--Summaries in each page()--
+class Headertext extends StatefulWidget {
   final String words;
   final Color color;
-  const Subtitlesummary({super.key, required this.words, required this.color});
+  const Headertext({super.key, required this.words, required this.color});
 
   @override
-  State<Subtitlesummary> createState() => _SubtitlesummaryState();
+  State<Headertext> createState() => _HeadertextState();
 }
 
-class _SubtitlesummaryState extends State<Subtitlesummary> {
+class _HeadertextState extends State<Headertext> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -244,6 +215,37 @@ class Labels extends StatelessWidget {
   }
 }
 
+//--Texts for containers--
+class Textsinsidewidgets extends StatelessWidget {
+  final String words;
+  final Color color;
+  final double fontsize;
+
+  const Textsinsidewidgets({super.key, 
+  required this.words,
+  required this.color,
+  this.fontsize = 12,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder( builder: (BuildContext context, BoxConstraints constraints) {
+      
+      return
+      Container(
+        padding: EdgeInsets.only(left: 5, top: 10, bottom: 0),
+        child: 
+        Text(words, style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w500,
+          fontSize: fontsize,
+        ),)
+      );
+    } 
+
+    );
+  }
+}
 
 //--Labels for texts inside buttons--
 class Labelsinbuttons extends StatelessWidget {
@@ -301,7 +303,7 @@ class Titletext extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(title,
       style: TextStyle(
-        color: Apptheme.textclrlight,
+        color: color,
         fontSize: 30,
         fontWeight: FontWeight.bold,
       ),
