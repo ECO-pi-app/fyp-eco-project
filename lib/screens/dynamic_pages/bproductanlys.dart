@@ -92,19 +92,19 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
       Widgets1(aspectratio: 16/9, maxheight: 250,
       child:
       DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Transport', 'Distance'], 
-        isTextFieldColumn: [false, true], 
-        addButtonLabel: 'Add material', 
+        columnTitles: ['Transport', 'Class', 'Variant', 'Distance'], 
+        isTextFieldColumn: [false, false, false, true], 
+        addButtonLabel: 'Add transport cycle', 
         padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', ''],
-        jsonKeys: [ 'transport_types', ''],
+        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
+        jsonKeys: [ 'transport_types', 'insert', 'insert'],
         onTotalEmissionCalculated: (total) {
           setState(() {
             materialtransportEmission = total;
           });
         },
         apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+        endpoint: 'http://127.0.0.1:8000/calculate/transport_emissions',
         ),
       ),
     ];
@@ -357,17 +357,20 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                     pg3flexValue1: 1, 
                     pg3flexValue2: 1, 
                     
-                    firstchildof1: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage1.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage1[index],
-                        );
-                      },
+                    firstchildof1: 
+                    Container(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: widgetofpage1.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 0,
+                            color: Apptheme.transparentcheat,
+                            child: widgetofpage1[index],
+                          );
+                        },
+                      ),
                     ), 
 
                     secondchildof1: Container(), 

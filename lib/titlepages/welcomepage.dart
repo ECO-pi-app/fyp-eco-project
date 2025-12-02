@@ -21,47 +21,72 @@ class _WelcomepageState extends State<Welcomepage> {
         double parentheight = constraints.maxHeight;
 
         return 
-        Column(
+        Row(
           children: [
-            Flexible(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Welcomepagelogo(
-                  whathappens: null,
-                  choosecolor: Apptheme.transparentcheat,
-                  pad: 0,
+                        Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Flexible(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Welcomepagelogo(
+                        whathappens: null,
+                        choosecolor: Apptheme.error,
+                        pad: 0,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+
+            Column(
+              children: [
+                Flexible(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Welcomepagelogo(
+                      whathappens: null,
+                      choosecolor: Apptheme.error,
+                      pad: 0,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-        
-            Flexible(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Bigfocusedtext(title: 'ECO-pi',),
-              ),
-            ),
-        
-            SizedBox(
-              height: parentheight/2.5,
             
-              child: AspectRatio(
-                aspectRatio: 16/9,
-                child: Loginfield())),
-            
-            SizedBox(
-              height: parentheight/4,
-              width: double.infinity,
-              child: Center(
-                child: IconButton(
-                  onPressed: () {RootScaffold.of(context)?.goToHomePage();
-                  },
-                  icon: const Icon(Icons.alarm),
-                  color: Apptheme.iconslight,
+                Flexible(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Bigfocusedtext(title: 'ECO-pi',),
+                  ),
                 ),
-              ),
+            
+                SizedBox(
+                  height: parentheight/2.5,
+                
+                  child: AspectRatio(
+                    aspectRatio: 16/9,
+                    child: Loginfield())),
+                
+                Container(
+                  color: Apptheme.error,
+                  height: parentheight/4,
+                  child: Center(
+                    child: IconButton(
+                      onPressed: () {RootScaffold.of(context)?.goToHomePage();
+                      },
+                      icon: const Icon(Icons.alarm),
+                      color: Apptheme.iconslight,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          
           ],
         );
       },

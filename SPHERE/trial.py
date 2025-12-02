@@ -771,7 +771,7 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "material":req.material,
         "mass_kg":req.mass_kg,
         "material_emission_factor":emisson_factor,
-        "calculated_emission":calculated_emission
+        "materialacq_emission":calculated_emission
     }
 
 @app.post("/calculate/transport_emissions")
