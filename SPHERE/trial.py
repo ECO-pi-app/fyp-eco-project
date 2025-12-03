@@ -911,6 +911,24 @@ def calculate_transport_emission(data: TransportCalcRequest):
 
     return {"error": "Invalid transport type."}
 
+@app.post("/calculate/van")
+def calculate_van(req: dict):
+
+    transport_type = req["transport_type"]       # dropdown selection
+    distance = req["distance_km"]                # entered by user
+
+    if transport_type not in van_lookup:
+        return {"error": "Invalid van transport type"}
+
+    ef = van_lookup[transport_type]
+
+    return {
+        "transport_type": transport_type,
+        "distance_km": distance,
+        "emission_factor": ef,
+        "total_emission": ef * distance
+    }
+
 @app.post("/calculate/fugitive_emissions")
 def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
 
