@@ -87,8 +87,9 @@ Future<void> calculateAndSendAllRows() async {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         totalEmission += (json["materialacq_emission"] ?? 0).toDouble();
-        totalEmission += (json["transport_emissions"] ?? 0).toDouble();
+        totalEmission += (json["total_emission"] ?? 0).toDouble();
         totalEmission += (json["emissions_kgco2e"] ?? 0).toDouble();
+        totalEmission += (json["emissions"] ?? 0).toDouble();
       } else {
         debugPrint("API error on row $row: ${response.statusCode}");
       }

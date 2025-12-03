@@ -143,9 +143,9 @@ class PageheadersState extends State<Pageheaders> {
           boxShadow: [
             BoxShadow(
               color: Apptheme.header,
-              spreadRadius: 4,
-              blurRadius: 4,
-              offset: const Offset(0, 4)
+              spreadRadius: 0,
+              blurRadius: 0,
+              offset: const Offset(0, 0)
             )
           ]
       ),
