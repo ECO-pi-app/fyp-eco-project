@@ -884,7 +884,7 @@ def calculate_transport_emission(data: TransportCalcRequest):
             "mode": mode,
             "distance_km": distance,
             "emission_factor": ef,
-            "total_emission": ef * distance    # <-- formula you said
+            "total_emission": ef * distance    
         }
 
     # HGV NORMAL
