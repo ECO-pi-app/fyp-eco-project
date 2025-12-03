@@ -8,6 +8,9 @@ class Apptheme{
   static const Color palleteaccentual2 = Color(0xFF595E48); //--Headers and main--
   static const Color darkpallete5 = Color(0xFF4E5454); //--
   static const Color darkpallete6 = Color(0xFF2B343F);
+  static const Color eXTRA1 = lightpallete2;
+  static const Color eXTRA2 = Color(0xFF5F1D20);
+  static const Color eXTRA3 = Color(0xFF733438);
 
   static const Color texthintclrlight = Color(0x6DF9ECE0);
   static const Color texthintclrdark = Color(0x874E5454);
@@ -22,6 +25,8 @@ class Apptheme{
   static const Color auxilary = palleteaccentual1;//--Lighter version of Aux 2, for text backgrounds--
   static const Color backgrounddark = darkpallete5;
   static const Color backgroundlight = lightpallete1; //--Eg. background--
+  static const Color irregularaccent = lightpallete2;
+  static const Color dividers = irregularaccent;
 
 
   //text colors--
@@ -48,9 +53,5 @@ class Apptheme{
   static const Color iconsdark = textclrdark;
   static const Color iconsprimary = palleteaccentual2;
   static const Color windowcontrols = lightpallete1;
-  static const Color dividers = lightpallete1;
   
-  static const Color eXTRA1 = Color.fromARGB(255, 123, 89, 91) ;
-  static const Color eXTRA2 = Color(0xFF5F1D20);
-  static const Color eXTRA3 = Color(0xFF733438);
 }

@@ -18,28 +18,24 @@ class Widgets1 extends StatelessWidget {
     return 
     ConstrainedBox( constraints: BoxConstraints(maxHeight: maxheight),
       child: 
-      AspectRatio(
-                        aspectRatio: aspectratio,
-                        child: 
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Apptheme.widgetclrlight,
-                            boxShadow: [BoxShadow(
-                              color: Apptheme.header,
-                              spreadRadius: 2,
-                              blurRadius: 2,
-                            )],
-                            border: Border.all(
-                              color: Apptheme.widgetclrlight,
-                              width: 1,
-                              style: BorderStyle.solid,
-                              strokeAlign: BorderSide.strokeAlignOutside,
-                              )
-                          ),
-                          child: child ,
-                        ),
-                      ),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Apptheme.widgetclrlight,
+          boxShadow: [BoxShadow(
+            color: Apptheme.header,
+            spreadRadius: 2,
+            blurRadius: 2,
+          )],
+          border: Border.all(
+            color: Apptheme.widgetclrlight,
+            width: 1,
+            style: BorderStyle.solid,
+            strokeAlign: BorderSide.strokeAlignOutside,
+            )
+        ),
+        child: child ,
+      ),
     );
   }
 }
