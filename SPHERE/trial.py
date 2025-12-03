@@ -226,7 +226,7 @@ GWP_for_GHG_cells      = sheet8["C2":"C999"]
 Process_cells   = sheet12["A2":"A999"]
 Facilities_cells    = sheet11["A2":"A999"]
 Usage_type_cells     = sheet10["A2":"A999"]
-Disassembly_by_Industry_cells     =sheet9["A2":"A999"]
+Disassembly_by_Industry_cells    = sheet9["A2":"A999"]
 
 # turn into lists
 country_list      = extract_selection_list(country_cells)
@@ -711,7 +711,7 @@ def get_options():
         "Van_mode":van_mode_list,
         "Van_emissions":van_emission_list,
         "HGV_mode":HGV_mode_list,
-        "HGV_emissions":HGV_mode_list,
+        "HGV_emissions":HGV_emission_list,
         "HGV_r_mode:":HGV_r_mode_list,
         "HGV_r_emissions":HGV_r_emission_list
     }
