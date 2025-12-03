@@ -9,7 +9,9 @@ import 'package:fl_chart/fl_chart.dart';
 
 class Dynamichome extends StatefulWidget {
   final VoidCallback settingstogglee;
-  const Dynamichome({super.key, required this.settingstogglee});
+  final VoidCallback menutogglee;
+  const Dynamichome({super.key, required this.settingstogglee
+  , required this.menutogglee,});
 
 
   @override
@@ -21,7 +23,7 @@ class _DynamichomeState extends State<Dynamichome> {
 int selectedToggle = 0;
 
 final List<String> toggleOptions = [
-  'Scope Categories',
+  'Scope',
   'LCA Categories',
   'Boundary'
 ];
@@ -33,7 +35,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual1,
       value: 60,
       title: 'Scope 1',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -44,7 +46,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual2,
       value: 40,
       title: 'Scope 2',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -55,7 +57,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.lightpallete1,
       value: 30,
       title: 'Scope 3',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -69,7 +71,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual1,
       value: 5,
       title: 'Material',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -80,7 +82,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual2,
       value: 2,
       title: 'Transport',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -91,7 +93,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.lightpallete1,
       value: 3,
       title: 'Machining',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -105,7 +107,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual1,
       value: 155,
       title: 'Upstream',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -116,7 +118,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.palleteaccentual2,
       value: 134,
       title: 'Production',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -128,7 +130,7 @@ final List<List<PieChartSectionData>> pieDataSets = [
       color: Apptheme.lightpallete1,
       value: 98,
       title: 'Downstream',
-      radius: 80,
+      radius: 170,
       titleStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -164,35 +166,59 @@ final List<Map<String, double>> toggleTotals = [
   Widget build(BuildContext context) {
     return SizedBox(
         child: 
-          Column(
+          Stack(
           children: [
-
-            //--Custom Header for Home--
-            PageHeaderTwo(title: "ECO-pi", whathappens:widget.settingstogglee,),
-            
+                    
+            //--Handle--
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                height: double.infinity,
+                width: 30,
+                
+                decoration: BoxDecoration(
+                  color: Apptheme.widgetclrlight,
+                  border: Border(
+                    right: BorderSide(
+                      color: Apptheme.drawerbackground,
+                      width: 2
+                    )
+                  ),
+                ),
+                child: Center(
+                  child: IconButton(
+                    onPressed: widget.menutogglee, 
+                    icon: Icon(
+                      Icons.drag_indicator, 
+                      color: Apptheme.iconsdark,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+                    
             //--Main Page--
-            Expanded(
-              child: 
-              Padding(padding: EdgeInsetsGeometry.only(top: 30, bottom: 20, left: 20, right: 20),
-              child: 
-                SizedBox(
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 140, left: 40, right: 10,),
+                child: SizedBox(
                   height: double.infinity,
-                  child:  
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: 
-                    ListView(
-                      children: [
-                        Center(child: 
-                          Container(
+                  child: ListView(
+                    children: [
+                            
+                      Center(child: 
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
                             width: double.infinity,
-                            height: 330,
+                            height: 500,
                             decoration: BoxDecoration(
                               color: Apptheme.widgetclrlight,
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: 
                               [BoxShadow(
-                                  color: Apptheme.header,
+                                  color: Apptheme.widgetborderdark,
                                   spreadRadius: 2,
                                   blurRadius: 2,
                                 )],
@@ -200,115 +226,122 @@ final List<Map<String, double>> toggleTotals = [
                             child: 
                             Row(
                               children: [
-
+                                              
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: Container(
-                                    color: Apptheme.transparentcheat,
-                                    height: 300,
-                                    width: 500,
-                                    child: Column(
-                                      children: [
-                                        Align(
-                                          alignment: AlignmentGeometry.centerLeft,
-                                          child: Labels(
-                                            title: 'SORT BY:' , 
-                                            color: Apptheme.textclrdark,
-                                            fontsize: 24,
-                                          ),
-                                        ),
-
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 8),
-                                          child: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: ToggleButtons(
-                                            borderRadius: BorderRadius.circular(8),
-                                            isSelected: List.generate(3, (index) => index == selectedToggle),
-                                            onPressed: (index) {
-                                              setState(() {
-                                                selectedToggle = index;
-                                              });
-                                            },
-                                            fillColor: Apptheme.widgetsecondaryclr,         // background for selected
-                                            selectedColor: Apptheme.textclrlight,          // text color for selected
-                                            color: Apptheme.textclrdark,                  // text color for unselected
-                                            borderColor: Apptheme.widgetborderdark,             // border for unselected
-                                            selectedBorderColor: Apptheme.widgetborderlight,     // border for selected
-                                            children: toggleOptions.map((e) =>
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                child: Text(
-                                                  e,
-                                                  style: TextStyle(
-                                                    fontSize: 18,
+                                  padding: const EdgeInsets.only(top: 25, bottom: 3),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Container(
+                                      color: Apptheme.transparentcheat,
+                                      constraints: BoxConstraints(
+                                        minHeight: 0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                    
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 8),
+                                            child: Align(
+                                            alignment: Alignment.center,
+                                            child: ToggleButtons(
+                                              borderRadius: BorderRadius.circular(8),
+                                              isSelected: List.generate(3, (index) => index == selectedToggle),
+                                              onPressed: (index) {
+                                                setState(() {
+                                                  selectedToggle = index;
+                                                });
+                                              },
+                                              fillColor: Apptheme.widgetsecondaryclr,         // background for selected
+                                              selectedColor: Apptheme.textclrlight,          // text color for selected
+                                              color: Apptheme.textclrdark,                  // text color for unselected
+                                              borderColor: Apptheme.widgetborderdark,             // border for unselected
+                                              selectedBorderColor: Apptheme.widgetborderlight,     // border for selected
+                                              children: toggleOptions.map((e) =>
+                                                SizedBox(
+                                                  width: 150,
+                                                  child: Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+                                                      child: Text(
+                                                        e,
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              )
-                                            ).toList(),
-                                          ),
-                                        ),
-                                        ),
-
-
-                                        SizedBox(height: 20,),
-
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 5),
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Textsinsidewidgets(
-                                              words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(0)} emissions: ${toggleTotals[selectedToggle].values.elementAt(0).toStringAsFixed(2)} kg CO2e',
-                                              color: Apptheme.textclrdark,
-                                              fontsize: 18,
+                                                )
+                                              ).toList(),
                                             ),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 5),
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Textsinsidewidgets(
-                                              words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(1)} emissions: ${toggleTotals[selectedToggle].values.elementAt(1).toStringAsFixed(2)} kg CO2e',
-                                              color: Apptheme.textclrdark,
-                                              fontsize: 18,
+                                          ),
+                                    
+                                          SizedBox(height: 20,),
+                                    
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 5),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Textsinsidewidgets(
+                                                words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(0)} emissions: ${toggleTotals[selectedToggle].values.elementAt(0).toStringAsFixed(2)} kg CO2e',
+                                                color: Apptheme.textclrdark,
+                                                fontsize: 18,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 5),
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Textsinsidewidgets(
-                                              words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(2)} emissions: ${toggleTotals[selectedToggle].values.elementAt(2).toStringAsFixed(2)} kg CO2e',
-                                              color: Apptheme.textclrdark,
-                                              fontsize: 18,
+                                    
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 5),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Textsinsidewidgets(
+                                                words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(1)} emissions: ${toggleTotals[selectedToggle].values.elementAt(1).toStringAsFixed(2)} kg CO2e',
+                                                color: Apptheme.textclrdark,
+                                                fontsize: 18,
+                                              ),
                                             ),
                                           ),
-                                        ),
-
-                                        
-                                      ],
+                                    
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 5),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Textsinsidewidgets(
+                                                words: 'Total ${toggleTotals[selectedToggle].keys.elementAt(2)} emissions: ${toggleTotals[selectedToggle].values.elementAt(2).toStringAsFixed(2)} kg CO2e',
+                                                color: Apptheme.textclrdark,
+                                                fontsize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                    
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-
+                                              
                                 Expanded(
-                                  child: PieChart(duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                    PieChartData(
-                                      sections:
-                                        pieDataSets[selectedToggle],
+                                  child: Container(
+                                    height: 300,
+                                    child: PieChart(duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                      PieChartData(
+                                        centerSpaceRadius: 0,
+                                        sections:
+                                          pieDataSets[selectedToggle],
+                                      ),
                                     ),
                                   ),
                                 ),
                               
                               ],
                             ),
-                          )
-                        ),
-//-------------------------------------------------------------------------------------------------------
-                        Labels(title: 'Your Products', color: Apptheme.textclrlight,),
+                          ),
+                        )
+                      ),
+
+                      Labels(title: 'Your Products', color: Apptheme.textclrlight,),
 
                         SizedBox(
                           width: double.infinity,
@@ -316,14 +349,17 @@ final List<Map<String, double>> toggleTotals = [
                             aspectratio: 16/5, 
                             color: Apptheme.widgetsecondaryclr, 
                             title: 'title'
-                          ),
-                        )
-                      ],
-                    ),
-                  )
+                        ),
+                      )      
+                    ],
+                  ),
                 ),
               ),
-            )
+            ),
+          
+            //--Custom Header for Home--
+            PageHeaderTwo(title: "ECO-pi", whathappens:widget.settingstogglee,),
+            
           ],
           ),
       );

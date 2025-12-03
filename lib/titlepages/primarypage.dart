@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _selectedIndex = 0;
   bool _showSettings = false;
+  bool _showMenu = true;
   double drawerwidth = 266;
   double _prevscreenwidth = 0;
 
@@ -32,7 +33,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void settingstoggle() {
     setState(() {
+      if (MediaQuery.of(context).size.width < 750) {
+        if (!_showSettings) _showMenu = false;
+      }
       _showSettings = !_showSettings;
+  });
+  }
+
+  void menutoggle() {
+    setState(() {
+      if (MediaQuery.of(context).size.width < 750) {
+        if (!_showMenu) _showSettings = false;
+      }
+      _showMenu = !_showMenu;
   });
   }
 
@@ -42,11 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final MediaQueryData mediaQueryData = MediaQuery.of(context);
     final screenwidth = mediaQueryData.size.width;
 
-    const double openThreshold = 1000;
+    const double openThreshold = 200;
     
 
     final double drawerwidth = 266;
     final double settingswidth = 200;
+    final double menuwidth = 266;
 
     final double dynamicDrawerWidth = screenwidth < 750 ? 5 : drawerwidth;
 
@@ -54,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_prevscreenwidth >= openThreshold &&
         screenwidth < openThreshold &&
-        _showSettings) {
+        _showSettings && _showMenu) {
       _showSettings = false;
     }
 
@@ -62,8 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     //--Dynamic Pages (DRAWER DIRECTORY)--
     final List<Widget> pages = [
-      Dynamichome(settingstogglee: settingstoggle),
-      Dynamicprdanalysis(settingstogglee: settingstoggle),
+      Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle),
+      Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle),
       DynamicAllocation(settingstogglee: settingstoggle,),
       DynamicSustainabilityNews(settingstogglee: settingstoggle),
       DynamicCredits(settingstogglee: settingstoggle),
@@ -89,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeIn,
           right: _showSettings ? settingswidth: 5,
-          left: dynamicDrawerWidth,
+          left: _showMenu ? menuwidth : 5,
           top: 2,
           bottom: 2,
           child: 

@@ -264,11 +264,14 @@ class Labelsinbuttons extends StatelessWidget {
     return LayoutBuilder( builder: (BuildContext context, BoxConstraints constraints) {
       
       return
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 5),
-        child: 
-        Center(
-          child: Text(title, style: TextStyle(
+      ClipRRect(
+        child: Container(
+          constraints: BoxConstraints(
+            minWidth: 0,
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 5),
+          child: 
+          Text(title, style: TextStyle(
             color: color,
             fontWeight: FontWeight.w500,
             fontSize: fontsize,
@@ -277,7 +280,7 @@ class Labelsinbuttons extends StatelessWidget {
           maxLines: 1,
           softWrap: false,
           )
-        )
+        ),
       );
     } 
 

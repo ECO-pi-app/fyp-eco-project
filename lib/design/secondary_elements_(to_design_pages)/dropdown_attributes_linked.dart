@@ -152,7 +152,9 @@ Future<void> calculateAndSendAllRows() async {
 
           setState(() {
             dropdownData[i] = items;
-            selections[i][0] = items.isNotEmpty ? items.first : '';
+              if (selections[i].isNotEmpty && items.isNotEmpty) {
+              selections[i][0] = items.first;
+            }
           });
         }
       } catch (e) {
@@ -338,6 +340,17 @@ Future<void> calculateAndSendAllRows() async {
                                                     });
                                                   },
                                                 )
+                                              : (dropdownData[col] == null || dropdownData[col]!.isEmpty)
+                                                  ? const Center(
+                                                      child: SizedBox(
+                                                        height: 16,
+                                                        width: 16,
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: Apptheme.eXTRA2,
+                                                          ),
+                                                      ),
+                                                    )
                                             : DropdownButtonHideUnderline(
                                                 child: 
                                                 DropdownButton<String>(
@@ -355,18 +368,24 @@ Future<void> calculateAndSendAllRows() async {
                                                     ),
                                                     value: selections[col][row],
                                                     isExpanded: true,
-                                                  items: (dropdownData[col] ?? [])
-                                                      .map((item) =>
-                                                          DropdownMenuItem(
-                                                            value: item,
-                                                            child: 
-                                                            Text(item,
-                                                            overflow: TextOverflow.fade,
-                                                            maxLines: 1,
-                                                            softWrap: false,
-                                                            ),
-                                                          ))
-                                                      .toList(),
+                                                      items: (dropdownData[col] ?? []).isEmpty
+                                                          ? [
+                                                              const DropdownMenuItem(
+                                                                value: '',
+                                                                child: Text("Loading..."),
+                                                              )
+                                                            ]
+                                                          : dropdownData[col]!
+                                                              .map((item) => DropdownMenuItem(
+                                                                    value: item,
+                                                                    child: Text(
+                                                                      item,
+                                                                      overflow: TextOverflow.fade,
+                                                                      maxLines: 1,
+                                                                      softWrap: false,
+                                                                    ),
+                                                                  ))
+                                                              .toList(),
                                                   onChanged: (value) {
                                                     setState(() {
                                                       selections[col][row] = value;

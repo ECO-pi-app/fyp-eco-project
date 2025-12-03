@@ -8,9 +8,11 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.da
 
 class Dynamicprdanalysis extends StatefulWidget {
   final VoidCallback settingstogglee;
+  final VoidCallback menutogglee;
 
   const Dynamicprdanalysis({super.key, 
   required this.settingstogglee,
+  required this.menutogglee,
   });
 
   @override
@@ -267,99 +269,67 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         child: 
           Stack(
           children: [
-
+            //--Handle--
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                height: double.infinity,
+                width: 30,
+                
+                decoration: BoxDecoration(
+                  color: Apptheme.widgetclrlight,
+                  border: Border(
+                    right: BorderSide(
+                      color: Apptheme.drawerbackground,
+                      width: 2
+                    )
+                  ),
+                ),
+                child: Center(
+                  child: IconButton(
+                    onPressed: widget.menutogglee, 
+                    icon: Icon(
+                      Icons.drag_indicator, 
+                      color: Apptheme.iconsdark,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+                
             //--Main Page--
-            ClipRRect(
-              borderRadius: BorderRadiusGeometry.circular(10),
-              child: Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
-              child: 
-              Container(
-                padding: EdgeInsets.only(bottom: 15, top:170),
+            Positioned(
+              left: 30,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(10),
+                child: Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
                 child: 
-                showThreePageTabs 
-                ?ManualTab3pages(
-                    tab1: 'Upstream', 
-                    tab1fontsize: 15, 
-                    tab2: 'Production', 
-                    tab2fontsize: 15, 
-                    tab3: 'Downstream', 
-                    tab3fontsize: 15, 
+                Container(
+                  padding: EdgeInsets.only(bottom: 15, top:170),
+                  child: 
+                  showThreePageTabs 
+                  ?ManualTab3pages(
+                      tab1: 'Upstream', 
+                      tab1fontsize: 15, 
+                      tab2: 'Production', 
+                      tab2fontsize: 15, 
+                      tab3: 'Downstream', 
+                      tab3fontsize: 15, 
+                      
+                      pg1flexValue1: 1, 
+                      pg1flexValue2: 1, 
                     
-                    pg1flexValue1: 1, 
-                    pg1flexValue2: 1, 
-                  
-                    pg2flexValue1: 1, 
-                    pg2flexValue2: 1, 
-                  
-                    pg3flexValue1: 1, 
-                    pg3flexValue2: 1, 
+                      pg2flexValue1: 1, 
+                      pg2flexValue2: 1, 
                     
-                    firstchildof1: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage1.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage1[index],
-                        );
-                      },
-                    ), 
-
-                    secondchildof1: Container(), 
-
-                    firstchildof2: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage2.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage2[index],
-                        );
-                      },
-                    ), 
-
-                    secondchildof2: Container(),
-
-                    firstchildof3: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage3.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage3[index],
-                        );
-                      },
-                    ), 
-
-                    secondchildof3: Container(),
-                  )
-
-                : ManualTab2pages(
-                    tab1: 'Upstream', 
-                    tab1fontsize: 15, 
-                    tab2: 'Production', 
-                    tab2fontsize: 15, 
-                    tab3: 'Not included anymore', 
-                    tab3fontsize: 15, 
-                    
-                    pg1flexValue1: 1, 
-                    pg1flexValue2: 1, 
-                  
-                    pg2flexValue1: 1, 
-                    pg2flexValue2: 1, 
-                  
-                    pg3flexValue1: 1, 
-                    pg3flexValue2: 1, 
-                    
-                    firstchildof1: 
-                    Container(
-                      child: ListView.builder(
+                      pg3flexValue1: 1, 
+                      pg3flexValue2: 1, 
+                      
+                      firstchildof1: ListView.builder(
                         shrinkWrap: true,
                         physics: AlwaysScrollableScrollPhysics(),
                         itemCount: widgetofpage1.length,
@@ -370,45 +340,111 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                             child: widgetofpage1[index],
                           );
                         },
-                      ),
-                    ), 
-
-                    secondchildof1: Container(), 
-
-                    firstchildof2: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage2.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage2[index],
-                        );
-                      },
-                    ), 
-
-                    secondchildof2: Container(),
-
-                    firstchildof3: ListView.builder(
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: widgetofpage3.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 0,
-                          color: Apptheme.transparentcheat,
-                          child: widgetofpage3[index],
-                        );
-                      },
-                    ), 
-
-                    secondchildof3: Container(),
-
+                      ), 
+              
+                      secondchildof1: Container(), 
+              
+                      firstchildof2: ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: widgetofpage2.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 0,
+                            color: Apptheme.transparentcheat,
+                            child: widgetofpage2[index],
+                          );
+                        },
+                      ), 
+              
+                      secondchildof2: Container(),
+              
+                      firstchildof3: ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: widgetofpage3.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 0,
+                            color: Apptheme.transparentcheat,
+                            child: widgetofpage3[index],
+                          );
+                        },
+                      ), 
+              
+                      secondchildof3: Container(),
+                    )
+              
+                  : ManualTab2pages(
+                      tab1: 'Upstream', 
+                      tab1fontsize: 15, 
+                      tab2: 'Production', 
+                      tab2fontsize: 15, 
+                      tab3: 'Not included anymore', 
+                      tab3fontsize: 15, 
+                      
+                      pg1flexValue1: 1, 
+                      pg1flexValue2: 1, 
                     
-                  ),
-              )
-
+                      pg2flexValue1: 1, 
+                      pg2flexValue2: 1, 
+                    
+                      pg3flexValue1: 1, 
+                      pg3flexValue2: 1, 
+                      
+                      firstchildof1: 
+                      Container(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: AlwaysScrollableScrollPhysics(),
+                          itemCount: widgetofpage1.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              elevation: 0,
+                              color: Apptheme.transparentcheat,
+                              child: widgetofpage1[index],
+                            );
+                          },
+                        ),
+                      ), 
+              
+                      secondchildof1: Container(), 
+              
+                      firstchildof2: ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: widgetofpage2.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 0,
+                            color: Apptheme.transparentcheat,
+                            child: widgetofpage2[index],
+                          );
+                        },
+                      ), 
+              
+                      secondchildof2: Container(),
+              
+                      firstchildof3: ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: widgetofpage3.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation: 0,
+                            color: Apptheme.transparentcheat,
+                            child: widgetofpage3[index],
+                          );
+                        },
+                      ), 
+              
+                      secondchildof3: Container(),
+              
+                      
+                    ),
+                )
+              
+                ),
               ),
             ),
 
@@ -439,13 +475,16 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                           Center(
                             child: Padding (padding: EdgeInsetsGeometry.only(left:20, right: 20, top: 15),
                                 child:
-                                ListView(
+                                Column(
                                   children: [
 
                                     //--TITLE--
-                                    Titletext(
-                                      title: 'Product Analysis',
-                                      color: Apptheme.textclrlight,
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Titletext(
+                                        title: 'Product Analysis',
+                                        color: Apptheme.textclrlight,
+                                      ),
                                     ),
 
 
@@ -461,7 +500,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                         child: 
                                         ConstrainedBox(
                                           constraints: BoxConstraints(
-                                            maxWidth: 240,
+                                            maxWidth: 170,
                                           ),
                                           child: Container(
                                             decoration: BoxDecoration(
@@ -470,50 +509,26 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
                                             ),
                                             child: 
                                             showThreePageTabs 
+
                                           ? Align(
                                               alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 20),
-                                                  child: Icon(Icons.swap_horiz,
-                                                  size: 30,
-                                                  color: Apptheme.iconslight,
-                                                  ),
-                                                ),
-                                          
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 10),
-                                                  child: Labelsinbuttons(
-                                                    title: 'Cradle to Grave', 
-                                                    color: Apptheme.textclrlight, 
-                                                    fontsize: 20),
-                                                ),
-                                              ],
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 10),
+                                              child: Labelsinbuttons(
+                                                title: 'Cradle to Grave', 
+                                                color: Apptheme.textclrlight, 
+                                                fontsize: 20),
                                             ),
                                           )
+                                          
                                           : Align(
                                               alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 20),
-                                                  child: Icon(Icons.swap_horiz,
-                                                  size: 30,
-                                                  color: Apptheme.iconslight,
-                                                  ),
-                                                ),
-                                          
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 10),
-                                                  child: Labelsinbuttons(
-                                                    title: 'Cradle to Gate', 
-                                                    color: Apptheme.textclrlight, 
-                                                    fontsize: 20),
-                                                ),
-                                              ],
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 10),
+                                              child: Labelsinbuttons(
+                                                title: 'Cradle to Gate', 
+                                                color: Apptheme.textclrlight, 
+                                                fontsize: 20),
                                             ),
                                           )
                                           ),
