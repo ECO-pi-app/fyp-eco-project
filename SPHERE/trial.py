@@ -591,7 +591,11 @@ class MaterialEmissionReq(BaseModel):
     material: str  #e.g.Steel,Aluminum,etc.
     country: str   #e.g.Singapore,Malaysia,China,etc.
     mass_kg: float #mass from flutter ui
-
+class MachineEmissionsReq(BaseModel):
+    machine_model: str #Machine types
+    country: str
+    time: float 
+    power: float
 class TransportCalcRequest(BaseModel):
     mode: str            # "van", "hgv", "flight", "rail", "sea_cargo", ...
     vehicle_class: str   # one entry from the relevant classes list
@@ -841,6 +845,39 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "materialacq_emission":calculated_emission
     }
 
+@app.post("/calculate/machine_power_emission")
+def calculate_machine_power_emission(req: MachineEmissionsReq):
+    if req.country not in country_list:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Country '{req.country}' not found in grid intensity list."
+        )
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
+
+    # 2) Get Mazak main spindle power from selected machine
+    if req.machine_model not in Mazak_machine_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Mazak machine '{req.machine_model}' not found."
+        )
+    midx = Mazak_machine_model.index(req.machine_model)
+    main_spindle_kw = float(Mazak_main_spindle[midx])  # kW
+
+    power_drawed = main_spindle_kw                 # only main spindle for now
+    time_operated = req.time_operated_hr          # hours
+    emissions = power_drawed * grid_intensity * time_operated
+
+    return {
+        "country": req.country,
+        "machine_model": req.machine_model,
+        "time_operated_hr": time_operated,
+        "power_drawed_kw": power_drawed,
+        "grid_intensity": grid_intensity,
+        "emissions": emissions,       # kg CO2e
+    }
+
+    
 @app.post("/calculate/transport_table") #for tables
 def calculate_transport_table(req: TransportTableRequest):
     total = 0.0
