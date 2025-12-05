@@ -286,6 +286,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
 
     return PrimaryPages(
+      paddingadd: 15,
       menutogglee: widget.menutogglee, 
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 

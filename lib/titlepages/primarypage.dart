@@ -7,6 +7,16 @@ import 'package:test_app/screens/dynamic_pages/main_dynamichome.dart';
 import 'package:test_app/screens/dynamic_pages/main_productanlys.dart';
 import 'package:test_app/screens/dynamic_pages/main_sustainabilitynews.dart';
 import 'package:test_app/screens/dynamic_pages/zdebug.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category1.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category2.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category3.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category4.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category5.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category9.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category10.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category11.dart';
+import 'package:test_app/screens/dynamic_pages/bookmark_category12.dart';
+
 
 
 class HomeScreen extends StatefulWidget {
@@ -56,6 +66,52 @@ void initState() {
       key: ValueKey('debug'),
       child: DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle),
     ),
+
+    //--BOOKMARKS---------------------------------------------------------------------
+    KeyedSubtree(
+      key: ValueKey('cat1'),
+      child: BookmarkCategoryOne(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat2'),
+      child: BookmarkCategoryTwo(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat3'),
+      child: BookmarkCategoryThree(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat4'),
+      child: BookmarkCategoryFour(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat5'),
+      child: BookmarkCategoryFive(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat9'),
+      child: BookmarkCategoryNine(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat10'),
+      child: BookmarkCategoryTen(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat11'),
+      child: BookmarkCategoryEleven(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+
+    KeyedSubtree(
+      key: ValueKey('cat12'),
+      child: BookmarkCategoryTwelve(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
   ];
 }
 
@@ -92,12 +148,9 @@ void initState() {
 
     const double openThreshold = 200;
     
-
-    final double drawerwidth = 266;
     final double settingswidth = 200;
     final double menuwidth = 266;
 
-    final double dynamicDrawerWidth = screenwidth < 750 ? 5 : drawerwidth;
 
     
 
@@ -108,17 +161,6 @@ void initState() {
     }
 
     _prevscreenwidth = screenwidth;
-
-    //--Dynamic Pages (DRAWER DIRECTORY)--
-final List<Widget> pages = [
-  KeyedSubtree(key: ValueKey('home'), child: Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle)),
-  KeyedSubtree(key: ValueKey('analysis'), child: Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle)),
-  KeyedSubtree(key: ValueKey('allocation'), child: DynamicAllocation(settingstogglee: settingstoggle, menutoggle: menutoggle)),
-  KeyedSubtree(key: ValueKey('news'), child: DynamicSustainabilityNews(settingstogglee: settingstoggle, menutoggle: menutoggle)),
-  KeyedSubtree(key: ValueKey('about'), child: DynamicCredits(settingstogglee: settingstoggle, menutoggle: menutoggle)),
-  KeyedSubtree(key: ValueKey('debug'), child: DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle)),
-];
-
 
     return Scaffold(
       body: 
@@ -150,34 +192,34 @@ final List<Widget> pages = [
             Container(
               color: Apptheme.transparentcheat,
               child: LayoutBuilder(
-  builder: (context, constraints) {
-    return ClipRect(    // <— prevents blank fade glitches
-      child: AnimatedSwitcher(
-        duration: Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
+                builder: (context, constraints) {
+                  return ClipRect(    // <— prevents blank fade glitches
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 250),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
 
-        transitionBuilder: (child, animation) {
-          final slide = Tween<Offset>(
-            begin: Offset(0.05, 0),
-            end: Offset.zero,
-          ).animate(animation);
+                      transitionBuilder: (child, animation) {
+                        final slide = Tween<Offset>(
+                          begin: Offset(0.05, 0),
+                          end: Offset.zero,
+                        ).animate(animation);
 
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(position: slide, child: child),
-          );
-        },
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(position: slide, child: child),
+                        );
+                      },
 
-        child: SizedBox(  // <— forces new widget to render with full size
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          child: pages[_selectedIndex],
-        ),
-      ),
-    );
-  },
-)
+                      child: SizedBox(  // <— forces new widget to render with full size
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        child: pages[_selectedIndex],
+                      ),
+                    ),
+                  );
+                },
+              )
 
             ),
           ),

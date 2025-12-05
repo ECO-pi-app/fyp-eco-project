@@ -27,7 +27,10 @@ class _DynamicProfileState extends State<DebugPage> {
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 
         title: 'Category 1', 
-        child: Headertext(words: 'Purchased Goods and Services',)
+        child: Headertext(
+          words: 'Purchased Goods and Services',
+          backgroundcolor: Apptheme.header,
+        )
       ),
       childofmainpage: ListView(
         children: [
@@ -36,7 +39,11 @@ class _DynamicProfileState extends State<DebugPage> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Widgets1(
               maxheight: 500,
-              child: null,
+              child: Column(
+                children: [
+                  Labels(title: 'Attributes included', color: Apptheme.textclrdark)
+                ],
+              ),
             ),
           ),
 
@@ -44,7 +51,15 @@ class _DynamicProfileState extends State<DebugPage> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Widgets1(
               maxheight: 500,
-              child: null,
+              child: Padding(
+                padding: const EdgeInsets.all(0),
+                child: Column(
+                  children: [
+                    Labels(title: 'Emissions by activities', color: Apptheme.textclrdark),
+
+                  ],
+                )
+              ),
             ),
           ),
 
@@ -52,7 +67,11 @@ class _DynamicProfileState extends State<DebugPage> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Widgets1(
               maxheight: 500,
-              child: null,
+              child: Column(
+                children: [
+                  Labels(title: 'Declarations', color: Apptheme.textclrdark)
+                ],
+              )
             ),
           ),
 

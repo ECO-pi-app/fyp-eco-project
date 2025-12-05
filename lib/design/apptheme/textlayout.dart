@@ -152,9 +152,11 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
 //--Summaries in each page()--
 class Headertext extends StatefulWidget {
   final String words;
+  final Color backgroundcolor;
 
   const Headertext({super.key, 
   required this.words,
+  this.backgroundcolor = Apptheme.widgetsecondaryclr,
   });
 
   @override
@@ -167,7 +169,7 @@ class _HeadertextState extends State<Headertext> {
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Apptheme.widgetsecondaryclr,
+        color: widget.backgroundcolor,
         borderRadius: BorderRadius.circular(10)
       ),
       child: Text( widget.words,

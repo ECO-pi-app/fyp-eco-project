@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 
-final GlobalKey<ScaffoldState> _openDrawerKey = GlobalKey<ScaffoldState>();
-
 //--Page Header for Home Page--
 class PageHeaderTwo extends StatelessWidget {
   
@@ -170,7 +168,7 @@ class PageheadersState extends State<Pageheaders> {
                         
                           //--CHILD--
                           Padding(
-                            padding: const EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 10),
                             child: Align(
                             alignment: Alignment.centerLeft,
                               child: widget.child,

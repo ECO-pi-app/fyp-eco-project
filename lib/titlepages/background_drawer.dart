@@ -51,24 +51,40 @@ class BackgroundDrawer extends StatelessWidget {
                   
 
       Leftdrawerlisttilelight(
-          title: 'Category Example ', 
+          title: 'Category 1 ', 
           whathappens: () => onSelectPage(6)),
                   
       Leftdrawerlisttilelight(
-          title: 'Category Example', 
+          title: 'Category 2', 
           whathappens: () => onSelectPage(7)),
                   
       Leftdrawerlisttilelight(
-          title: 'Category Example', 
+          title: 'Category 3', 
           whathappens: () => onSelectPage(8)),
 
       Leftdrawerlisttilelight(
-          title: 'Category Example', 
+          title: 'Category 4', 
           whathappens: () => onSelectPage(9)),
 
       Leftdrawerlisttilelight(
-          title: 'Category Example', 
+          title: 'Category 5', 
           whathappens: () => onSelectPage(10)),
+      
+      Leftdrawerlisttilelight(
+          title: 'Category 9', 
+          whathappens: () => onSelectPage(11)),
+      
+      Leftdrawerlisttilelight(
+          title: 'Category 10', 
+          whathappens: () => onSelectPage(12)),
+                
+      Leftdrawerlisttilelight(
+          title: 'Category 11', 
+          whathappens: () => onSelectPage(13)),
+                
+      Leftdrawerlisttilelight(
+          title: 'Category 12', 
+          whathappens: () => onSelectPage(14)),
 
     ];
 
@@ -334,7 +350,7 @@ class Leftdrawerlisttilelight extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 40),
+      padding: const EdgeInsets.only(right: 80),
       child: Container(
         height: 30,
         decoration: 
