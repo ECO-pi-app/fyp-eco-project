@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/drawerlisttile.dart';
 import 'package:test_app/design/apptheme/buttons_and_icons.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
 
@@ -28,11 +27,6 @@ class BackgroundDrawer extends StatelessWidget {
       Leftdrawerlisttile(
           title: 'Attributes', 
           whathappens: () => onSelectPage(1)),
-
-      
-      
-       //--ADD BOUNDARY HERE FOR LATER--
-
     
       Leftdrawerlisttile(
           title: 'Allocation', 
@@ -58,23 +52,23 @@ class BackgroundDrawer extends StatelessWidget {
 
       Leftdrawerlisttilelight(
           title: 'Category Example ', 
-          whathappens: () {}),
+          whathappens: () => onSelectPage(6)),
                   
       Leftdrawerlisttilelight(
           title: 'Category Example', 
-          whathappens: () {}),
+          whathappens: () => onSelectPage(7)),
                   
       Leftdrawerlisttilelight(
           title: 'Category Example', 
-          whathappens: () {}),
+          whathappens: () => onSelectPage(8)),
 
       Leftdrawerlisttilelight(
           title: 'Category Example', 
-          whathappens: () {}),
+          whathappens: () => onSelectPage(9)),
 
       Leftdrawerlisttilelight(
           title: 'Category Example', 
-          whathappens: () {}),
+          whathappens: () => onSelectPage(10)),
 
     ];
 
@@ -272,5 +266,121 @@ class BackgroundDrawer extends StatelessWidget {
       ]
     );
       
+  }
+}
+
+
+class Leftdrawerlisttile extends StatelessWidget {
+  final String title;
+  final VoidCallback? whathappens;
+
+  const Leftdrawerlisttile({
+    super.key,
+    required this.title,
+    this.whathappens = empty,
+  });
+
+  static void empty() {}
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      decoration: 
+        BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Apptheme.drawer,
+        ),
+      child: Container(
+      padding: EdgeInsets.only(top: 1,bottom: 1),
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+        onPressed: whathappens, 
+        child: 
+        SizedBox(
+          width: double.infinity,
+          child: 
+          Text(
+            title,
+            style: TextStyle(
+              color: Apptheme.textclrlight,
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.fade,
+            softWrap: false,
+            maxLines: 1,
+          ),
+        ),
+      ),
+    )
+    );
+  }
+}
+
+class Leftdrawerlisttilelight extends StatelessWidget {
+  final String title;
+  final VoidCallback? whathappens;
+
+  const Leftdrawerlisttilelight({
+    super.key,
+    required this.title,
+    this.whathappens = empty,
+  });
+
+  static void empty() {}
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 40),
+      child: Container(
+        height: 30,
+        decoration: 
+          BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Apptheme.drawerlight,
+          ),
+        child: Container(
+        padding: EdgeInsets.symmetric(vertical: 2),
+        alignment: Alignment.centerLeft,
+        child: 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: Icon(Icons.bookmark, size: 15,),
+            ),
+      
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: whathappens, 
+                  child: 
+                  
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Apptheme.textclrdark,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                      maxLines: 1,
+                    ),
+                  
+                ),
+              ),
+            ),
+          ],
+        ),
+      )
+      ),
+    );
   }
 }

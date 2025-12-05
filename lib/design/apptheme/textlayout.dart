@@ -152,8 +152,10 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
 //--Summaries in each page()--
 class Headertext extends StatefulWidget {
   final String words;
-  final Color color;
-  const Headertext({super.key, required this.words, required this.color});
+
+  const Headertext({super.key, 
+  required this.words,
+  });
 
   @override
   State<Headertext> createState() => _HeadertextState();
@@ -165,7 +167,7 @@ class _HeadertextState extends State<Headertext> {
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: widget.color,
+        color: Apptheme.widgetsecondaryclr,
         borderRadius: BorderRadius.circular(10)
       ),
       child: Text( widget.words,
@@ -173,6 +175,7 @@ class _HeadertextState extends State<Headertext> {
       style: TextStyle(
         fontWeight: FontWeight.bold,
         color: Apptheme.textclrspecial,
+        fontSize: 20
       ),
       overflow: TextOverflow.fade,
       maxLines: 6,
@@ -215,7 +218,7 @@ class Labels extends StatelessWidget {
   }
 }
 
-//--Texts for containers--
+//--Texts inside containers--
 class Textsinsidewidgets extends StatelessWidget {
   final String words;
   final Color color;
@@ -247,7 +250,7 @@ class Textsinsidewidgets extends StatelessWidget {
   }
 }
 
-//--Labels for texts inside buttons--
+//--Texts inside buttons--
 class Labelsinbuttons extends StatelessWidget {
   final String title;
   final Color color;

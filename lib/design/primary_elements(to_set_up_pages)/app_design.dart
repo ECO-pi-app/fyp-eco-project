@@ -20,97 +20,91 @@ class PageHeaderTwo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-    ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: 200,
-        minHeight: 100
-      ),
-      child: Container(
-                height: 100,
-                width: double.infinity,
-                decoration: 
-                BoxDecoration(
-                  color: Apptheme.header,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Apptheme.header,
-                        spreadRadius: 10,
-                        blurRadius: 10,
-                        offset: const Offset(0, 4)
-                      )
-                    ]
-                ),
-                child:
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-      
-                          //--Leading--
-                          Align(
-                            alignment: AlignmentGeometry.center,
-                            child:
-                              Padding (padding: EdgeInsetsGeometry.only(right:0, left: 20, top: 0),
-                                child: 
-                                  SizedBox(
-                                    height: double.infinity,
-                                    width: 60,
-                                    child:
-                                      IconButton(
-                                      onPressed:null,
-                                      icon: 
-                                        Icon(Icons.help,
-                                        size: 30,
-                                        color: Apptheme.iconslight,
-                                        ),
-                                        alignment: AlignmentDirectional.center,
-                                        padding: EdgeInsets.zero,
-                                      ),                          
-                                  ),        
-                                ), 
-                          ),
-      
-                          //--"Title"--
-                          Expanded(
-                            child: 
-                              Container(
-                                padding: EdgeInsets.only(bottom: 12),
-                                color: Apptheme.transparentcheat,
-                                child: Center(
-                                  child: Bigfocusedtext(
-                                    title: title,
-                                  ),
+    Container(
+              height: 160,
+              width: double.infinity,
+              decoration: 
+              BoxDecoration(
+                color: Apptheme.header,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Apptheme.header,
+                      spreadRadius: 10,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4)
+                    )
+                  ]
+              ),
+              child:
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+    
+                        //--Leading--
+                        Align(
+                          alignment: AlignmentGeometry.center,
+                          child:
+                            Padding (padding: EdgeInsetsGeometry.only(right:0, left: 20, top: 0),
+                              child: 
+                                SizedBox(
+                                  height: double.infinity,
+                                  width: 60,
+                                  child:
+                                    IconButton(
+                                    onPressed:null,
+                                    icon: 
+                                      Icon(Icons.help,
+                                      size: 30,
+                                      color: Apptheme.iconslight,
+                                      ),
+                                      alignment: AlignmentDirectional.center,
+                                      padding: EdgeInsets.zero,
+                                    ),                          
+                                ),        
+                              ), 
+                        ),
+    
+                        //--"Title"--
+                        Expanded(
+                          child: 
+                            Container(
+                              padding: EdgeInsets.only(bottom: 12),
+                              color: Apptheme.transparentcheat,
+                              child: Center(
+                                child: Bigfocusedtext(
+                                  title: title,
                                 ),
                               ),
                             ),
-                          
-                          //--Settings (Trailing)--
-                          Align(
-                            alignment: AlignmentGeometry.centerRight,
-                            child:
-                              Padding (padding: EdgeInsetsGeometry.only(right:20, left: 0, top: 0),
-                                child: 
-                                  SizedBox(
-                                    height: double.infinity,
-                                    width: 60,
-                                    child:
-                                      IconButton(
-                                      onPressed: whathappens,
-                                      icon: 
-                                        Icon(Icons.settings,
-                                        size: 30,
-                                        color: Apptheme.iconslight,
-                                        ),
-                                        alignment: AlignmentDirectional.center,
-                                        padding: EdgeInsets.zero,
-                                      ),                          
-                                  ),        
-                                ), 
                           ),
-                          
-                        ],
-                      ) ,
-                  ),
-    );
+                        
+                        //--Settings (Trailing)--
+                        Align(
+                          alignment: AlignmentGeometry.centerRight,
+                          child:
+                            Padding (padding: EdgeInsetsGeometry.only(right:20, left: 0, top: 0),
+                              child: 
+                                SizedBox(
+                                  height: double.infinity,
+                                  width: 60,
+                                  child:
+                                    IconButton(
+                                    onPressed: whathappens,
+                                    icon: 
+                                      Icon(Icons.settings,
+                                      size: 30,
+                                      color: Apptheme.iconslight,
+                                      ),
+                                      alignment: AlignmentDirectional.center,
+                                      padding: EdgeInsets.zero,
+                                    ),                          
+                                ),        
+                              ), 
+                        ),
+                        
+                      ],
+                    ) ,
+                );
   }
 }
 
@@ -175,9 +169,12 @@ class PageheadersState extends State<Pageheaders> {
 
                         
                           //--CHILD--
-                          Align(
-                          alignment: Alignment.centerLeft,
-                            child: widget.child,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Align(
+                            alignment: Alignment.centerLeft,
+                              child: widget.child,
+                            ),
                           )
                         ],
                       ),
@@ -216,3 +213,12 @@ class PageheadersState extends State<Pageheaders> {
   }
 }
 
+//--Primary widgets containing other widgets--
+class PrimaryContainers extends StatelessWidget {
+  const PrimaryContainers({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

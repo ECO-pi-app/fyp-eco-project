@@ -2,37 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 
 class Widgets1 extends StatelessWidget {
-  final double aspectratio;
-  final Widget? child;
+  final Color backgroundcolor ;
+  final Color bordercolor ;
   final double maxheight;
+  final Widget? child;
+
   const Widgets1({super.key, 
-  required this.aspectratio, 
-  this.child,
+  this.backgroundcolor =Apptheme.widgetclrlight,
+  this.bordercolor = Apptheme.widgetborderdark,
   required this.maxheight,
+  this.child,
   });
-
-
 
   @override
   Widget build(BuildContext context) {
     return 
-    ConstrainedBox( constraints: BoxConstraints(maxHeight: maxheight),
-      child: 
-      Container(
+    Padding(
+      padding: const EdgeInsets.all(4),
+      child: Container(
+        height: maxheight,
+        width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Apptheme.widgetclrlight,
+          color: backgroundcolor,
+          borderRadius: BorderRadius.circular(15),
           boxShadow: [BoxShadow(
-            color: Apptheme.header,
+            color: bordercolor,
             spreadRadius: 2,
             blurRadius: 2,
           )],
-          border: Border.all(
-            color: Apptheme.widgetclrlight,
-            width: 1,
-            style: BorderStyle.solid,
-            strokeAlign: BorderSide.strokeAlignOutside,
-            )
         ),
         child: child ,
       ),
@@ -40,38 +37,36 @@ class Widgets1 extends StatelessWidget {
   }
 }
 
-
-class Widgets2 extends StatelessWidget {
-  final double aspectratio;
+//--Widget for products-add box in homepage--
+class AutoAddedWidget extends StatelessWidget {
   final Widget? child;
   final Color color;
-  const Widgets2({super.key, required this.aspectratio, this.child, required this.color});
+
+  const AutoAddedWidget({super.key, 
+  this.child, 
+  required this.color
+  });
 
 
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: 80
+    return Container(
+      height: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: color,
+        border: Border.all(
+          color: Apptheme.widgetborderdark,
+          width: 2,
+          style: BorderStyle.solid,
+          strokeAlign: BorderSide.strokeAlignOutside,
+          )
       ),
-      child: 
-      AspectRatio(
-        aspectRatio: aspectratio,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: color,
-            border: Border.all(
-              color: Apptheme.widgetborderlight,
-              width: 5,
-              style: BorderStyle.solid,
-              strokeAlign: BorderSide.strokeAlignOutside,
-              )
-          ),
-          child: child ,
-        ),
-      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: child,
+      ) ,
     );
   }
 }

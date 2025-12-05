@@ -4,30 +4,30 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dar
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 
 
-class DynamicAllocation extends StatefulWidget {
+class DynamicCredits extends StatefulWidget {
   final VoidCallback settingstogglee;
   final VoidCallback menutoggle;
 
-  const DynamicAllocation({super.key, 
+  const DynamicCredits({super.key, 
   required this.settingstogglee,
   required this.menutoggle,
   });
 
   @override
-  State<DynamicAllocation> createState() => _DynamicProfileState();
+  State<DynamicCredits> createState() => _DynamicCreditsState();
 }
 
-class _DynamicProfileState extends State<DynamicAllocation> {
+class _DynamicCreditsState extends State<DynamicCredits> {
   @override
   Widget build(BuildContext context) {
     return PrimaryPages(
-      menutogglee: widget.menutoggle,
+      menutogglee: widget.menutoggle, 
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 
-        title: 'Allocation', 
-        child: null
-        ),
-      childofmainpage: null
+        title: 'About Us', 
+        child: null,
+      ),
+      childofmainpage: null,
     );
   }
 }

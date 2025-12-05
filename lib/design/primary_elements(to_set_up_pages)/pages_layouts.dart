@@ -3,11 +3,13 @@ import 'package:test_app/design/apptheme/colors.dart';
 
 class PrimaryPages extends StatefulWidget {
   final VoidCallback menutogglee;
+  final double paddingadd;
   final Widget? childofmainpage;
   final Widget? header;
 
   const PrimaryPages({super.key,
   required this.menutogglee,
+  this.paddingadd =0,
   this.childofmainpage,
   required this.header,
   });
@@ -106,7 +108,7 @@ class _PrimaryPagesState extends State<PrimaryPages> {
                           child: Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
                             child: 
                             Container(
-                              padding: EdgeInsets.only(bottom: 15, top:170),
+                              padding: EdgeInsets.only(bottom: 15, top:140+widget.paddingadd),
                               color: Apptheme.backgroundlight,
                               child: widget.childofmainpage,
                             ),

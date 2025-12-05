@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/titlepages/background_drawer.dart';
-import 'package:test_app/screens/dynamic_pages/haboutus.dart';
-import 'package:test_app/screens/dynamic_pages/fallocation.dart';
-import 'package:test_app/screens/dynamic_pages/bdynamichome.dart';
-import 'package:test_app/screens/dynamic_pages/bproductanlys.dart';
-import 'package:test_app/screens/dynamic_pages/gsustainabilitynews.dart';
+import 'package:test_app/screens/dynamic_pages/main_aboutus.dart';
+import 'package:test_app/screens/dynamic_pages/main_fallocation.dart';
+import 'package:test_app/screens/dynamic_pages/main_dynamichome.dart';
+import 'package:test_app/screens/dynamic_pages/main_productanlys.dart';
+import 'package:test_app/screens/dynamic_pages/main_sustainabilitynews.dart';
 import 'package:test_app/screens/dynamic_pages/zdebug.dart';
 
 
@@ -24,6 +24,40 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showMenu = true;
   double drawerwidth = 266;
   double _prevscreenwidth = 0;
+
+  late final List<Widget> pages;
+
+@override
+void initState() {
+  super.initState();
+
+  pages = [
+    KeyedSubtree(
+      key: ValueKey('home'),
+      child: Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle),
+    ),
+    KeyedSubtree(
+      key: ValueKey('analysis'),
+      child: Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle),
+    ),
+    KeyedSubtree(
+      key: ValueKey('allocation'),
+      child: DynamicAllocation(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+    KeyedSubtree(
+      key: ValueKey('news'),
+      child: DynamicSustainabilityNews(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+    KeyedSubtree(
+      key: ValueKey('about'),
+      child: DynamicCredits(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+    KeyedSubtree(
+      key: ValueKey('debug'),
+      child: DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle),
+    ),
+  ];
+}
 
 
   void _onPageSelected(int index) {
@@ -76,14 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _prevscreenwidth = screenwidth;
 
     //--Dynamic Pages (DRAWER DIRECTORY)--
-    final List<Widget> pages = [
-      Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle),
-      Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle),
-      DynamicAllocation(settingstogglee: settingstoggle, menutoggle: menutoggle,),
-      DynamicSustainabilityNews(settingstogglee: settingstoggle, menutoggle: menutoggle,),
-      DynamicCredits(settingstogglee: settingstoggle, menutoggle: menutoggle,),
-      DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle,),
-    ];
+final List<Widget> pages = [
+  KeyedSubtree(key: ValueKey('home'), child: Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle)),
+  KeyedSubtree(key: ValueKey('analysis'), child: Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle)),
+  KeyedSubtree(key: ValueKey('allocation'), child: DynamicAllocation(settingstogglee: settingstoggle, menutoggle: menutoggle)),
+  KeyedSubtree(key: ValueKey('news'), child: DynamicSustainabilityNews(settingstogglee: settingstoggle, menutoggle: menutoggle)),
+  KeyedSubtree(key: ValueKey('about'), child: DynamicCredits(settingstogglee: settingstoggle, menutoggle: menutoggle)),
+  KeyedSubtree(key: ValueKey('debug'), child: DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle)),
+];
+
 
     return Scaffold(
       body: 
@@ -114,7 +149,36 @@ class _HomeScreenState extends State<HomeScreen> {
             child: 
             Container(
               color: Apptheme.transparentcheat,
-              child: pages[_selectedIndex]
+              child: LayoutBuilder(
+  builder: (context, constraints) {
+    return ClipRect(    // <— prevents blank fade glitches
+      child: AnimatedSwitcher(
+        duration: Duration(milliseconds: 250),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+
+        transitionBuilder: (child, animation) {
+          final slide = Tween<Offset>(
+            begin: Offset(0.05, 0),
+            end: Offset.zero,
+          ).animate(animation);
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+
+        child: SizedBox(  // <— forces new widget to render with full size
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          child: pages[_selectedIndex],
+        ),
+      ),
+    );
+  },
+)
+
             ),
           ),
         )
