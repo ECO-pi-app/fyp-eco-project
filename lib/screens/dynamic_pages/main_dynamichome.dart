@@ -5,7 +5,7 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dar
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widget_autosum.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.dart';
+import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dart';
 
 
 

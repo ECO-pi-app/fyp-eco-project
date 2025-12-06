@@ -5,7 +5,7 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dar
 import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets1.dart';
+import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dart';
 
 class Dynamicprdanalysis extends StatefulWidget {
   final VoidCallback settingstogglee;
@@ -78,7 +78,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 1--
       Labels(
-        title: 'Material Emissions: ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂', 
+        title: 'Material Acquisition | ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂', 
         color: Apptheme.textclrlight,
       ),
       Widgets1(maxheight: 250,
@@ -102,7 +102,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 2--
       Labels(
-        title: 'Transport Emissions: ${materialtransportEmission.toStringAsFixed(2)} kg CO₂', 
+        title: 'Upstream Transportation | ${materialtransportEmission.toStringAsFixed(2)} kg CO₂', 
         color: Apptheme.textclrlight,
       ),
       Widgets1(maxheight: 250,
@@ -129,7 +129,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 1--
       Labels(
-        title: 'Machining Emissions: ${machiningemissions.toStringAsFixed(2)} kg CO₂', 
+        title: 'Machining | ${machiningemissions.toStringAsFixed(2)} kg CO₂', 
         color: Apptheme.textclrlight,
         ),
       Widgets1( maxheight: 250,
@@ -153,7 +153,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
      
       //--ROW 2--
       Labels(
-        title: 'Fugitive Emissions: ${fugitiveemissions.toStringAsFixed(2)} kg CO₂', 
+        title: 'Fugitive leaks | ${fugitiveemissions.toStringAsFixed(2)} kg CO₂', 
         color: Apptheme.textclrlight,
         ),
       Widgets1( maxheight: 250,
@@ -181,7 +181,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
     final List<Widget> widgetofpage3=[
       //--ROW 1--
       Labels(
-        title: 'Attribute: Machining', 
+        title: 'Downstream Distribution', 
         color: Apptheme.textclrlight,
         ),
       Widgets1(maxheight: 250,
@@ -200,7 +200,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 2--
       Labels(
-        title: 'Attribute: Machining', 
+        title: 'Downstream Storage', 
         color: Apptheme.textclrlight,
         ),
       Widgets1(maxheight: 250,
@@ -223,7 +223,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Attribute: Machining', 
+            title: 'Use Phase', 
             color: Apptheme.textclrlight,
             ),
         ],
@@ -244,7 +244,7 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
 
       //--ROW 4--
       Labels(
-        title: 'Attribute: Machining', 
+        title: 'End-of-life treatment', 
         color: Apptheme.textclrlight,
         ),
       Widgets1(maxheight: 250,
@@ -261,24 +261,6 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
         ),
       ),
 
-      //--ROW 5--
-      Labels(
-        title: 'Attribute: Machining', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1( maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Process', 'Material', 'Amount',], 
-        isTextFieldColumn: [false, false, true,], 
-        addButtonLabel: 'Add process', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'process', 'materials', ''],
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
     ];
 
     

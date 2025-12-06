@@ -31,6 +31,7 @@ class _TabtextState extends State<Tabtext> {
   }
 }
 
+//---------------------------------------------------------------------------------------//
 
 //--Textfield for sensitive info (passwords)--
 class Typeheresensitive extends StatefulWidget {
@@ -77,7 +78,6 @@ class _TypeheresensitiveState extends State<Typeheresensitive> {
   }
 }
 
-
 //--Textfield for general info--
 class Typehere extends StatefulWidget {
  final String title;
@@ -119,6 +119,7 @@ class _TypehereState extends State<Typehere> {
   }
 }
 
+//---------------------------------------------------------------------------------------//
 
 //--Big Focused Text (APP NAME)--
 class Bigfocusedtext extends StatefulWidget {
@@ -148,8 +149,35 @@ class _BigfocusedtextState extends State<Bigfocusedtext> {
   }
 }
 
+//--Title texts for pages--
+class Titletext extends StatelessWidget {
 
-//--Summaries in each page()--
+  final String title;
+  final Color color;
+  final double fontsize;
+
+  const Titletext({super.key,
+  required this.title,
+  this. color = Apptheme.textclrlight,
+  this.fontsize = 30,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(title,
+      style: TextStyle(
+        color: color,
+        fontSize: 30,
+        fontWeight: FontWeight.bold,
+      ),
+      textAlign: TextAlign.left,
+      overflow: TextOverflow.fade,
+      softWrap: false,
+    );
+  }
+}
+
+//--Text inside headers in each page()--
 class Headertext extends StatefulWidget {
   final String words;
   final Color backgroundcolor;
@@ -186,7 +214,6 @@ class _HeadertextState extends State<Headertext> {
     );
   }
 }
-
 
 //--Labels for containers--
 class Labels extends StatelessWidget {
@@ -225,11 +252,13 @@ class Textsinsidewidgets extends StatelessWidget {
   final String words;
   final Color color;
   final double fontsize;
+  final double leftpaddingadd;
 
   const Textsinsidewidgets({super.key, 
   required this.words,
   required this.color,
-  this.fontsize = 12,
+  this.fontsize = 15,
+  this.leftpaddingadd = 0,
   });
 
   @override
@@ -238,13 +267,21 @@ class Textsinsidewidgets extends StatelessWidget {
       
       return
       Container(
-        padding: EdgeInsets.only(left: 5, top: 10, bottom: 0),
+        padding: EdgeInsets.only(left: 5+leftpaddingadd, top: 10, right: 5),
         child: 
-        Text(words, style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w500,
-          fontSize: fontsize,
-        ),)
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(words, style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w700,
+            fontSize: fontsize,
+            ),
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.fade,
+            softWrap: true,
+            maxLines: 10,
+          ),
+        )
       );
     } 
 
@@ -293,31 +330,3 @@ class Labelsinbuttons extends StatelessWidget {
   }
 }
 
-
-//--Title texts for pages--
-class Titletext extends StatelessWidget {
-
-  final String title;
-  final Color color;
-  final double fontsize;
-
-  const Titletext({super.key,
-  required this.title,
-  this. color = Apptheme.textclrlight,
-  this.fontsize = 30,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(title,
-      style: TextStyle(
-        color: color,
-        fontSize: 30,
-        fontWeight: FontWeight.bold,
-      ),
-      textAlign: TextAlign.left,
-      overflow: TextOverflow.fade,
-      softWrap: false,
-    );
-  }
-}
