@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException #http is used for get,post,put/delete-communication btw dart and python. #fastapi-talks from python to flutter using http
+from fastapi import FastAPI, HTTPException, Query #http is used for get,post,put/delete-communication btw dart and python. #fastapi-talks from python to flutter using http
 from pydantic import BaseModel #input quality checker which makes sure no required fields r missing, is structured correctly and has the right types.
 import openpyxl #bridge that lets Python understand and extract data from Excel spreadsheets.
 import json #used to store text files like dictionaries or lists
@@ -6,6 +6,7 @@ import os #lets python interact with operation systems. e.g.windows,macOS,Linux
 from typing import List, Dict, Optional 
 from geopy.distance import geodesic #used to calculate the shortest distance btw two point on the earth, using latitude and longitude
 from geopy.geocoders import Nominatim #converting a place name like "Germany" into latitude and longtiude coordinates
+import requests
 import re 
 
                 #1.File Storage Setup#
@@ -624,10 +625,27 @@ class ProfileSaveRequest(BaseModel):
     description: Optional[str] = ""
     data: dict  # arbitrary blob from Flutter (full form state)
 
+class NewsArticle(BaseModel):
+    title: str
+    description: Optional[str]
+    url: str
+    source: str
+    published_at: Optional[str]
+    image_url: Optional[str]
+
+
+class NewsResponse(BaseModel):
+    total_results: int
+    articles: List[NewsArticle]
+
 
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
+
+# --- NewsAPI configuration ---
+NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "adfd0f78d5304adea0d4490623f32aec")
+NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 
 @app.get("/meta/machines")
 def get_machinedata():
@@ -794,6 +812,55 @@ def get_machinetypes_YCM():
         "main_spindle":Mazak_main_spindle,
         "Sub Spindle":Mazak_sub_spindle
     }
+
+@app.get("/news/sustainability", response_model=NewsResponse)
+def get_sustainability_news():
+    """
+    Returns sustainability & carbon-emissions–related news articles
+    for the Flutter UI.
+    """
+    if not NEWSAPI_KEY or NEWSAPI_KEY == "YOUR_NEWSAPI_KEY_HERE":
+        raise HTTPException(
+            status_code=500,
+            detail="NEWSAPI_KEY is not set in environment variables."
+        )
+
+    params = {
+        "q": 'sustainability OR "carbon emissions" OR "climate change"',
+        "apiKey": NEWSAPI_KEY,
+        "language": "en",
+        "pageSize": 10,
+        "sortBy": "publishedAt",
+    }
+
+    try:
+        resp = requests.get(NEWSAPI_ENDPOINT, params=params, timeout=10)
+    except requests.RequestException:
+        raise HTTPException(status_code=502, detail="Unable to reach NewsAPI.")
+
+    if resp.status_code != 200:
+        raise HTTPException(
+            status_code=resp.status_code,
+            detail=resp.json().get("message", "NewsAPI error")
+        )
+
+    data = resp.json()
+    articles = []
+
+    for art in data.get("articles", []):
+        articles.append(NewsArticle(
+            title=art.get("title") or "",
+            description=art.get("description"),
+            url=art.get("url") or "",
+            source=(art.get("source") or {}).get("name", ""),
+            published_at=art.get("publishedAt"),
+            image_url=art.get("urlToImage"),
+        ))
+
+    return NewsResponse(
+        total_results=data.get("totalResults", 0),
+        articles=articles
+    )
 
 @app.get("/profiles/{profile_name}")
 def get_profile(profile_name: str):
