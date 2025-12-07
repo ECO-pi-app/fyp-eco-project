@@ -64,7 +64,7 @@ void initState() {
     ),
     KeyedSubtree(
       key: ValueKey('debug'),
-      child: DebugPage(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: DebugPage(),
     ),
 
     //--BOOKMARKS---------------------------------------------------------------------

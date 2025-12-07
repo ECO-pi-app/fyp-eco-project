@@ -1,0 +1,125 @@
+final machinesProvider = Provider<List<String>>((ref) {
+  final machines = ref.watch(metaOptionsProvider).value?.machines ?? [];
+  debugPrint('machinesProvider returns: $machines');
+  return machines;
+});
+
+final packagingTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.packagingTypes ?? [];
+  debugPrint('packagingTypesProvider returns: $list');
+  return list;
+});
+
+final recyclingTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.recyclingTypes ?? [];
+  debugPrint('recyclingTypesProvider returns: $list');
+  return list;
+});
+
+final gridIntensityProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.gridIntensity ?? [];
+  debugPrint('gridIntensityProvider returns: $list');
+  return list;
+});
+
+final transportTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.transportTypes ?? [];
+  debugPrint('transportTypesProvider returns: $list');
+  return list;
+});
+
+final indicatorProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.indicator ?? [];
+  debugPrint('indicatorProvider returns: $list');
+  return list;
+});
+
+final ghgProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.ghg ?? [];
+  debugPrint('ghgProvider returns: $list');
+  return list;
+});
+
+final gwpProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.gwp ?? [];
+  debugPrint('gwpProvider returns: $list');
+  return list;
+});
+
+final processProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.process ?? [];
+  debugPrint('processProvider returns: $list');
+  return list;
+});
+
+final facilitiesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.facilities ?? [];
+  debugPrint('facilitiesProvider returns: $list');
+  return list;
+});
+
+final usageTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.usageTypes ?? [];
+  debugPrint('usageTypesProvider returns: $list');
+  return list;
+});
+
+final disassemblyByIndustryProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.disassemblyByIndustry ?? [];
+  debugPrint('disassemblyByIndustryProvider returns: $list');
+  return list;
+});
+
+final machineTypeProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.machineType ?? [];
+  debugPrint('machineTypeProvider returns: $list');
+  return list;
+});
+
+final ycmTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.ycmTypes ?? [];
+  debugPrint('ycmTypesProvider returns: $list');
+  return list;
+});
+
+final amadaTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.amadaTypes ?? [];
+  debugPrint('amadaTypesProvider returns: $list');
+  return list;
+});
+
+final mazakTypesProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.mazakTypes ?? [];
+  debugPrint('mazakTypesProvider returns: $list');
+  return list;
+});
+
+final vanModeProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.vanMode ?? [];
+  debugPrint('vanModeProvider returns: $list');
+  return list;
+});
+
+final vanEmissionsProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.vanEmissions ?? [];
+  debugPrint('vanEmissionsProvider returns: $list');
+  return list;
+});
+
+final hgvModeProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.hgvMode ?? [];
+  debugPrint('hgvModeProvider returns: $list');
+  return list;
+});
+
+final hgvEmissionsProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.hgvEmissions ?? [];
+  debugPrint('hgvEmissionsProvider returns: $list');
+  return list;
+});
+
+final hgvREmissionsProvider = Provider<List<String>>((ref) {
+  final list = ref.watch(metaOptionsProvider).value?.hgvREmissions ?? [];
+  debugPrint('hgvREmissionsProvider returns: $list');
+  return list;
+});
