@@ -39,12 +39,12 @@ Future<void> fetchNews() async {
     final url = Uri.parse("http://127.0.0.1:8000/news/sustainabilit");
     final response = await http.get(url);
 
-    if (!mounted) return;  // PREVENT setState after widget unmounts
+    if (!mounted) return;  
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      if (!mounted) return; // double-check before setState
+      if (!mounted) return; 
 
       setState(() {
         articles = List<Map<String, dynamic>>.from(data['articles']);
