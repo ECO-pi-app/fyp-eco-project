@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/sub_navigator.dart';
@@ -22,7 +23,7 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
