@@ -46,6 +46,8 @@ class DynamicDropdownMaterialAcquisitionState extends State<DynamicDropdownMater
   String? result;
   List<dynamic> tableData = [];
 
+  Map<int, List<Map<String, dynamic>>> fullArticleData = {};
+
 
  
 
@@ -140,16 +142,46 @@ Future<void> calculateAndSendAllRows() async {
 
       if (endpoint.isEmpty || jsonKey == null) continue;
 
+      debugPrint("🔍 Fetching column $i from $endpoint (jsonKey = $jsonKey)");
+
       try {
         final response = await http.get(Uri.parse(endpoint));
+        debugPrint("📡 Column $i response status: ${response.statusCode}");
 
         if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
+          final data = jsonDecode(response.body) as Map<String,dynamic>;
+          debugPrint("📦 Column $i response keys: ${data.keys.toList()}");
 
           List<String> items = [];
-          if (data[jsonKey] != null && data[jsonKey] is List) {
-            items = List<String>.from(data[jsonKey]);
+          final dynamic raw = data[jsonKey];
+
+           debugPrint("🧩 Column $i raw type: ${raw?.runtimeType}");
+          
+          if (raw is List) {
+
+            if (raw.isNotEmpty && raw.first is String) {
+              items = List<String>.from(raw);
+            }
+
+            else if (raw.isNotEmpty && raw.first is Map) {
+              fullArticleData[i] =
+                List<Map<String, dynamic>>.from(raw);
+
+              items = raw.map<String>((article) => 
+              (article['title'] ?? '').toString()).toList();
+              
+              items = raw.map<String>((article) => 
+              (article['title'] ?? '').toString()).toList();
+            }
           }
+
+          debugPrint("✅ Column $i loaded ${items.length} items:");
+        for (var item in items.take(5)) {
+          debugPrint("   • $item");
+        }
+        if (items.length > 5) {
+          debugPrint("   • ... (${items.length - 5} more)");
+        }
 
           setState(() {
             dropdownData[i] = items;
@@ -215,7 +247,7 @@ Future<void> calculateAndSendAllRows() async {
         Column(
           children: [
 
-            Container(
+            SizedBox(
               height: 200,
               child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,

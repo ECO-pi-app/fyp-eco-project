@@ -306,7 +306,7 @@ final List<Map<String, double>> toggleTotals = [
                     ),
                                   
                     Expanded(
-                      child: Container(
+                      child: SizedBox(
                         height: 300,
                         child: PieChart(duration: const Duration(milliseconds: 500),
                         curve: Curves.easeInOut,

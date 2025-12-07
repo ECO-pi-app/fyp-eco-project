@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dart';
@@ -20,62 +22,125 @@ class DebugPage extends StatefulWidget {
 }
 
 class _DynamicProfileState extends State<DebugPage> {
+List<Map<String, dynamic>> articles = [];
+bool isLoading = true;
+String? errorMessage;
+
+@override
+void initState() {
+  super.initState();
+  fetchNews();
+}
+
+Future<void> fetchNews() async {
+  try {
+    final url = Uri.parse("http://127.0.0.1:8000/");
+    final response = await http.get(url);
+
+    if (!mounted) return;  
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (!mounted) return; 
+
+      setState(() {
+        articles = List<Map<String, dynamic>>.from(data['articles']);
+        isLoading = false;
+      });
+    } else {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = "Server returned ${response.statusCode}";
+        isLoading = false;
+      });
+    }
+  } catch (e) {
+    if (!mounted) return;
+    setState(() {
+      errorMessage = e.toString();
+      isLoading = false;
+    });
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
-    return  PrimaryPages(
+    return PrimaryPages(
+      paddingadd: 15,
       menutogglee: widget.menutoggle, 
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 
-        title: 'Category 1', 
-        child: Headertext(
-          words: 'Purchased Goods and Services',
-          backgroundcolor: Apptheme.header,
-        )
+        title: 'Testing', 
+        child: null
       ),
-      childofmainpage: ListView(
-        children: [
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Widgets1(
-              maxheight: 500,
-              child: Column(
-                children: [
-                  Labels(title: 'Attributes included', color: Apptheme.textclrdark)
-                ],
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Widgets1(
-              maxheight: 500,
-              child: Padding(
-                padding: const EdgeInsets.all(0),
-                child: Column(
-                  children: [
-                    Labels(title: 'Emissions by activities', color: Apptheme.textclrdark),
-
-                  ],
+      childofmainpage: Widgets1(
+        maxheight: 250,
+        backgroundcolor: Apptheme.widgetsecondaryclr,
+        child:  isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : errorMessage != null
+            ? Center(child: 
+                Text('There appears to be a network issue. \n Please make sure you are connected to the internet.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w300,
+                  color: Apptheme.textclrlight,
+                ),
                 )
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Widgets1(
-              maxheight: 500,
-              child: Column(
-                children: [
-                  Labels(title: 'Declarations', color: Apptheme.textclrdark)
-                ],
               )
-            ),
-          ),
+            : ListView.builder(
+                itemCount: articles.length,
+                itemBuilder: (context, index) {
+                  final article = articles[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Apptheme.widgetclrlight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title
+                          Text(
+                            article['title'] ?? 'No Title',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
 
-        ],
+                          const SizedBox(height: 6),
+
+                          // Source
+                          Text(
+                            "Source: ${article['source'] ?? 'Unknown'}",
+                            style: const TextStyle(fontSize: 12),
+                          ),
+
+                          const SizedBox(height: 6),
+
+                          // URL
+                          Text(
+                            article['url'] ?? 'No URL',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+
       ),
     );
   }
