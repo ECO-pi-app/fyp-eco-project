@@ -334,17 +334,17 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
     'machining': {
       'endpoint': 'http://127.0.0.1:8000/calculate/machine_power_emission',
       'apiKeys': {
-        "Machine": "machine",
+        "Machine": "machine_model",
         "Country": "country",
-        "Time of operation": "time",
+        "Time of operation": "time_operated_hr",
       }
     },
     'fugitive': {
       'endpoint': 'http://127.0.0.1:8000/calculate/fugitive_emissions',
       'apiKeys': {
-        "GHG": "gas_type",
-        "Total Charge": "charge_total",
-        "Remaining Charge": "remaining_charge",
+        "GHG": "ghg_name",
+        "Total Charge": "total_charged_amount_kg",
+        "Remaining Charge": "current_charge_amount_kg",
       }
     },
   };
@@ -363,18 +363,24 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
     for (var row in rows) {
       final payload = <String, dynamic>{};
 
-      for (int i = 0; i < row.columnTitles.length; i++) {
-        final columnName = row.columnTitles[i];
-        final apiKey = apiKeyMap[columnName];
-        if (apiKey == null) continue;
+for (int i = 0; i < row.columnTitles.length; i++) {
+  final columnName = row.columnTitles[i];
+  final apiKey = apiKeyMap[columnName];
+  final rawValue = row.selections[i];
 
-        final rawValue = row.selections[i];
+  if (apiKey != null) {
+    payload[apiKey] = row.isTextFieldColumn[i]
+        ? double.tryParse(rawValue ?? '0') ?? 0
+        : rawValue ?? '';
+  } else {
+    print('Column "$columnName" has no mapping in apiKeyMap!'); // <- this will catch mismatches
+  }
+}
 
-        payload[apiKey] = row.isTextFieldColumn[i]
-            ? double.tryParse(rawValue ?? '0') ?? 0
-            : rawValue ?? '';
-      }
+      
 
+      print("Payload for $featureType: $payload");
+ 
       final response = await http.post(
         Uri.parse(endpoint),
         headers: {"Content-Type": "application/json"},

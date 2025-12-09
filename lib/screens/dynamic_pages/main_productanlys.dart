@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/app_design.dart';
+import 'package:test_app/design/secondary_elements_(to_design_pages)/attributes.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes.dart';
@@ -77,16 +78,17 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
   @override
   Widget build(BuildContext context) {
+  final emissions = ref.watch(emissionCalculatorProvider);
 
 final List<Widget> widgetofpage1 = [
   //--ROW 1--
   Labels(
-    title: 'Material Acquisition | ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂',
+    title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} kg CO₂',
     color: Apptheme.textclrlight,
   ),
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Country', 'Material', 'Mass (kg)'],
       isTextFieldColumn: [false, false, true],
       dropDownLists: [
@@ -95,6 +97,7 @@ final List<Widget> widgetofpage1 = [
         [],
       ],
       addButtonLabel: 'Add material',
+      type: 'material',
       padding: 5,
       onTotalEmissionCalculated: (total) {
         setState(() {
@@ -108,12 +111,12 @@ final List<Widget> widgetofpage1 = [
 
   //--ROW 2--
   Labels(
-    title: 'Upstream Transportation | ${materialtransportEmission.toStringAsFixed(2)} kg CO₂',
+    title: 'Upstream Transportation | ${emissions.transport.toStringAsFixed(2)} kg CO₂',
     color: Apptheme.textclrlight,
   ),
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Class', 'Distance'],
       isTextFieldColumn: [false, true],
       dropDownLists: [
@@ -129,6 +132,7 @@ final List<Widget> widgetofpage1 = [
       },
       apiKeyMap: apiKeytransport,
       endpoint: 'http://127.0.0.1:8000/calculate/van',
+      type: 'transport',
     ),
   ),
 ];
@@ -136,12 +140,12 @@ final List<Widget> widgetofpage1 = [
 final List<Widget> widgetofpage2 = [
   //--ROW 1--
   Labels(
-    title: 'Machining | ${machiningemissions.toStringAsFixed(2)} kg CO₂',
+    title: 'Machining | ${emissions.machining.toStringAsFixed(2)} kg CO₂',
     color: Apptheme.textclrlight,
   ),
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Machine', 'Country', 'Time of operation'],
       isTextFieldColumn: [false, false, true],
       dropDownLists: [
@@ -150,6 +154,7 @@ final List<Widget> widgetofpage2 = [
         [],
       ],
       addButtonLabel: 'Add machine cycle',
+      type: 'machining',
       padding: 5,
       apiKeyMap: apiKeymachining,
       endpoint: 'http://127.0.0.1:8000/calculate/machine_power_emission',
@@ -163,12 +168,12 @@ final List<Widget> widgetofpage2 = [
 
   //--ROW 2--
   Labels(
-    title: 'Fugitive leaks | ${fugitiveemissions.toStringAsFixed(2)} kg CO₂',
+    title: 'Fugitive leaks | ${emissions.fugitive.toStringAsFixed(2)} kg CO₂',
     color: Apptheme.textclrlight,
   ),
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['GHG', 'Total Charge', 'Remaining Charge'],
       isTextFieldColumn: [false, true, true],
       dropDownLists: [
@@ -177,6 +182,7 @@ final List<Widget> widgetofpage2 = [
         [],
       ],
       addButtonLabel: 'Add GHG',
+      type: 'fugitive',
       padding: 5,
       onTotalEmissionCalculated: (total) {
         setState(() {
