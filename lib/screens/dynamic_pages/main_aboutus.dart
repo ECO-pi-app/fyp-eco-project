@@ -23,6 +23,7 @@ class _DynamicCreditsState extends State<DynamicCredits> {
   Widget build(BuildContext context) {
     return PrimaryPages(
       menutogglee: widget.menutoggle, 
+      paddingadd: 15,
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 
         title: 'About Us', 

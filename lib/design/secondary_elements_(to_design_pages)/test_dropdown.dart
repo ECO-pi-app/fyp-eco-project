@@ -1,19 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 
 
-class DynamicDropdownMaterialAcquisition extends ConsumerStatefulWidget {
+class TestDropdown extends StatefulWidget {
   final List<String> columnTitles;
   final List<bool> isTextFieldColumn;
+  final List<String> apiEndpoints;
+  final List<String?> jsonKeys;
   
-  final List<List<String>>? dropDownLists;
-
 
   final String addButtonLabel;
   final double padding;
@@ -23,12 +21,14 @@ class DynamicDropdownMaterialAcquisition extends ConsumerStatefulWidget {
   final Map<String, String> apiKeyMap; 
 
 
-  const DynamicDropdownMaterialAcquisition({
+  const TestDropdown({
     super.key,
     required this.columnTitles,
     required this.isTextFieldColumn,
+    required this.apiEndpoints,
+    required this.jsonKeys,
 
-    this.dropDownLists,
+
 
     required this.addButtonLabel,
     required this.padding,
@@ -39,21 +39,20 @@ class DynamicDropdownMaterialAcquisition extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DynamicDropdownMaterialAcquisition> createState() =>
-      _DynamicDropdownMaterialAcquisitionState();
+  State<TestDropdown> createState() =>
+      TestDropdownState();
 }
 
-class _DynamicDropdownMaterialAcquisitionState
-    extends ConsumerState<DynamicDropdownMaterialAcquisition> {
+class TestDropdownState extends State<TestDropdown> {
+
+  late List<List<String?>> selections;
+  Map<int, List<String>> dropdownData = {};
   
   String? result;
   List<dynamic> tableData = [];
 
   Map<int, List<Map<String, dynamic>>> fullArticleData = {};
 
-  List<List<String?>> selections = [];
-
-  late List<List<String>> dropDownListsInternal;
 
  
 
@@ -114,27 +113,15 @@ Future<void> calculateAndSendAllRows() async {
 }
 
 
-@override
-void initState() {
-  super.initState();
-
-  final defaultList = ref.read(countriesProvider); 
-
-  dropDownListsInternal = widget.dropDownLists ??
-      List.generate(widget.columnTitles.length, (index) => defaultList);
-
-  selections = List.generate(
-    widget.columnTitles.length,
-    (col) => [
-      widget.isTextFieldColumn[col]
-          ? ''
-          : (dropDownListsInternal[col].isNotEmpty
-              ? dropDownListsInternal[col].first
-              : '')
-    ],
-  );
-}
-
+  @override
+  void initState() {
+    super.initState();
+    selections = List.generate(
+      widget.columnTitles.length,
+      (col) => [''],
+    );
+    fetchAllColumnData();
+  }
 
   List<Map<String, String?>> formattedRows() {
     final rows = <Map<String, String?>>[];
@@ -151,13 +138,75 @@ void initState() {
     return rows;
   }
 
+  Future<void> fetchAllColumnData() async {
+    dropdownData.clear();
+
+    for (int i = 0; i < widget.apiEndpoints.length; i++) {
+      String endpoint = widget.apiEndpoints[i];
+      String? jsonKey = widget.jsonKeys[i];
+
+      if (endpoint.isEmpty || jsonKey == null) continue;
+
+      debugPrint("🔍 Fetching column $i from $endpoint (jsonKey = $jsonKey)");
+
+      try {
+        final response = await http.get(Uri.parse(endpoint));
+        debugPrint("📡 Column $i response status: ${response.statusCode}");
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body) as Map<String,dynamic>;
+          debugPrint("📦 Column $i response keys: ${data.keys.toList()}");
+
+          List<String> items = [];
+          final dynamic raw = data[jsonKey];
+
+           debugPrint("🧩 Column $i raw type: ${raw?.runtimeType}");
+          
+          if (raw is List) {
+
+            if (raw.isNotEmpty && raw.first is String) {
+              items = List<String>.from(raw);
+            }
+
+            else if (raw.isNotEmpty && raw.first is Map) {
+              fullArticleData[i] = List<Map<String, dynamic>>.from(raw);
+
+              items = raw.map<String>((article) => 
+              (article['title'] ?? '').toString()).toList();
+              
+              items = raw.map<String>((article) => 
+              (article['title'] ?? '').toString()).toList();
+            }
+          }
+
+          debugPrint("✅ Column $i loaded ${items.length} items:");
+        for (var item in items.take(5)) {
+          debugPrint("   • $item");
+        }
+        if (items.length > 5) {
+          debugPrint("   • ... (${items.length - 5} more)");
+        }
+
+          setState(() {
+            dropdownData[i] = items;
+              if (selections[i].isNotEmpty && items.isNotEmpty) {
+              selections[i][0] = items.first;
+            }
+          });
+        }
+      } catch (e) {
+        debugPrint("Failed load col $i : $e");
+      }
+    }
+  }
+
   void _addRow() {
     setState(() {
       for (int col = 0; col < selections.length; col++) {
         if (widget.isTextFieldColumn[col]) {
           selections[col].add('');
         } else {
-          final items = dropDownListsInternal[col];
+          final items = dropdownData[col] ?? [];
           selections[col].add(items.isNotEmpty ? items.first : '');
         }
       }
@@ -176,6 +225,8 @@ void initState() {
   final body = formattedRows();
   print(body);
 }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -271,108 +322,114 @@ void initState() {
                                             ),
                                         ),
                                       
-                                      Expanded(child: widget.isTextFieldColumn[col]
-                                        ? TextField(
-                                          enabled: true,
-                                            cursorColor: Apptheme.textclrlight,
-                                            cursorHeight: 15,
-                                              keyboardType: TextInputType.number,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter.allow(
-                                                    RegExp(r'[0-9.]')),
-                                              ],
-                                              style: TextStyle(
-                                                  color: Apptheme.textclrlight),
-                                              decoration: const InputDecoration(
-                                                isDense: true,
-                                                                                                
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: Apptheme.unselected,
-                                                  )
-                                                ),
-            
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: Apptheme.widgetborderlight
-                                                  )
-                                                ),
-            
-                                                errorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: Apptheme.error,
-                                                  )
-                                                ),
-            
-                                                focusedErrorBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: Apptheme.error,
-                                                  )
-                                                ),
-            
-                                                disabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: Apptheme.widgetsecondaryclr,
-                                                  )
-                                                ),
-            
-                                                contentPadding: EdgeInsets.symmetric(
-                                                    horizontal: 4, vertical: 0),
-                                              ),
-                                              onChanged: (val) {
-                                                setState(() {
-                                                  selections[col][row] = val;
-                                                });
-                                              },
-                                            )
-                                        : ((dropDownListsInternal[col].isEmpty))
-                                          ? const Center(
-                                              child: SizedBox(
-                                                height: 16,
-                                                width: 16,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: Apptheme.eXTRA2,
-                                                  ),
-                                              ),
-                                            )
-                                          : DropdownButtonHideUnderline(
-                                                      child: 
-                                                      DropdownButton<String>(
-                                                        dropdownColor: Apptheme.widgetsecondaryclr,
-                                                        icon:
-                                                          Icon(Icons.arrow_drop_down,
-                                                            color: Apptheme.iconslight,
-                                                            size: 20,
-                                                          ),
-                                                        padding: EdgeInsets.zero,
-                                                        style: TextStyle(
-                                                            fontSize: 15,
-                                                            color: Apptheme.textclrlight,
-                                                            fontWeight: FontWeight.w500
-                                                          ),
-                                                        value: selections[col][row],
-                                                        isExpanded: true,
-                                                        items: (dropDownListsInternal[col]).isEmpty
-                                                            ? [const DropdownMenuItem(value: '',child: Text("Loading..."),)]
-                                                            : dropDownListsInternal[col]
-                                                                .map((item) => DropdownMenuItem(
-                                                                  value: item,
-                                                                  child: Text(
-                                                                    item,
-                                                                    overflow: TextOverflow.fade,
-                                                                    maxLines: 1,
-                                                                    softWrap: false,
-                                                                  ),
-                                                                ))
-                                                                .toList(),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            selections[col][row] = value;
-                                                          });
-                                                        },
-                                                      ),
+                                      Expanded(
+                                        child: widget.isTextFieldColumn[col]
+                                            ? TextField(
+                                              enabled: true,
+                                                cursorColor: Apptheme.textclrlight,
+                                                cursorHeight: 15,
+                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter.allow(
+                                                        RegExp(r'[0-9.]')),
+                                                  ],
+                                                  style: TextStyle(
+                                                      color: Apptheme.textclrlight),
+                                                  decoration: const InputDecoration(
+                                                    isDense: true,
+                                                                                                    
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Apptheme.unselected,
+                                                      )
                                                     ),
+                
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Apptheme.widgetborderlight
+                                                      )
+                                                    ),
+                
+                                                    errorBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Apptheme.error,
+                                                      )
+                                                    ),
+                
+                                                    focusedErrorBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Apptheme.error,
+                                                      )
+                                                    ),
+                
+                                                    disabledBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Apptheme.widgetsecondaryclr,
+                                                      )
+                                                    ),
+                
+                                                    contentPadding: EdgeInsets.symmetric(
+                                                        horizontal: 4, vertical: 0),
+                                                  ),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      selections[col][row] = val;
+                                                    });
+                                                  },
+                                                )
+                                              : (dropdownData[col] == null || dropdownData[col]!.isEmpty)
+                                                  ? const Center(
+                                                      child: SizedBox(
+                                                        height: 16,
+                                                        width: 16,
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: Apptheme.eXTRA2,
+                                                          ),
+                                                      ),
+                                                    )
+                                            : DropdownButtonHideUnderline(
+                                                child: 
+                                                DropdownButton<String>(
+                                                  dropdownColor: Apptheme.widgetsecondaryclr,
+                                                    icon:
+                                                     Icon(Icons.arrow_drop_down,
+                                                       color: Apptheme.iconslight,
+                                                       size: 20,
+                                                     ),
+                                                    padding: EdgeInsets.zero,
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: Apptheme.textclrlight,
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                    value: selections[col][row],
+                                                    isExpanded: true,
+                                                      items: (dropdownData[col] ?? []).isEmpty
+                                                          ? [
+                                                              const DropdownMenuItem(
+                                                                value: '',
+                                                                child: Text("Loading..."),
+                                                              )
+                                                            ]
+                                                          : dropdownData[col]!
+                                                              .map((item) => DropdownMenuItem(
+                                                                    value: item,
+                                                                    child: Text(
+                                                                      item,
+                                                                      overflow: TextOverflow.fade,
+                                                                      maxLines: 1,
+                                                                      softWrap: false,
+                                                                    ),
+                                                                  ))
+                                                              .toList(),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      selections[col][row] = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
                                       ),
                 
                                       if (col == 0)

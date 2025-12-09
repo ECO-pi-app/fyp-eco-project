@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/design/secondary_elements_(to_design_pages)/testdropdown.dart';
 import 'package:test_app/riverpod.dart';
 
 class DebugPage extends ConsumerWidget {
@@ -9,16 +8,26 @@ class DebugPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metaOptionsAsync = ref.watch(metaOptionsProvider);
-    final test = ref.watch(testProvider);
+    final test = ref.watch(countriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Test Materials Provider')),
-      body: Center(
+      appBar: AppBar(title: const Text('Test Materials Provider')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
+            ElevatedButton(
+              onPressed: () {
+                // This refreshes the FutureProvider
+                ref.refresh(metaOptionsProvider);
+              },
+              child: const Text('Refresh Data'),
+            ),
+            const SizedBox(height: 20),
             Text('Raw FutureProvider: $metaOptionsAsync'),
             const SizedBox(height: 20),
-            Text('Test: $test'),
+            const Text('Test items:'),
+            ...test.map((item) => Text(item)).toList(),
           ],
         ),
       ),

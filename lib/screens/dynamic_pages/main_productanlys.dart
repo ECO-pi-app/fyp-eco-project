@@ -6,8 +6,10 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.d
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/dropdown_attributes.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/riverpod.dart';
 
-class Dynamicprdanalysis extends StatefulWidget {
+class Dynamicprdanalysis extends ConsumerStatefulWidget {
   final VoidCallback settingstogglee;
   final VoidCallback menutogglee;
 
@@ -17,10 +19,10 @@ class Dynamicprdanalysis extends StatefulWidget {
   });
 
   @override
-  State<Dynamicprdanalysis> createState() => _DynamicprdanalysisState();
+  ConsumerState<Dynamicprdanalysis> createState() => _DynamicprdanalysisState();
 }
 
-class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
+class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
   String? result;
   List<dynamic> tableData = [];
@@ -31,25 +33,27 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
   double totalemissions = 0;
   bool showThreePageTabs = true;
 
+  
+
   final  Map<String, String> apiKeymaterials = {
       "Country": "country",
       "Material": "material",
       "Mass (kg)": "mass_kg",
   };
 
-    final  Map<String, String> apiKeytransport = {
+  final  Map<String, String> apiKeytransport = {
       "Class": "transport_type",
       "Distance": "distance_km",
   };
 
-    final  Map<String, String> apiKeyfugitive = 
+  final  Map<String, String> apiKeyfugitive = 
     {
       "GHG": "ghg_name",
       "Total Charge": "total_charged_amount_kg",
       "Remaining Charge": "current_charge_amount_kg",
     };
 
-        final  Map<String, String> apiKeymachining = 
+  final  Map<String, String> apiKeymachining = 
     {
       "Machine": "machine_model",
       "Country": "country",
@@ -74,194 +78,186 @@ class _DynamicprdanalysisState extends State<Dynamicprdanalysis> {
   @override
   Widget build(BuildContext context) {
 
-    final List<Widget> widgetofpage1=[
+final List<Widget> widgetofpage1 = [
+  //--ROW 1--
+  Labels(
+    title: 'Material Acquisition | ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Country', 'Material', 'Mass (kg)'],
+      isTextFieldColumn: [false, false, true],
+      dropDownLists: [
+        ref.watch(countriesProvider),
+        ref.watch(materialsProvider),
+        [],
+      ],
+      addButtonLabel: 'Add material',
+      padding: 5,
+      onTotalEmissionCalculated: (total) {
+        setState(() {
+          materialupstreamEmission = total;
+        });
+      },
+      apiKeyMap: apiKeymaterials,
+      endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+    ),
+  ),
 
-      //--ROW 1--
-      Labels(
-        title: 'Material Acquisition | ${materialupstreamEmission.toStringAsFixed(2)} kg CO₂', 
-        color: Apptheme.textclrlight,
-      ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Country','Material', 'Mass (kg)'], 
-        isTextFieldColumn: [false, false, true], 
-        addButtonLabel: 'Add material', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options','http://127.0.0.1:8000/meta/options', '', ],
-        jsonKeys: [ 'countries','materials', ''],
-        onTotalEmissionCalculated: (total) {
-          setState(() {
-            materialupstreamEmission = total;
-          });
-        },
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
+  //--ROW 2--
+  Labels(
+    title: 'Upstream Transportation | ${materialtransportEmission.toStringAsFixed(2)} kg CO₂',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Class', 'Distance'],
+      isTextFieldColumn: [false, true],
+      dropDownLists: [
+        ref.watch(vanModeProvider),
+        [],
+      ],
+      addButtonLabel: 'Add transport cycle',
+      padding: 5,
+      onTotalEmissionCalculated: (total) {
+        setState(() {
+          materialtransportEmission = total;
+        });
+      },
+      apiKeyMap: apiKeytransport,
+      endpoint: 'http://127.0.0.1:8000/calculate/van',
+    ),
+  ),
+];
 
-      //--ROW 2--
-      Labels(
-        title: 'Upstream Transportation | ${materialtransportEmission.toStringAsFixed(2)} kg CO₂', 
-        color: Apptheme.textclrlight,
-      ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Class', 'Distance'], 
-        isTextFieldColumn: [false, true], 
-        addButtonLabel: 'Add transport cycle', 
-        padding: 5, 
-        apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'Van_mode'],
-        onTotalEmissionCalculated: (total) {
-          setState(() {
-            materialtransportEmission = total;
-          });
-        },
-        apiKeyMap: apiKeytransport,
-        endpoint: 'http://127.0.0.1:8000/calculate/van',
-        ),
-      ),
-    ];
+final List<Widget> widgetofpage2 = [
+  //--ROW 1--
+  Labels(
+    title: 'Machining | ${machiningemissions.toStringAsFixed(2)} kg CO₂',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Machine', 'Country', 'Time of operation'],
+      isTextFieldColumn: [false, false, true],
+      dropDownLists: [
+        ref.watch(mazakTypesProvider),
+        ref.watch(countriesProvider),
+        [],
+      ],
+      addButtonLabel: 'Add machine cycle',
+      padding: 5,
+      apiKeyMap: apiKeymachining,
+      endpoint: 'http://127.0.0.1:8000/calculate/machine_power_emission',
+      onTotalEmissionCalculated: (total) {
+        setState(() {
+          machiningemissions = total;
+        });
+      },
+    ),
+  ),
 
-    final List<Widget> widgetofpage2=[
+  //--ROW 2--
+  Labels(
+    title: 'Fugitive leaks | ${fugitiveemissions.toStringAsFixed(2)} kg CO₂',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['GHG', 'Total Charge', 'Remaining Charge'],
+      isTextFieldColumn: [false, true, true],
+      dropDownLists: [
+        ref.watch(ghgProvider),
+        [],
+        [],
+      ],
+      addButtonLabel: 'Add GHG',
+      padding: 5,
+      onTotalEmissionCalculated: (total) {
+        setState(() {
+          fugitiveemissions = total;
+        });
+      },
+      apiKeyMap: apiKeyfugitive,
+      endpoint: 'http://127.0.0.1:8000/calculate/fugitive_emissions',
+    ),
+  ),
+];
 
-      //--ROW 1--
-      Labels(
-        title: 'Machining | ${machiningemissions.toStringAsFixed(2)} kg CO₂', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1( maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Machine', 'Country', 'Time of operation'], 
-        isTextFieldColumn: [false, false, true,], 
-        addButtonLabel: 'Add machine cycle', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'Mazak_types', 'countries'],
-        apiKeyMap: apiKeymachining,
-        endpoint: 'http://127.0.0.1:8000/calculate/machine_power_emission',
-        onTotalEmissionCalculated: (total) {
-          setState(() {
-            machiningemissions = total;
-          });
-        },
-        ),
-      ),
-     
-      //--ROW 2--
-      Labels(
-        title: 'Fugitive leaks | ${fugitiveemissions.toStringAsFixed(2)} kg CO₂', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1( maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['GHG', 'Total Charge', 'Remaining Charge'], 
-        isTextFieldColumn: [false, true, true,], 
-        addButtonLabel: 'Add GHG', 
-        padding: 5, 
-        apiEndpoints: ['http://127.0.0.1:8000/meta/options'],
-        jsonKeys: ['GHG' ],
-        onTotalEmissionCalculated: (total) {
-          setState(() {
-            fugitiveemissions = total;
-          });
-        },
-        apiKeyMap: apiKeyfugitive,
-        endpoint: 'http://127.0.0.1:8000/calculate/fugitive_emissions',
-        ),
-      ),
+final List<Widget> widgetofpage3 = [
+  //--ROW 1--
+  Labels(
+    title: 'Downstream Distribution',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Transportation', 'Distance'],
+      isTextFieldColumn: [false, true],
+      addButtonLabel: 'Add transport cycle',
+      padding: 5,
+      apiKeyMap: apiKeymaterials,
+      endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+    ),
+  ),
 
+  //--ROW 2--
+  Labels(
+    title: 'Downstream Storage',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Facilities', 'Stored duration', 'Area', 'Select GHG'],
+      isTextFieldColumn: [false, true, true, false],
+      addButtonLabel: 'Add facility',
+      padding: 5,
+      apiKeyMap: apiKeymaterials,
+      endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+    ),
+  ),
 
-    ];
+  //--ROW 3--
+  Labels(
+    title: 'Use Phase',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Use activity', 'Expected use cycle', 'Unit'],
+      isTextFieldColumn: [false, true, true],
+      addButtonLabel: 'Add use cycle',
+      padding: 5,
+      apiKeyMap: apiKeymaterials,
+      endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+    ),
+  ),
 
-    final List<Widget> widgetofpage3=[
-      //--ROW 1--
-      Labels(
-        title: 'Downstream Distribution', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Transportation','Distance'], 
-        isTextFieldColumn: [false,  true], 
-        addButtonLabel: 'Add transport cycle', 
-        padding: 5, 
-        apiEndpoints: ['http://127.0.0.1:8000/meta/options', ],
-        jsonKeys: ['transport_types', ],
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
-
-      //--ROW 2--
-      Labels(
-        title: 'Downstream Storage', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Facilities', 'Stored duration', 'Area', 'Select GHG'], 
-        isTextFieldColumn: [false, true, true, false,], 
-        addButtonLabel: 'Add facility', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options', '', '', 'http://127.0.0.1:8000/meta/options' ],
-        jsonKeys: [ 'facilities', '', '', 'GHG'],
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
-      
-
-      //--ROW 3--
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Labels(
-            title: 'Use Phase', 
-            color: Apptheme.textclrlight,
-            ),
-        ],
-      ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Use activity', 'Expected use cycle', 'Unit'], 
-        isTextFieldColumn: [false, true, true,], 
-        addButtonLabel: 'Add use cycle', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'usage_types'],
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
-
-      //--ROW 4--
-      Labels(
-        title: 'End-of-life treatment', 
-        color: Apptheme.textclrlight,
-        ),
-      Widgets1(maxheight: 250,
-      child:
-      DynamicDropdownMaterialAcquisition(
-        columnTitles: ['Product Type', 'Mass', 'Energy required',], 
-        isTextFieldColumn: [false, true, true,], 
-        addButtonLabel: 'Add disassembly cycle', 
-        padding: 5, 
-        apiEndpoints: [ 'http://127.0.0.1:8000/meta/options'],
-        jsonKeys: [ 'disassembly_by_industry'],
-        apiKeyMap: apiKeymaterials,
-        endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
-
-    ];
+  //--ROW 4--
+  Labels(
+    title: 'End-of-life treatment',
+    color: Apptheme.textclrlight,
+  ),
+  Widgets1(
+    maxheight: 250,
+    child: DynamicDropdownMaterialAcquisition(
+      columnTitles: ['Product Type', 'Mass', 'Energy required'],
+      isTextFieldColumn: [false, true, true],
+      addButtonLabel: 'Add disassembly cycle',
+      padding: 5,
+      apiKeyMap: apiKeymaterials,
+      endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
+    ),
+  ),
+];
 
     
 
