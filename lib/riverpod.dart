@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+// -------------------  PAGE TRACKING  -------------------
+final currentPageProvider = StateProvider<int>((ref) => 0);
+
 // ------------------- DATA FETCHING  -------------------
 class MetaOptions {
   final List<String> countries;
@@ -547,6 +550,7 @@ class ProfileSaveRequest {
     required this.username,
   });
 }
+
 
 
 

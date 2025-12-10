@@ -265,6 +265,7 @@ class Textsinsidewidgets extends StatelessWidget {
   final double fontsize;
   final double leftpaddingadd;
   final int maxLines;
+  final FontWeight fontweight;
 
   const Textsinsidewidgets({super.key, 
   required this.words,
@@ -272,6 +273,7 @@ class Textsinsidewidgets extends StatelessWidget {
   this.fontsize = 15,
   this.leftpaddingadd = 0,
   this.maxLines = 10,
+  this.fontweight = FontWeight.w600,
   });
 
   @override
@@ -280,13 +282,13 @@ class Textsinsidewidgets extends StatelessWidget {
       
       return
       Container(
-        padding: EdgeInsets.only(left: 5+leftpaddingadd, top: 10, right: 5),
+        padding: EdgeInsets.only(left: 5+leftpaddingadd, top: 0, right: 5),
         child: 
         Align(
           alignment: Alignment.centerLeft,
           child: Text(words, style: TextStyle(
             color: color,
-            fontWeight: FontWeight.w700,
+            fontWeight: fontweight,
             fontSize: fontsize,
             ),
             textAlign: TextAlign.left,

@@ -45,13 +45,10 @@ class _BackgroundDrawerState extends ConsumerState<BackgroundDrawer> {
                 ),
         
                 Expanded(
-                  child: Padding(padding: EdgeInsetsGeometry.only(left: 70, top: 10),
-                  child: Container(
-                    color: Apptheme.transparentcheat,
-                    child: MasterPanel()
+                  child: Padding(padding: EdgeInsetsGeometry.only(left: 70, top: 10, right: 10),
+                  child: Align(alignment: Alignment.centerLeft,child: MasterPanel()),
                   ),
-                  ),
-                )
+                ),
         
               ],
             ),

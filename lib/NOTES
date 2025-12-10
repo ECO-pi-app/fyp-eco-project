@@ -204,3 +204,40 @@ final hgvREmissionsProvider = Provider<List<String>>((ref) {
                 showThreePageTabs = !showThreePageTabs;
               });
             },
+
+
+
+
+
+
+
+
+            Container(
+                    color: Apptheme.error,
+                    width: 120,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: DropdownButton<int>(
+                        isExpanded: true,
+                        value: selectedToggle,
+                        dropdownColor: Apptheme.widgetsecondaryclr,
+                        iconEnabledColor: Apptheme.textclrlight,
+                        items: List.generate(toggleOptions.length, (index) {
+                          return DropdownMenuItem<int>(
+                            value: index,
+                            child: Textsinsidewidgets(
+                              words: toggleOptions[index], 
+                              color: Apptheme.textclrlight
+                            )
+                          );
+                        }),
+                        onChanged: (int? newIndex) {
+                          if (newIndex != null) {
+                            setState(() {
+                              selectedToggle = newIndex;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),

@@ -269,7 +269,6 @@ final List<Widget> widgetofpage3 = [
 
 
     return PrimaryPages(
-      paddingadd: 15-40,
       menutogglee: widget.menutogglee, 
       header: Pageheaders(
         settingstogglee: widget.settingstogglee, 

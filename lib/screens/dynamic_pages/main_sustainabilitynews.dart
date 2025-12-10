@@ -71,7 +71,6 @@ Future<void> fetchNews() async {
   @override
   Widget build(BuildContext context) {
     return PrimaryPages(
-      paddingadd: 15,
       menutogglee: widget.menutoggle, 
       header: null,
       childofmainpage: Widgets1(

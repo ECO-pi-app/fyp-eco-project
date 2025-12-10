@@ -141,90 +141,87 @@ void dispose() {
                                 ),
 
                                 // Dynamic product list
-// Dynamic list
-...products.map((product) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 10),
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        width: 600,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Apptheme.drawer,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Labels(
-            title: product.name,
-            color: Apptheme.textclrlight,
-          ),
-        ),
-      ),
-    ),
-  );
-}).toList(),
+                                ...products.map((product) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        width: 600,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: Apptheme.drawer,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Labels(
+                                            title: product.name,
+                                            color: Apptheme.textclrlight,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
 
-// ---------------------------------------------------------
-// ADD THIS BELOW — INPUT FIELD + SAVE BUTTON
-// ---------------------------------------------------------
-const SizedBox(height: 40),
 
-Padding(
-  padding: const EdgeInsets.symmetric(vertical: 10),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Titletext(
-        title: "Create Profile",
-        color: Apptheme.textclrdark,
-      ),
+                                const SizedBox(height: 40),
 
-      const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Titletext(
+                                        title: "Create Profile",
+                                        color: Apptheme.textclrdark,
+                                      ),
 
-      SizedBox(
-        width: 600,
-        child: TextField(
-          controller: _profileNameCtrl,
-          decoration: InputDecoration(
-            hintText: "Enter profile name...",
-            filled: true,
-            fillColor: Apptheme.drawer,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          style: TextStyle(color: Apptheme.textclrlight),
-        ),
-      ),
+                                      const SizedBox(height: 10),
 
-      const SizedBox(height: 15),
+                                      SizedBox(
+                                        width: 600,
+                                        child: TextField(
+                                          controller: _profileNameCtrl,
+                                          decoration: InputDecoration(
+                                            hintText: "Enter profile name...",
+                                            filled: true,
+                                            fillColor: Apptheme.drawer,
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                              borderSide: BorderSide.none,
+                                            ),
+                                          ),
+                                          style: TextStyle(color: Apptheme.textclrlight),
+                                        ),
+                                      ),
 
-      SizedBox(
-        width: 200,
-        height: 45,
-        child: ElevatedButton(
-          onPressed: () async {
-            final name = _profileNameCtrl.text.trim();
-            if (name.isEmpty) return;
+                                      const SizedBox(height: 15),
 
-            final req = ProfileSaveRequest(
-              profileName: name,
-              description: "Mock description",
-              data: {"sample": "test"},   // mock data
-              username: "demoUser",
-            );
+                                      SizedBox(
+                                        width: 200,
+                                        height: 45,
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            final name = _profileNameCtrl.text.trim();
+                                            if (name.isEmpty) return;
 
-            ref.read(saveProfileProvider(req));
-          },
-          child: const Text("Save Profile"),
-        ),
-      ),
-    ],
-  ),
-),
+                                            final req = ProfileSaveRequest(
+                                              profileName: name,
+                                              description: "Mock description",
+                                              data: {"sample": "test"},   // mock data
+                                              username: "demoUser",
+                                            );
+
+                                            ref.read(saveProfileProvider(req));
+                                          },
+                                          child: const Text("Save Profile"),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
                               ],
                             );

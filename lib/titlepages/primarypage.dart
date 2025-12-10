@@ -18,20 +18,21 @@ import 'package:test_app/screens/dynamic_pages/bookmark_category9.dart';
 import 'package:test_app/screens/dynamic_pages/bookmark_category10.dart';
 import 'package:test_app/screens/dynamic_pages/bookmark_category11.dart';
 import 'package:test_app/screens/dynamic_pages/bookmark_category12.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/riverpod.dart';
 
 
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 
-  int _selectedIndex = 0;
   bool _showSettings = false;
   bool _showMenu = true;
   double drawerwidth = 266;
@@ -119,9 +120,7 @@ void initState() {
 
 
   void _onPageSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+   ref.read(currentPageProvider.notifier).state = index;
   }
 
   void settingstoggle() {
@@ -155,8 +154,7 @@ void initState() {
 
     final double listWidth = min(400, screenwidth);
 
-
-    
+    final selectedIndex = ref.watch(currentPageProvider);
 
     if (_prevscreenwidth >= openThreshold &&
         screenwidth < openThreshold &&
@@ -208,11 +206,13 @@ void initState() {
                           ),
                           width: listWidth - 70,
                           child:  Padding(
-                            padding: const EdgeInsets.only(left: 105),
-                            child: Bigfocusedtext(
-                              title: 'ECO-pi',
-                              fontsize: 30,
-                              color: Apptheme.textclrlight,
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: Center(
+                              child: Bigfocusedtext(
+                                title: 'Welcome [User]',
+                                fontsize: 25,
+                                color: Apptheme.textclrlight,
+                              ),
                             ),
                           ),
                         ),
@@ -234,7 +234,7 @@ void initState() {
                       borderRadius: BorderRadius.all( Radius.circular(5))
                     ),
                     height: 50,
-                    child: null,
+                    child: CurrentPageIndicator(),
                   ),
                 ),
               ],
@@ -264,7 +264,7 @@ void initState() {
               color: Apptheme.transparentcheat,
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  return ClipRect(    // <— prevents blank fade glitches
+                  return ClipRect(
                     child: AnimatedSwitcher(
                       duration: Duration(milliseconds: 250),
                       switchInCurve: Curves.easeOut,
@@ -282,10 +282,10 @@ void initState() {
                         );
                       },
 
-                      child: SizedBox(  // <— forces new widget to render with full size
+                      child: SizedBox( 
                         width: constraints.maxWidth,
                         height: constraints.maxHeight,
-                        child: pages[_selectedIndex],
+                        child: pages[selectedIndex],
                       ),
                     ),
                   );
@@ -304,4 +304,49 @@ void initState() {
   }
 }
 
+
+
+
+class CurrentPageIndicator extends ConsumerWidget {
+  const CurrentPageIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pageIndex = ref.watch(currentPageProvider);
+
+    // Map index to page name
+    final pageNames = [
+      'ECO-pi',
+      'Analysis',
+      'Allocation',
+      'News',
+      'About',
+      'Debug',
+      'Bookmark 1',
+      'Bookmark 2',
+      'Bookmark 3',
+      'Bookmark 4',
+      'Bookmark 5',
+      'Bookmark 9',
+      'Bookmark 10',
+      'Bookmark 11',
+      'Bookmark 12',
+    ];
+
+    final currentPageName = pageIndex < pageNames.length
+        ? pageNames[pageIndex]
+        : 'Unknown';
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 30, bottom: 5),
+        child: Bigfocusedtext(
+          title: currentPageName,
+          fontsize: 25,
+        ),
+      ),
+    );
+  }
+}
 
