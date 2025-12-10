@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/buttons_and_icons.dart';
-import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/hover_drawer.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/sub_drawer.dart';

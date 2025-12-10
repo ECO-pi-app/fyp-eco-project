@@ -468,6 +468,85 @@ final tableControllerProvider =
 
 
 
+// ------------------- PROJECT LIST FETCH -------------------
+class Product {
+  final String name;
+
+  Product({required this.name});
+
+  factory Product.fromJson(dynamic value) {
+    // value is just a string
+    return Product(name: value.toString());
+  }
+}
+
+
+
+Future<List<Product>> fetchProducts() async {
+  final response = await http.get(Uri.parse('http://127.0.0.1:8000/profiles'));
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> map = jsonDecode(response.body);
+
+    final List<dynamic> rawList = map["profiles"]; // <-- list of strings
+
+    return rawList.map((item) => Product.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load products');
+  }
+}
+
+
+// Riverpod provider
+final productsProvider = FutureProvider<List<Product>>((ref) async {
+  return fetchProducts();
+});
+
+
+// ------------------- ADD/SAVE PROJECTS -------------------
+
+final saveProfileProvider = FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
+  print("POST /profiles/save payload: ${jsonEncode({
+  "profile_name": req.profileName,
+  "description": req.description,
+  "data": req.data,
+  "username": req.username,
+})}");
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/profiles/save'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "profile_name": req.profileName,
+      "description": req.description,
+      "data": req.data,
+      "username": req.username,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final json = jsonDecode(response.body);
+    ref.invalidate(productsProvider);
+    return json["saved_profile"];
+    
+  } else {
+    throw Exception("Failed to save profile");
+  }
+  
+});
+
+class ProfileSaveRequest {
+  final String profileName;
+  final String description;
+  final Map<String, dynamic> data;
+  final String username;
+
+  ProfileSaveRequest({
+    required this.profileName,
+    required this.description,
+    required this.data,
+    required this.username,
+  });
+}
 
 
 

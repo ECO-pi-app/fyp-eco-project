@@ -25,6 +25,8 @@ def get_user_data_path(filename):
 PROFILE_FILE = get_user_data_path("profiles.json")
 EMISSION_FACTORS_FILE = get_user_data_path("custom_emission_factors.json")
 USERS_FILE = get_user_data_path("users_data.xlsx")
+
+print("Profile file path:", PROFILE_FILE)
 # Make sure required files exist    
 def ensure_default_files():
     if not os.path.exists(EMISSION_FACTORS_FILE):
@@ -90,6 +92,7 @@ def hash_password(password: str) -> str:
 def save_profiles(profiles: Dict[str, dict]):
     with open(PROFILE_FILE, "w", encoding="utf-8") as f:
         json.dump(profiles, f, indent=2)
+        f.flush()
 
 def load_custom_emission_factors():
     if os.path.exists(EMISSION_FACTORS_FILE):
@@ -1149,6 +1152,7 @@ def save_profile(req: ProfileSaveRequest):
         "data": req.data,
         "owner": req.username
     }
+    print("Saving profiles:", profiles)
     save_profiles(profiles)
     return {"status": "ok", "saved_profile": req.profile_name}
     
