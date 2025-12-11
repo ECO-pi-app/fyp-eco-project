@@ -84,7 +84,7 @@ final List<Widget> widgetofpage1 = [
   //--ROW 1--
   Labels(
     title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} kg CO₂',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -112,7 +112,7 @@ final List<Widget> widgetofpage1 = [
   //--ROW 2--
   Labels(
     title: 'Upstream Transportation | ${emissions.transport.toStringAsFixed(2)} kg CO₂',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -141,7 +141,7 @@ final List<Widget> widgetofpage2 = [
   //--ROW 1--
   Labels(
     title: 'Machining | ${emissions.machining.toStringAsFixed(2)} kg CO₂',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -169,7 +169,7 @@ final List<Widget> widgetofpage2 = [
   //--ROW 2--
   Labels(
     title: 'Fugitive leaks | ${emissions.fugitive.toStringAsFixed(2)} kg CO₂',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -199,7 +199,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 1--
   Labels(
     title: 'Downstream Distribution',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -216,7 +216,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 2--
   Labels(
     title: 'Downstream Storage',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -233,7 +233,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 3--
   Labels(
     title: 'Use Phase',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -250,7 +250,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 4--
   Labels(
     title: 'End-of-life treatment',
-    color: Apptheme.textclrlight,
+    color: Apptheme.textclrdark,
   ),
   Widgets1(
     maxheight: 250,
@@ -284,6 +284,7 @@ final List<Widget> widgetofpage3 = [
           Expanded(
             child: showThreePageTabs 
               ? ManualTab3pages(
+                backgroundcolor: Apptheme.transparentcheat,
                   tab1: 'Upstream', 
                   tab1fontsize: 15, 
                   tab2: 'Production', 
@@ -307,7 +308,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage1[index],
                       );
                     },
@@ -322,7 +323,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage2[index],
                       );
                     },
@@ -337,7 +338,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage3[index],
                       );
                     },
@@ -347,6 +348,7 @@ final List<Widget> widgetofpage3 = [
                 )
                 
               : ManualTab2pages(
+                backgroundcolor: Apptheme.widgetclrlight,
                   tab1: 'Upstream', 
                   tab1fontsize: 15, 
                   tab2: 'Production', 
@@ -371,7 +373,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage1[index],
                       );
                     },
@@ -386,7 +388,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage2[index],
                       );
                     },
@@ -401,7 +403,7 @@ final List<Widget> widgetofpage3 = [
                     itemBuilder: (context, index) {
                       return Card(
                         elevation: 0,
-                        color: Apptheme.transparentcheat,
+                        color: Apptheme.widgetclrlight,
                         child: widgetofpage3[index],
                       );
                     },

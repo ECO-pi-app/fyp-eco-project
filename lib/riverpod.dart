@@ -365,19 +365,19 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
     for (var row in rows) {
       final payload = <String, dynamic>{};
 
-for (int i = 0; i < row.columnTitles.length; i++) {
-  final columnName = row.columnTitles[i];
-  final apiKey = apiKeyMap[columnName];
-  final rawValue = row.selections[i];
+    for (int i = 0; i < row.columnTitles.length; i++) {
+      final columnName = row.columnTitles[i];
+      final apiKey = apiKeyMap[columnName];
+      final rawValue = row.selections[i];
 
-  if (apiKey != null) {
-    payload[apiKey] = row.isTextFieldColumn[i]
-        ? double.tryParse(rawValue ?? '0') ?? 0
-        : rawValue ?? '';
-  } else {
-    print('Column "$columnName" has no mapping in apiKeyMap!'); // <- this will catch mismatches
-  }
-}
+      if (apiKey != null) {
+        payload[apiKey] = row.isTextFieldColumn[i]
+            ? double.tryParse(rawValue ?? '0') ?? 0
+            : rawValue ?? '';
+      } else {
+        print('Column "$columnName" has no mapping in apiKeyMap!'); // <- this will catch mismatches
+      }
+    }
 
       
 

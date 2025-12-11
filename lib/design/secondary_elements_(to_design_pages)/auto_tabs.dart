@@ -289,9 +289,9 @@ class _ManualTab3pages extends State<ManualTab3pages> with SingleTickerProviderS
                 child: TabBar(
                   padding: EdgeInsets.all(0),
                   indicatorPadding: EdgeInsetsGeometry.all(0),
-                  unselectedLabelColor: Apptheme.textclrlight,
+                  unselectedLabelColor: Apptheme.textclrdark,
                   labelColor: Apptheme.textclrlight,
-                  indicatorColor: Apptheme.tabbedpageclr,  
+                  indicatorColor: Apptheme.widgetclrlight,  
                   indicator: null,
                   controller: _tabController,
                   labelPadding: const EdgeInsets.only(left: 0, right: 0),
@@ -319,7 +319,7 @@ class _ManualTab3pages extends State<ManualTab3pages> with SingleTickerProviderS
                     bottomLeft: Radius.circular(28), 
                     bottomRight: Radius.circular(28)),
                   child: Container(
-                    color: Apptheme.tabbedpageclr,
+                    color: Apptheme.widgetclrlight,
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       controller: _tabController,
@@ -348,8 +348,8 @@ class _ManualTab3pages extends State<ManualTab3pages> with SingleTickerProviderS
             Container(
               child:child,
               decoration: BoxDecoration(
-                color: (_selectedTab == index ? Apptheme.tabbedpageclr : Apptheme.unselected),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(15),topRight: Radius.circular(15))
+                color: (_selectedTab == index ? Apptheme.tabbedpageclr : Apptheme.transparentcheat),
+                borderRadius: BorderRadius.all(Radius.circular(5))
         ),
               ),
             )
@@ -421,7 +421,7 @@ class FlexboxManual extends StatelessWidget {
             Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              color: Apptheme.widgetsecondaryclr,
+              color: Apptheme.transparentcheat,
             ),
             child: childof1,
             ),

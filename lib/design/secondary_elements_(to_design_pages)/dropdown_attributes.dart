@@ -216,10 +216,7 @@ void initState() {
                           width: columnwidth,
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1, 
-                              color: Apptheme.widgetborderdark
-                            ),
+                            
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: 
@@ -254,7 +251,7 @@ void initState() {
                                               height: 20,
                                               width: 20,
                                               decoration: BoxDecoration(
-                                                color: Apptheme.widgetclrlight,
+                                                color: Apptheme.transparentcheat,
                                                 borderRadius: BorderRadius.circular(6)
                                               ),
                                               child:

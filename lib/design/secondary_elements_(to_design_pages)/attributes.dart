@@ -122,7 +122,8 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
         Column(
           children: [
 
-            SizedBox(
+            Container(
+              color: Apptheme.transparentcheat,
               height: 200,
               child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -138,11 +139,12 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                           width: columnwidth,
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
+                            color: Apptheme.transparentcheat,
                             border: Border.all(
                               width: 1, 
                               color: Apptheme.widgetborderdark
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                           child: 
                           ListView(
@@ -184,7 +186,7 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                                               child: 
                                                 Text('${row + 1}',
                                                 style: TextStyle(
-                                                  color: Apptheme.textclrdark,
+                                                  color: Apptheme.iconsprimary,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.bold
                                                 ),
@@ -204,7 +206,7 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                                                     RegExp(r'[0-9.]')),
                                               ],
                                               style: TextStyle(
-                                                  color: Apptheme.textclrlight),
+                                                  color: Apptheme.textclrdark),
                                               decoration: const InputDecoration(
                                                 isDense: true,
                                                                                                 
@@ -216,7 +218,7 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
             
                                                 focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.widgetborderlight
+                                                    color: Apptheme.widgetborderdark
                                                   )
                                                 ),
             
@@ -234,7 +236,7 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
             
                                                 disabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.widgetsecondaryclr,
+                                                    color: Apptheme.transparentcheat,
                                                   )
                                                 ),
             
@@ -264,16 +266,16 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                                           : DropdownButtonHideUnderline(
                                                       child: 
                                                       DropdownButton<String>(
-                                                        dropdownColor: Apptheme.widgetsecondaryclr,
+                                                        dropdownColor: Apptheme.widgetclrlight,
                                                         icon:
                                                           Icon(Icons.arrow_drop_down,
-                                                            color: Apptheme.iconslight,
+                                                            color: Apptheme.iconsprimary,
                                                             size: 20,
                                                           ),
                                                         padding: EdgeInsets.zero,
                                                         style: TextStyle(
                                                             fontSize: 15,
-                                                            color: Apptheme.textclrlight,
+                                                            color: Apptheme.textclrdark,
                                                             fontWeight: FontWeight.w500
                                                           ),
                                                         value: dropDownListsInternal[col].contains(tableState.selections[col][row])
@@ -344,8 +346,8 @@ onPressed: () {
                                         fontsize: 12,
                                       ),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Apptheme.auxilary,
-                                        foregroundColor: Colors.white,
+                                        backgroundColor: Apptheme.widgetsecondaryclr,
+                                        foregroundColor:Apptheme.widgetsecondaryclr,
                                         padding: EdgeInsets.zero,
                                       ),
                                     ),
@@ -361,28 +363,39 @@ onPressed: () {
               ),
             ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: widget.padding),
-              child: Center(
-                child: SizedBox(
-                  width: 200,
-                  height: 35,
-                  child: ElevatedButton(
-                    onPressed:  () async {
-                await ref
-                    .read(emissionCalculatorProvider.notifier)
-                    .calculate(widget.type, rows);
-              },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Apptheme.widgetsecondaryclr,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Apptheme.widgetsecondaryclr,
+                borderRadius: BorderRadius.circular(5)
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(right: 5, left: 5, top: 3, bottom: 3),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: 200,
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: Apptheme.header,
+                      borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    child: const Labelsinbuttons(
-                      title: 'Calculate Emissions',
-                      color: Apptheme.textclrlight,
-                      fontsize: 17,
+                    child: InkWell(
+                      onTap:  () async {
+                  await ref
+                      .read(emissionCalculatorProvider.notifier)
+                      .calculate(widget.type, rows);
+                },
+                     
+                      
+                      child: Center(
+                        child: const Labelsinbuttons(
+                          title: 'Calculate Emissions',
+                          color: Apptheme.textclrlight,
+                          fontsize: 17,
+                          ),
                       ),
+                    ),
                   ),
                 ),
               ),

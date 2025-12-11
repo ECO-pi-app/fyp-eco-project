@@ -184,7 +184,12 @@ String getPercentageTitle(double value, double total) {
             child: Container(
               decoration: BoxDecoration(
                 color: Apptheme.widgetsecondaryclr,
-                borderRadius: BorderRadius.circular(5)
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                )
               ),
               width: 320,
               child: Column(
@@ -220,7 +225,7 @@ String getPercentageTitle(double value, double total) {
                     children: [
                       const SizedBox(width: 15,),
                       Textsinsidewidgets(
-                        words: 'Sort by |', 
+                        words: 'Sort  |', 
                         color: Apptheme.textclrlight,
                         fontsize: 15,
                       ),
@@ -273,7 +278,7 @@ String getPercentageTitle(double value, double total) {
                     child: SizedBox(
                       height: pieChartSize,
                       child: PieChart(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 50),
                         curve: Curves.easeInOut,
                         PieChartData(
                           centerSpaceRadius: 0,
@@ -349,10 +354,12 @@ String getPercentageTitle(double value, double total) {
                                     ),
                                   ),
                                   const SizedBox(width: 4),
-                                  Textsinsidewidgets(
-                                    words: '$key emissions: ${value.toStringAsFixed(2)} kg CO2e',
-                                    color: color,
-                                  ),
+                                  RichTextsInsideWidget(
+                                    firstPart: key,
+                                    firstColor: color,
+                                    secondPart: ' emissions: ${value.toStringAsFixed(2)} kg CO2e',
+                                    secondColor: Apptheme.textclrdark,
+                                  )
                                 ],
                               ),
                             );

@@ -325,6 +325,61 @@ TextStyle bodyTextlightmini() {
   );
 }
 
+class RichTextsInsideWidget extends StatelessWidget {
+  final String firstPart;
+  final String secondPart;
+  final Color firstColor;
+  final Color secondColor;
+  final double fontSize;
+  final double leftPadding;
+  final int maxLines;
+  final FontWeight fontWeight;
+
+  const RichTextsInsideWidget({
+    super.key,
+    required this.firstPart,
+    required this.secondPart,
+    required this.firstColor,
+    required this.secondColor,
+    this.fontSize = 15,
+    this.leftPadding = 0,
+    this.maxLines = 10,
+    this.fontWeight = FontWeight.w600,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
+        padding: EdgeInsets.only(left: 5 + leftPadding, top: 0, right: 5),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: RichText(
+            maxLines: maxLines,
+            overflow: TextOverflow.fade,
+            text: TextSpan(
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+              ),
+              children: [
+                TextSpan(
+                  text: firstPart,
+                  style: TextStyle(color: firstColor),
+                ),
+                TextSpan(
+                  text: secondPart,
+                  style: TextStyle(color: secondColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
 
 //--Texts inside buttons--
 class Labelsinbuttons extends StatelessWidget {
