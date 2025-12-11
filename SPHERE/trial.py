@@ -3,7 +3,7 @@ from pydantic import BaseModel #input quality checker which makes sure no requir
 import openpyxl #bridge that lets Python understand and extract data from Excel spreadsheets.
 import json #used to store text files like dictionaries or lists
 import os #lets python interact with operation systems. e.g.windows,macOS,Linux
-from typing import List, Dict, Optional 
+from typing import List, Dict, Optional, Any
 from geopy.distance import geodesic #used to calculate the shortest distance btw two point on the earth, using latitude and longitude
 from geopy.geocoders import Nominatim #converting a place name like "Germany" into latitude and longtiude coordinates
 import requests
@@ -22,7 +22,10 @@ def get_user_data_path(filename):
     return os.path.join(base, filename)
 
 # Define file names
-PROFILE_FILE = get_user_data_path("profiles.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #Folder where trial.py is located
+PROFILE_FILE = os.path.join(BASE_DIR, "profiles.json")
+print("Using profile file:", PROFILE_FILE)
+
 EMISSION_FACTORS_FILE = get_user_data_path("custom_emission_factors.json")
 USERS_FILE = get_user_data_path("users_data.xlsx")
 
@@ -38,12 +41,15 @@ def ensure_default_files():
 
 ensure_default_files()
 
-# Functions to load and save profile data
-def load_profiles() -> Dict[str, dict]:
-    if os.path.exists(PROFILE_FILE):
+def load_profiles() -> dict:
+    if not os.path.exists(PROFILE_FILE):
+        return {}
+    try:
         with open(PROFILE_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {}
+    except json.JSONDecodeError:
+        # If file is corrupted/empty, fail safely with an empty dict
+        return {}
 def ensure_users_excel():
     """
     Make sure the users.xlsx file exists with a 'Users' sheet and headers.
@@ -89,10 +95,9 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
-def save_profiles(profiles: Dict[str, dict]):
+def save_profiles(profiles: dict) -> None:
     with open(PROFILE_FILE, "w", encoding="utf-8") as f:
-        json.dump(profiles, f, indent=2)
-        f.flush()
+        json.dump(profiles, f, indent=2, ensure_ascii=False)
 
 def load_custom_emission_factors():
     if os.path.exists(EMISSION_FACTORS_FILE):
