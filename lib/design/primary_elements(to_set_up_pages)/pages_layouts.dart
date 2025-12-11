@@ -38,6 +38,7 @@ class _PrimaryPagesState extends State<PrimaryPages> {
                 child: 
                 Container(
                   padding: EdgeInsets.only(bottom: 10, top:10),
+                  color: Apptheme.widgetclrlight,
                   child: widget.childofmainpage,
                 ),
               ),

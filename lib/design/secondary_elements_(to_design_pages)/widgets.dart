@@ -9,8 +9,8 @@ class Widgets1 extends StatelessWidget {
   final Widget? child;
 
   const Widgets1({super.key, 
-  this.backgroundcolor =Apptheme.widgetclrlight,
-  this.bordercolor = Apptheme.widgetborderdark,
+  this.backgroundcolor =Apptheme.transparentcheat,
+  this.bordercolor = Apptheme.transparentcheat,
   required this.maxheight,
   this.child,
   });
