@@ -11,7 +11,7 @@ void main() async {
   const windowOptions = WindowOptions(
     size: Size(1200, 800),
     center: false,
-    backgroundColor: Apptheme.drawer,
+    backgroundColor: Apptheme.error,
     titleBarStyle: TitleBarStyle.hidden,
     windowButtonVisibility: true,
     minimumSize: Size(60, 250),

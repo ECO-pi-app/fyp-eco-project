@@ -42,7 +42,7 @@ class _InfoIconPopupState extends State<InfoIconPopup> {
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(_cornerRadius),
-                    border: Border.all(color: Apptheme.widgetborderdark),
+                    border: Border.all(color: Apptheme.widgetclrdark),
                   ),
                   child: Text(
                     widget.text,
@@ -127,7 +127,7 @@ class _InfoIconPopupDarkState extends State<InfoIconPopupDark> {
                   decoration: BoxDecoration(
                     color: Apptheme.backgrounddark.withOpacity(1),
                     borderRadius: BorderRadius.circular(_cornerRadius),
-                    border: Border.all(color: Apptheme.widgetborderdark),
+                    border: Border.all(color: Apptheme.widgetclrdark),
                   ),
                   child: Text(
                     widget.text,

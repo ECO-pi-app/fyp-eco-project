@@ -71,7 +71,6 @@ Future<void> fetchNews() async {
   Widget build(BuildContext context) {
     return PrimaryPages(
       menutogglee: widget.menutoggle, 
-      header: null,
       childofmainpage: Widgets1(
         maxheight: 250,
         backgroundcolor: Apptheme.widgetsecondaryclr,

@@ -15,76 +15,186 @@ class GeneralPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Labels(
-        title: "General Settings Page Content",
-        color: Apptheme.textclrlight,
-        fontsize: 20,
+    return FrostedBackgroundGeneral(
+      child: Center(
+        child: Labels(
+          title: "General Settings Page Content",
+          color: Apptheme.textclrlight,
+          fontsize: 20,
+        ),
       ),
     );
   }
 }
 
 //-------------------------------------UNITS-------------------------------------------------------
+void showUnitsPopup(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierLabel: "Popup",
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.9, end: 1.0).animate(curved),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 50,
+                left: 70,
+                right: 10,
+                bottom: 70,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color: Apptheme.transparentcheat,
+                      borderRadius: BorderRadius.circular(7.5),
+                    ),
+                    child: UnitsPage(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 class UnitsPage extends ConsumerWidget {
   const UnitsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: Labels(
-            title: "Output Unit: ${ref.watch(unitNameProvider)}",
-            color: Apptheme.textclrdark,
-            fontsize: 20,
-            toppadding: 5,
-            leftpadding: 10,
+    return FrostedBackgroundGeneral(
+      child: ListView(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Labels(
+              title: "Output display unit: ${ref.watch(unitNameProvider)}",
+              color: Apptheme.textclrdark,
+              fontsize: 20,
+              toppadding: 5,
+              leftpadding: 10,
+            ),
           ),
-        ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Labels(
-            title: "Input Unit: [To be defined]",
-            color: Apptheme.textclrdark,
-            fontsize: 20,
-            toppadding: 30,
-            leftpadding: 10,
+          Align(
+            alignment: Alignment.topLeft,
+            child: Labels(
+              title: "Input Unit: [To be defined]",
+              color: Apptheme.textclrdark,
+              fontsize: 20,
+              toppadding: 30,
+              leftpadding: 10,
+            ),
           ),
-        ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Row(
-            children: [
-              Textsinsidewidgets(
-                words: 'Keep input as same unit', 
-                color: Apptheme.textclrdark,
-                leftpadding: 15,
-              ),
-              StatefulBuilder(
-                builder: (context, setState) {
-                  bool isChecked = true;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Checkbox(
-                      value: isChecked,
-                      onChanged: (value) {
-                        setState(() => isChecked = value ?? false);
-                      },
-                    ),
-                  );
-                },
-              )
-
-            ],
-          )
-        ),
-      ],
+          Align(
+            alignment: Alignment.topLeft,
+            child: Row(
+              children: [
+                Textsinsidewidgets(
+                  words: 'Keep input as same unit', 
+                  color: Apptheme.textclrdark,
+                  leftpadding: 15,
+                ),
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    bool isChecked = true;
+      
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Checkbox(
+                        value: isChecked,
+                        onChanged: (value) {
+                          setState(() => isChecked = value ?? false);
+                        },
+                      ),
+                    );
+                  },
+                )
+      
+              ],
+            )
+          ),
+        ],
+      ),
     );
   }
 }
+
+//-------------------------------------ECO-pi METHODOLOGY-------------------------------------------------------
+void showMethodologyPopup(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierLabel: "Popup",
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.9, end: 1.0).animate(curved),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 50,
+                left: 70,
+                right: 10,
+                bottom: 70,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color: Apptheme.transparentcheat,
+                      borderRadius: BorderRadius.circular(7.5),
+                    ),
+                    child: MethodologyPage(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+class MethodologyPage extends ConsumerWidget {
+  const MethodologyPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FrostedBackgroundGeneral(
+      child: ListView(
+        children: [
+          Labels(title: 'Uncertainies', color: Apptheme.textclrdark, fontsize: 30,),
+          Labels(title: 'Parameter uncertainty', color: Apptheme.textclrdark, fontsize: 20,)
+        ],
+      )
+    );
+  }
+}
+
+
+
+
+
+
+
 
 //-------------------------------------REUSEABLE TRANSLUCENT BACKGROUND----------------------------
 class FrostedBackgroundGeneral extends StatelessWidget {
@@ -98,7 +208,7 @@ class FrostedBackgroundGeneral extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          color: Apptheme.backgrounddark.withOpacity(0.6),
+          color: Apptheme.widgetclrlight.withOpacity(0.9),
           child: child,
         ),
       ),

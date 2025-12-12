@@ -160,7 +160,7 @@ final List<Widget> widgetofpage2 = [
   //--ROW 1--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -204,7 +204,7 @@ final List<Widget> widgetofpage2 = [
   //--ROW 2--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -252,7 +252,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 1--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -285,7 +285,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 2--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -318,7 +318,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 3--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -351,7 +351,7 @@ final List<Widget> widgetofpage3 = [
   //--ROW 4--
   Container(
     decoration: BoxDecoration(
-      color: Apptheme.header,
+      color: Apptheme.tertiarysecondaryclr,
       borderRadius: BorderRadius.all(Radius.circular(5)),
     ),
     child: Row(
@@ -388,12 +388,6 @@ final List<Widget> widgetofpage3 = [
 
     return PrimaryPages(
       menutogglee: widget.menutogglee, 
-      header: Pageheaders(
-        settingstogglee: widget.settingstogglee, 
-        height: 100,
-        title: 'Attributes Analysis', 
-        child: null,
-      ),
       childofmainpage: Column(
         children: [
 

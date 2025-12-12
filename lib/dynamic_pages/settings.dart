@@ -66,6 +66,7 @@ class _SettingsContentState extends State<SettingsContent> {
   final List<MenuPage> menuPages = [
     MenuPage(title: 'General', page: GeneralPage()),
     MenuPage(title: 'Units', page: UnitsPage()),
+    MenuPage(title: 'Methodology', page: MethodologyPage()),
     MenuPage(title: 'Admin', page: DeveloperPage())
     
   ];
@@ -134,7 +135,7 @@ class _SettingsContentState extends State<SettingsContent> {
                     width: 200,
                     color: Apptheme.transparentcheat,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: ListView.builder(
                         itemCount: menuPages.length,
                         itemBuilder: (context, index) {
@@ -186,7 +187,7 @@ class _SettingsContentState extends State<SettingsContent> {
                     padding: EdgeInsets.only(top: 10),
                     width: max(0, screenwidth - 80 - (padding * 3) - 200),
                     decoration: BoxDecoration(
-                      color: Apptheme.backgroundlight.withOpacity(0.8),
+                      color: Apptheme.transparentcheat,
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(10)),
                     ),
                     child: menuPages[selectedMenu].page,

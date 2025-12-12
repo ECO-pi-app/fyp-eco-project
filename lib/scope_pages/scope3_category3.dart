@@ -23,14 +23,6 @@ class _BookmarkCategoryThreeState extends State<BookmarkCategoryThree> {
   Widget build(BuildContext context) {
     return  PrimaryPages(
       menutogglee: widget.menutoggle, 
-      header: Pageheaders(
-        settingstogglee: widget.settingstogglee, 
-        title: 'Category 3', 
-        child: Headertext(
-          words: 'Fuel and Energy-related Activities Not Included in Scope 1 or 2',
-          backgroundcolor: Apptheme.header,
-        )
-      ),
       childofmainpage: ListView(
         children: [
 

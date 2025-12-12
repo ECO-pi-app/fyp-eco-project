@@ -285,13 +285,13 @@ void initState() {
                                                                                                 
                                                 enabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.unselected,
+                                                    color: Apptheme.widgetclrlight,
                                                   )
                                                 ),
             
                                                 focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.widgetborderlight
+                                                    color: Apptheme.widgetclrlight
                                                   )
                                                 ),
             
@@ -309,7 +309,7 @@ void initState() {
             
                                                 disabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.widgetsecondaryclr,
+                                                    color: Apptheme.transparentcheat,
                                                   )
                                                 ),
             
@@ -405,7 +405,7 @@ void initState() {
                                         fontsize: 12,
                                       ),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Apptheme.auxilary,
+                                        backgroundColor: Apptheme.widgetsecondaryclr,
                                         foregroundColor: Colors.white,
                                         padding: EdgeInsets.zero,
                                       ),

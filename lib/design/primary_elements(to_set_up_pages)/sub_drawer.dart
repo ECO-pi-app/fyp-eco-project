@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
+import 'package:test_app/dynamic_pages/popup_pages.dart';
 import 'package:test_app/dynamic_pages/settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
@@ -31,11 +32,11 @@ class _ContentofLState extends ConsumerState<ContentofL> {
             scrollDirection: Axis.vertical,
             child: Column(
               children: [
-                _subdrawertile((Icons.supervised_user_circle), 'Profile', () => null),
-            
-                _subdrawertile((Icons.scale), 'Units', () => null),
-            
                 _subdrawertile((Icons.settings), 'Settings',  () => showSettingsPopup(context)),
+            
+                _subdrawertile((Icons.scale), 'Units', () => showUnitsPopup(context)),
+            
+                _subdrawertile((Icons.supervised_user_circle), 'Method', () => showMethodologyPopup(context)),
             
                 Container(
                   color:Apptheme.transparentcheat, 
@@ -59,7 +60,7 @@ class _ContentofLState extends ConsumerState<ContentofL> {
                 height: 20,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<double>(
-                    dropdownColor: Apptheme.header,
+                    dropdownColor: Apptheme.highlights,
                     value: ref.watch(unitConversionProvider),
                     items: conversionFactors.entries.map((entry) {
                       return DropdownMenuItem<double>(
@@ -221,7 +222,7 @@ class _LShapeContainerState extends State<LShapeContainer> {
       child: Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-          color: Apptheme.header,
+          color: Apptheme.tertiarysecondaryclr,
           gradient: widget.gradient,
           image: widget.image,
         ),

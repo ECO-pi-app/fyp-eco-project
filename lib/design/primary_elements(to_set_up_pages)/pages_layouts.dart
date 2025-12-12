@@ -4,13 +4,11 @@ import 'package:test_app/design/apptheme/colors.dart';
 class PrimaryPages extends StatefulWidget {
   final VoidCallback menutogglee;
   final Widget? childofmainpage;
-  final Widget? header;
   final Color backgroundcolor;
 
   const PrimaryPages({super.key,
   required this.menutogglee,
   this.childofmainpage,
-  required this.header,
   this.backgroundcolor = Apptheme.backgroundlight,
   });
 

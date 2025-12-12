@@ -46,7 +46,7 @@ class Widgets2 extends StatelessWidget {
 
   const Widgets2({super.key, 
   this.backgroundcolor =Apptheme.widgetclrlight,
-  this.bordercolor = Apptheme.widgetborderdark,
+  this.bordercolor = Apptheme.widgetclrdark,
   this.child,
   });
 
@@ -93,7 +93,7 @@ class AutoAddedWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         color: color,
         border: Border.all(
-          color: Apptheme.widgetborderdark,
+          color: Apptheme.widgetclrdark,
           width: 2,
           style: BorderStyle.solid,
           strokeAlign: BorderSide.strokeAlignOutside,

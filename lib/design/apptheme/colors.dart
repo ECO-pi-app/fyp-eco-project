@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 class Apptheme{
   //--contents color theme--
-  static const Color lightpallete1 = Color(0xFFF7F4EB);//--White Backgrounds--
-  static const Color lightpallete2 = Color(0xFFEFE8DF); //--For parent widgets--
-  static const Color primarycolour1 = Color(0xFF838D75) ; //--Primary inner widgets--
-  static const Color primarycolour2 = Color(0xFF595E48); //--Headers and main--
-  static const Color darkpallete5 = Color(0xFF4E5454); //--
+  static const Color lightpallete1 = Color(0xFFF7F4EB);
+  static const Color lightpallete2 = Color(0xFFEFE8DF); 
+  static const Color primarycolour1 = Color(0xFF838D75) ; 
+  static const Color primarycolour2 = Color(0xFF595E48); 
+  static const Color darkpallete5 = Color(0xFF4E5454); 
   static const Color darkpallete6 = Color(0xFF2B343F);
+
+  static const Color highlights = primarycolour2; //For contrasting elements
+
   static const Color accent1 = Color(0xFFCB7A5C);
   static const Color eXTRA1 = Color(0xFFCB7A5C);
   static const Color eXTRA2 = Color(0xFF5F1D20);
@@ -20,41 +23,34 @@ class Apptheme{
 
   static const Color transparentcheat = Color(0x00000000);
   static const Color error = Color(0xFFFF0000);
-  static const Color systemUI = Color(0xFF393D3D);
+  static const Color systemUI = Color(0xFF393D3D); 
 
-  //--general --
-  static const Color header= primarycolour2;//--Headers and parent widget borders--
-  static const Color auxilary = primarycolour1;//--Lighter version of Aux 2, for text backgrounds--
+  //--Page Layout --
+  static const Color header= primarycolour2;//--Headers and governing widget borders--
   static const Color backgrounddark = darkpallete5;
-  static const Color backgroundlight = lightpallete1; //--Eg. background--
-  static const Color irregularaccent = lightpallete2;
-  static const Color dividers = irregularaccent;
+  static const Color backgroundlight = lightpallete1;
 
 
   //text colors--
   static const Color textclrlight =  lightpallete1;
-  static const Color textclrdark = darkpallete6;
+  static const Color textclrdark = primarycolour2;
   static const Color textclrspecial = lightpallete1; //--Title (SPHERE)--
 
-  //--drawer exclusive color theme--
-  static const Color drawer =  darkpallete6;
-  static const Color drawerlight =  lightpallete1;
-  static const Color drawerbackground = backgrounddark;
-
-  //--universal widgets--
-  static const Color widgetclrlight = lightpallete2;
-  static const Color widgetsecondaryclr = primarycolour1;
-  static const Color widgetclrdark = darkpallete6;
-  static const Color widgetborderlight = lightpallete1;
-  static const Color widgetborderdark = darkpallete6;
-  static const Color tabbedpageclr = primarycolour1;
-  static const Color unselected = darkpallete5; //--Unselected--
-
-  //--icons and buttons--
+    //--icons and buttons--
   static const Color iconslight = textclrlight;
   static const Color iconsdark = textclrdark;
   static const Color iconsprimary = primarycolour2;
   static const Color windowcontrols = lightpallete1;
+
+  //--drawer exclusive color theme--
+
+  //--universal colours used on widgets--
+  static const Color widgetclrlight = lightpallete2;
+  static const Color widgetsecondaryclr = primarycolour1;
+  static const Color tertiarysecondaryclr = primarycolour2;
+  static const Color widgetclrdark = darkpallete6;
+
+
 
 
   

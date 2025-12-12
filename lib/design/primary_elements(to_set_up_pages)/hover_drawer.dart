@@ -89,7 +89,7 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Divider(
-                          color: Apptheme.dividers,
+                          color: Apptheme.textclrlight,
                           indent: 16,
                           endIndent: 16,
                           thickness: 1,

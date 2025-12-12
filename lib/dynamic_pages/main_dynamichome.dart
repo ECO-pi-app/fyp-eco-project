@@ -32,7 +32,6 @@ final List<String> toggleOptions = [
        
     return PrimaryPages(
       menutogglee: widget.menutogglee, 
-      header: null,
       backgroundcolor: Apptheme.widgetclrlight,
       childofmainpage: null
 ,

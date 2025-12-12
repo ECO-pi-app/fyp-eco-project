@@ -31,8 +31,7 @@ Map<double, String> unitNames = {
 };
 
 // Stores the selected unit
-final unitConversionProvider =
-    StateProvider<double>((ref) => 1.0); // default 
+final unitConversionProvider = StateProvider<double>((ref) => 1.0); // default 
 
 final unitLabelProvider = Provider<String>((ref) {
   final factor = ref.watch(unitConversionProvider);
@@ -131,7 +130,7 @@ final metaOptionsProvider = FutureProvider<MetaOptions>((ref) async {
   return MetaOptions.fromJson(jsonMap);
 });
 
-// --- Providers ---
+// --- Individual data fetching ---
 final countriesProvider = Provider<List<String>>((ref) {
   final asyncMeta = ref.watch(metaOptionsProvider);
   return asyncMeta.when(
@@ -305,8 +304,6 @@ final hgvModeProvider = Provider<List<String>>((ref) {
 
 
 // ------------------- CALCULATION AND RESULT  -------------------
-
-// ------------------- DATA FORMAT -------------------
 class RowFormat {
   final List<String> columnTitles;
   final List<bool> isTextFieldColumn;
@@ -319,7 +316,6 @@ class RowFormat {
   });
 }
 
-// ------------------- RESULT MODEL -------------------
 class EmissionResults {
   final double material;
   final double transport;
@@ -526,8 +522,6 @@ final tableControllerProvider =
         (ref, columns) => TableNotifier(columns));
 
 
-
-
 // ------------------- PROJECT LIST FETCH -------------------
 class Product {
   final String name;
@@ -539,8 +533,6 @@ class Product {
     return Product(name: value.toString());
   }
 }
-
-
 
 Future<List<Product>> fetchProducts() async {
   final token = await secureStorage.read(key: "access_token");
@@ -567,17 +559,13 @@ Future<List<Product>> fetchProducts() async {
   }
 }
 
-
-// Riverpod provider
 final productsProvider = FutureProvider<List<Product>>((ref) async {
   return fetchProducts();
 });
 
 
 // ------------------- ADD/SAVE PROJECTS -------------------
-
-final saveProfileProvider =
-    FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
+final saveProfileProvider = FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
 
   final token = await secureStorage.read(key: "access_token");
 
@@ -635,6 +623,7 @@ class ProfileSaveRequest {
     required this.username,
   });
 }
+
 
 // ------------------- POST (THE REQUEST) LOG IN AUTHENTICATION -------------------
 final signUpAuth = FutureProvider.family<String, SignUpParameters>((ref, req) async {

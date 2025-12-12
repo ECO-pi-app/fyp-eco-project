@@ -75,7 +75,7 @@ class Flexbox extends StatelessWidget {
         Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: Apptheme.widgetclrdark,
+          color: Apptheme.error,
         ),
         child: childofthis,
         ),

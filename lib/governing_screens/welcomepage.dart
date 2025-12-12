@@ -32,7 +32,7 @@ void dispose() {
     final productsAsync = ref.watch(productsProvider);
 
     return Scaffold(
-      backgroundColor: Apptheme.drawerbackground,
+      backgroundColor: Apptheme.backgrounddark,
       body: LayoutBuilder(builder: (context, constraints) {
 
         return Stack(
@@ -119,7 +119,7 @@ void dispose() {
                         color: Apptheme.transparentcheat,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Apptheme.widgetborderdark,
+                          color: Apptheme.widgetclrdark,
                           width: 2,
                         ),
                       ),
@@ -150,7 +150,7 @@ void dispose() {
                                         width: 600,
                                         height: 60,
                                         decoration: BoxDecoration(
-                                          color: Apptheme.drawer,
+                                          color: Apptheme.error,
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Row(
@@ -214,9 +214,9 @@ void dispose() {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Titletext(
+                                      Labels(
                                         title: "Create Profile",
-                                        color: Apptheme.textclrdark,
+                                        color: Apptheme.textclrlight,
                                       ),
 
                                       const SizedBox(height: 10),
@@ -227,12 +227,28 @@ void dispose() {
                                           controller: _profileNameCtrl,
                                           decoration: InputDecoration(
                                             hintText: "Enter profile name...",
-                                            filled: true,
-                                            fillColor: Apptheme.drawer,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(20),
-                                              borderSide: BorderSide.none,
+                                            hintStyle: TextStyle(
+                                              color: Apptheme.texthintclrlight
                                             ),
+                                            filled: true,
+                                            fillColor: Apptheme.transparentcheat,
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(5),
+                                              borderSide: BorderSide(
+                                                color: Apptheme.widgetclrlight 
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Apptheme.widgetclrlight
+                                              )
+                                            ),
+
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Apptheme.widgetclrlight
+                                              )
+                                            )
                                           ),
                                           style: TextStyle(color: Apptheme.textclrlight),
                                         ),
@@ -241,9 +257,16 @@ void dispose() {
                                       const SizedBox(height: 15),
 
                                       SizedBox(
-                                        width: 200,
-                                        height: 45,
+                                        width: 120,
+                                        height: 20,
                                         child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Apptheme.widgetclrlight,
+                                            foregroundColor: Apptheme.widgetclrdark,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5),
+                                            ),
+                                          ),
                                           onPressed: () async {
                                             final name = _profileNameCtrl.text.trim();
                                             if (name.isEmpty) return;
@@ -257,22 +280,12 @@ void dispose() {
 
                                             ref.read(saveProfileProvider(req));
                                           },
-                                          child: const Text("Save Profile"),
+                                          child: const Text("Create"),
                                         ),
                                       ),
 
                                       const SizedBox(height: 15),
 
-                                      SizedBox(
-                                        width: 200,
-                                        height: 45,
-                                        child: ElevatedButton(
-                                          onPressed:  () {
-                                            ref.read(deleteProfileProvider.notifier).delete("Test");
-                                          },
-                                          child: const Text("Delete Profile"),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -510,7 +523,7 @@ class _LoginFieldState extends ConsumerState<LoginField> {
                         height: 50, 
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Apptheme.header,
+                            backgroundColor: Apptheme.tertiarysecondaryclr,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -755,7 +768,7 @@ class _SignUpFieldState extends ConsumerState<SignUpField> {
                         height: 50, 
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Apptheme.header,
+                            backgroundColor: Apptheme.tertiarysecondaryclr,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

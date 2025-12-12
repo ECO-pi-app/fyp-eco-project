@@ -96,7 +96,7 @@ class _ManualTab2pages extends State<ManualTab2pages> with SingleTickerProviderS
                   indicatorPadding: EdgeInsetsGeometry.all(0),
                   unselectedLabelColor: Apptheme.textclrlight,
                   labelColor: Apptheme.textclrlight,
-                  indicatorColor: Apptheme.tabbedpageclr,  
+                  indicatorColor: Apptheme.widgetsecondaryclr,  
                   indicator: null,
                   controller: _tabController,
                   labelPadding: const EdgeInsets.only(left: 0, right: 0),
@@ -121,7 +121,7 @@ class _ManualTab2pages extends State<ManualTab2pages> with SingleTickerProviderS
                     bottomLeft: Radius.circular(28), 
                     bottomRight: Radius.circular(28)),
                   child: Container(
-                    color: Apptheme.tabbedpageclr,
+                    color: Apptheme.widgetsecondaryclr,
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       controller: _tabController,
@@ -149,7 +149,7 @@ class _ManualTab2pages extends State<ManualTab2pages> with SingleTickerProviderS
             Container(
               child:child,
               decoration: BoxDecoration(
-                color: (_selectedTab == index ? Apptheme.tabbedpageclr : Apptheme.unselected),
+                color: (_selectedTab == index ? Apptheme.tertiarysecondaryclr : Apptheme.widgetsecondaryclr),
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(15),topRight: Radius.circular(15))
         ),
               ),
@@ -349,7 +349,7 @@ class _ManualTab3pages extends State<ManualTab3pages> with SingleTickerProviderS
             Container(
               child:child,
               decoration: BoxDecoration(
-                color: (_selectedTab == index ? Apptheme.header : Apptheme.widgetsecondaryclr),
+                color: (_selectedTab == index ? Apptheme.tertiarysecondaryclr : Apptheme.widgetsecondaryclr),
                 borderRadius: BorderRadius.all(Radius.circular(5))
         ),
               ),

@@ -22,15 +22,7 @@ class _BookmarkCategoryFiveState extends State<BookmarkCategoryFive> {
   @override
   Widget build(BuildContext context) {
     return  PrimaryPages(
-      menutogglee: widget.menutoggle, 
-      header: Pageheaders(
-        settingstogglee: widget.settingstogglee, 
-        title: 'Category 5', 
-        child: Headertext(
-          words: 'Waste Generated in Operations',
-          backgroundcolor: Apptheme.header,
-        )
-      ),
+      menutogglee: widget.menutoggle,
       childofmainpage: ListView(
         children: [
 

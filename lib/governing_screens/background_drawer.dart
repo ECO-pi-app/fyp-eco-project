@@ -149,7 +149,7 @@ class _SettingsState extends State<Settings> {
                 width: parentWidth/1.1,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Apptheme.drawer,
+                  color: Apptheme.error,
                   borderRadius: BorderRadius.circular(12)
                 ),
                 child: 
@@ -179,7 +179,7 @@ class _SettingsState extends State<Settings> {
                   border: Border.all(
                     width: 1,
                     style: BorderStyle.solid,
-                    color: Apptheme.dividers,
+                    color: Apptheme.error,
                   )
                 ),
               ),
@@ -191,7 +191,7 @@ class _SettingsState extends State<Settings> {
             child: 
             Container(
               decoration: BoxDecoration(
-                color: Apptheme.drawer,
+                color: Apptheme.error,
                 borderRadius: BorderRadius.circular(10)
                 ),
               height: 35,

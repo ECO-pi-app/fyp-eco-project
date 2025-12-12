@@ -23,14 +23,6 @@ class _BookmarkCategoryFourState extends State<BookmarkCategoryFour> {
   Widget build(BuildContext context) {
     return  PrimaryPages(
       menutogglee: widget.menutoggle, 
-      header: Pageheaders(
-        settingstogglee: widget.settingstogglee, 
-        title: 'Category 4', 
-        child: Headertext(
-          words: 'Upstream Distribution and Transporation',
-          backgroundcolor: Apptheme.header,
-        )
-      ),
       childofmainpage: ListView(
         children: [
 

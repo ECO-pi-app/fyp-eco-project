@@ -142,7 +142,7 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                             color: Apptheme.transparentcheat,
                             border: Border.all(
                               width: 1, 
-                              color: Apptheme.widgetborderdark
+                              color: Apptheme.widgetclrdark
                             ),
                             borderRadius: BorderRadius.circular(5),
                           ),
@@ -212,13 +212,13 @@ final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
                                                                                                 
                                                 enabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.unselected,
+                                                    color: Apptheme.tertiarysecondaryclr,
                                                   )
                                                 ),
             
                                                 focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                    color: Apptheme.widgetborderdark
+                                                    color: Apptheme.widgetclrlight
                                                   )
                                                 ),
             
@@ -378,7 +378,7 @@ onPressed: () {
                     width: 200,
                     height: 25,
                     decoration: BoxDecoration(
-                      color: Apptheme.header,
+                      color: Apptheme.widgetsecondaryclr,
                       borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
                     child: InkWell(

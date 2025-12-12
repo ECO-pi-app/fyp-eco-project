@@ -23,10 +23,10 @@ class PageHeaderTwo extends StatelessWidget {
               width: double.infinity,
               decoration: 
               BoxDecoration(
-                color: Apptheme.header,
+                color: Apptheme.error,
                   boxShadow: [
                     BoxShadow(
-                      color: Apptheme.header,
+                      color: Apptheme.error,
                       spreadRadius: 10,
                       blurRadius: 10,
                       offset: const Offset(0, 4)
@@ -133,10 +133,10 @@ class PageheadersState extends State<Pageheaders> {
       width: double.infinity,
       decoration: 
       BoxDecoration(
-        color: Apptheme.header,
+        color: Apptheme.error,
           boxShadow: [
             BoxShadow(
-              color: Apptheme.header,
+              color: Apptheme.error,
               spreadRadius: 0,
               blurRadius: 0,
               offset: const Offset(0, 0)

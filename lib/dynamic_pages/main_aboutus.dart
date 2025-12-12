@@ -23,11 +23,6 @@ class _DynamicCreditsState extends State<DynamicCredits> {
   Widget build(BuildContext context) {
     return PrimaryPages(
       menutogglee: widget.menutoggle, 
-      header: Pageheaders(
-        settingstogglee: widget.settingstogglee, 
-        title: 'About Us', 
-        child: null,
-      ),
       childofmainpage: Widgets1(
         maxheight: 500,
         backgroundcolor: Apptheme.widgetsecondaryclr,

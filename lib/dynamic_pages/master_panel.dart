@@ -196,7 +196,7 @@ String getPercentageTitle(double value, double total) {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Apptheme.header,
+                      color: Apptheme.tertiarysecondaryclr,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(5),
                         topRight: Radius.circular(5),
@@ -216,6 +216,7 @@ String getPercentageTitle(double value, double total) {
                             color: Apptheme.textclrlight,
                             fontsize: 19,
                             fontweight: FontWeight.w700,
+                            toppadding: 0,
                           ),
                         ],
                       ),

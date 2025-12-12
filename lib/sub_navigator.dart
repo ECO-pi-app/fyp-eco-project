@@ -31,7 +31,7 @@ class RootScaffoldState extends State<RootScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Apptheme.drawerbackground,
+      backgroundColor: Apptheme.backgrounddark,
       appBar: Spherebar(), // stays constant across both pages
       body: Navigator(
         key: _innerNavigatorKey,
