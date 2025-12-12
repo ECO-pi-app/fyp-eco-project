@@ -954,7 +954,6 @@ def list_profiles(username: Optional[str] = Query(None)):
         return {"profiles": filtered}
     return {"profiles": list(profiles.keys())}
 
-
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
     if req.country not in country_list:
@@ -1217,7 +1216,7 @@ def signup_user(req: UserSignupRequest):
     ws.append([req.username, pwd_hash])
     wb.save(USERS_FILE)
 
-    return {"status": "ok", "username": req.username}
+    return {"status": "ok", "username": req.username,"passowrd" : req.password}
 
 
 @app.post("/auth/login")
