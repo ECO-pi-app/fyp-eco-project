@@ -35,7 +35,7 @@ void initState() {
 
 Future<void> fetchNews() async {
   try {
-    final url = Uri.parse("http://127.0.0.1:8000/news/sustainability");
+    final url = Uri.parse("http://127.0.0.1:8000/news/sustainabilit");
     final response = await http.get(url);
 
     if (!mounted) return;  

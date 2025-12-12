@@ -346,9 +346,6 @@ class EmissionResults {
   double get total => material + transport + machining + fugitive;
 }
 
-
-
-// ------------------- PROVIDER -------------------
 final emissionCalculatorProvider = StateNotifierProvider<
     EmissionCalculator, EmissionResults>(
   (ref) => EmissionCalculator(),
@@ -605,6 +602,41 @@ class ProfileSaveRequest {
   });
 }
 
+// ------------------- POST (THE REQUEST) LOG IN AUTHENTICATION -------------------
+final signUpAuth = FutureProvider.family<String, SignUpParameters>((ref, req) async {
+  print("Log in fields: ${jsonEncode({
+  "username": req.profileName,
+  "password": req.password,
+
+})}");
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/auth/signup'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "username": req.profileName,
+      "password": req.password,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final json = jsonDecode(response.body);
+    ref.invalidate(productsProvider);
+    return json["sign_up"];
+    
+  } else {
+    throw Exception("Failed to sign up");
+  }
+  
+});
+
+class SignUpParameters {
+  final String profileName;
+  final String password;
+  SignUpParameters({
+    required this.profileName,
+    required this.password,
+  });
+}
 
 
 // ------------------- DELETE PROJECTS -------------------
