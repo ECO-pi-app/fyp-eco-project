@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
-import 'package:test_app/dynamic_pages/popup_settings.dart';
+import 'package:test_app/dynamic_pages/settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
 
