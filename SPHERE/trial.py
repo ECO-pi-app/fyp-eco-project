@@ -10,6 +10,7 @@ import requests
 import re 
 import hashlib # for hashing passwords
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
@@ -1232,31 +1233,27 @@ def signup(req: UserSignupRequest):
 
 
 @app.post("/auth/login")
-def login_user(req: UserLoginRequest):
-    """
-    Verify username/password against users.xlsx and return an access token.
-    """
-
+def login_user(form: OAuth2PasswordRequestForm = Depends()):
     wb, ws = load_users_sheet()
-    row = find_user_row(ws, req.username)
+
+    row = find_user_row(ws, form.username)
     if row is None:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     stored_hash = ws.cell(row=row, column=2).value
-    if stored_hash != hash_password(req.password):
+    if stored_hash != hash_password(form.password):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    # Load profiles and filter by owner
     profiles = load_profiles()
     user_profiles = [
         name for name, info in profiles.items()
-        if isinstance(info, dict) and info.get("owner") == req.username
+        if isinstance(info, dict) and info.get("owner") == form.username
     ]
 
-    token = create_access_token(req.username)
+    token = create_access_token(form.username)
     return {
         "access_token": token,
         "token_type": "bearer",
-        "username": req.username,
+        "username": form.username,
         "profiles": user_profiles
     }
