@@ -265,7 +265,8 @@ class Textsinsidewidgets extends StatelessWidget {
   final String words;
   final Color color;
   final double fontsize;
-  final double leftpaddingadd;
+  final double leftpadding;
+  final double toppadding;
   final int maxLines;
   final FontWeight fontweight;
 
@@ -273,7 +274,8 @@ class Textsinsidewidgets extends StatelessWidget {
   required this.words,
   required this.color,
   this.fontsize = 15,
-  this.leftpaddingadd = 0,
+  this.leftpadding = 0,
+  this.toppadding = 10,
   this.maxLines = 10,
   this.fontweight = FontWeight.w600,
   });
@@ -284,7 +286,7 @@ class Textsinsidewidgets extends StatelessWidget {
       
       return
       Container(
-        padding: EdgeInsets.only(left: 5+leftpaddingadd, top: 0, right: 5),
+        padding: EdgeInsets.only(left: 5+leftpadding, top: toppadding, right: 5),
         child: 
         Align(
           alignment: Alignment.centerLeft,

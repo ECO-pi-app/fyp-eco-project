@@ -5,8 +5,6 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/screens/dynamic_pages/popup_pages.dart';
 import 'dart:ui';
 
-import 'package:test_app/todolist.dart';
-
 void showSettingsPopup(BuildContext context) {
   showGeneralDialog(
     context: context,
@@ -68,7 +66,7 @@ class _SettingsContentState extends State<SettingsContent> {
   final List<MenuPage> menuPages = [
     MenuPage(title: 'General', page: GeneralPage()),
     MenuPage(title: 'Units', page: UnitsPage()),
-    MenuPage(title: 'To do', page: Todolist()),
+    MenuPage(title: 'Admin', page: DeveloperPage())
     
   ];
 
@@ -176,7 +174,7 @@ class _SettingsContentState extends State<SettingsContent> {
                     child: Labels(
                       title: menuPages[selectedMenu].title,
                       color: Apptheme.textclrlight,
-                      fontsize: 25,
+                      fontsize: 30,
                       leftpadding: 20,
                     ),
                   ),
@@ -224,13 +222,13 @@ class ListTileItems extends StatelessWidget {
       onTap: () => navigateto(title),
       child: Container(
         width: max(0, screenWidth - 80 - (padding * 3) - 200),
-        height: 40,
+        height: 50,
         decoration: BoxDecoration(
           color: Apptheme.transparentcheat,
           borderRadius: BorderRadius.circular(5),
         ),
         padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 0),
         child: Labels(
           title: title,
           color: Apptheme.textclrlight,

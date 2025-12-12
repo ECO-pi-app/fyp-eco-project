@@ -5,6 +5,11 @@ class DebugPage extends ConsumerWidget {
   const DebugPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(children: [Text()],)
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+      Text('')
+      ],
+    );
   }
+}

@@ -125,14 +125,14 @@ class _InfoIconPopupDarkState extends State<InfoIconPopupDark> {
                   width: _popupWidth,
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Apptheme.backgrounddark.withOpacity(1),
                     borderRadius: BorderRadius.circular(_cornerRadius),
                     border: Border.all(color: Apptheme.widgetborderdark),
                   ),
                   child: Text(
                     widget.text,
                     style: const TextStyle(
-                      color: Apptheme.textclrdark,
+                      color: Apptheme.textclrlight,
                     ),
                   ),
                 ),

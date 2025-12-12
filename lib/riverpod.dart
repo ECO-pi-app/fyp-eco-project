@@ -18,6 +18,11 @@ Map<double, String> unitLabels = {
   2.20462: 'lb',
   1000.0: 'g',
 };
+Map<double, String> unitNames = {
+  1.0: 'Metric',
+  2.20462: 'Imperial',
+  1000.0: 'Metric x10^-3',
+};
 
 // Stores the selected unit
 final unitConversionProvider =
@@ -27,6 +32,15 @@ final unitLabelProvider = Provider<String>((ref) {
   final factor = ref.watch(unitConversionProvider);
   return unitLabels[factor] ?? 'kg'; // default 
 });
+
+final unitNameProvider = Provider<String>((ref) {
+  final factor = ref.watch(unitConversionProvider);
+  return unitNames[factor] ?? 'Metric'; // default 
+});
+
+
+final myCheckboxProvider = StateProvider<bool>((ref) => false);
+
 
 
 // ------------------- DATA FETCHING  -------------------
