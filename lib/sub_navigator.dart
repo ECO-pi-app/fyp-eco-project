@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/appbar.dart';
-import 'package:test_app/titlepages/welcomepage.dart';
-import 'package:test_app/titlepages/primarypage.dart';
+import 'package:test_app/governing_screens/welcomepage.dart';
+import 'package:test_app/governing_screens/primarypage.dart';
 
 
 class RootScaffold extends StatefulWidget {
