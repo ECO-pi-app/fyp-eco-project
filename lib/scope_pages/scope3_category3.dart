@@ -6,12 +6,8 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dart';
 
 class BookmarkCategoryThree extends StatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutoggle;
 
   const BookmarkCategoryThree({super.key,
-    required this.settingstogglee,
-    required this.menutoggle,
   });
 
   @override
@@ -22,7 +18,6 @@ class _BookmarkCategoryThreeState extends State<BookmarkCategoryThree> {
   @override
   Widget build(BuildContext context) {
     return  PrimaryPages(
-      menutogglee: widget.menutoggle, 
       childofmainpage: ListView(
         children: [
 

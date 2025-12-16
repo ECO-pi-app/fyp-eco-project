@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 
 class PrimaryPages extends StatefulWidget {
-  final VoidCallback menutogglee;
   final Widget? childofmainpage;
   final Color backgroundcolor;
 
   const PrimaryPages({super.key,
-  required this.menutogglee,
   this.childofmainpage,
   this.backgroundcolor = Apptheme.backgroundlight,
   });

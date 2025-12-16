@@ -183,7 +183,7 @@ String getPercentageTitle(double value, double total) {
             alignment: Alignment.centerLeft,
             child: Container(
               decoration: BoxDecoration(
-                color: Apptheme.widgetsecondaryclr,
+                color: Apptheme.widgetclrlight,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(5),
                   topRight: Radius.circular(5),
@@ -196,7 +196,7 @@ String getPercentageTitle(double value, double total) {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Apptheme.tertiarysecondaryclr,
+                      color: Apptheme.widgetsecondaryclr,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(5),
                         topRight: Radius.circular(5),
@@ -204,7 +204,7 @@ String getPercentageTitle(double value, double total) {
                         bottomLeft: Radius.circular(10),
                       )
                     ),
-                    height: 34,
+                    height: 25,
                     width: double.infinity,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 0, top: 0, bottom: 0),
@@ -222,45 +222,55 @@ String getPercentageTitle(double value, double total) {
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      const SizedBox(width: 15,),
-                      Textsinsidewidgets(
-                        words: 'Sort  |', 
-                        color: Apptheme.textclrlight,
-                        fontsize: 15,
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 120,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: DropdownButton<int>(
-                            isExpanded: true,
-                            value: selectedToggle,
-                            dropdownColor: Apptheme.widgetsecondaryclr,
-                            iconEnabledColor: Apptheme.textclrlight,
-                            items: List.generate(toggleOptions.length, (index) {
-                              return DropdownMenuItem<int>(
-                                value: index,
-                                child: Textsinsidewidgets(
-                                  words: toggleOptions[index], 
-                                  color: Apptheme.textclrlight,
-                                  fontsize: 15,
-                                )
-                              );
-                            }),
-                            onChanged: (int? newIndex) {
-                              if (newIndex != null) {
-                                setState(() {
-                                  selectedToggle = newIndex;
-                                });
-                              }
-                            },
+
+                  SizedBox(
+                    height: 35,
+                    child: Row(
+                      children: [
+                    
+                        const SizedBox(width: 15,),
+                    
+                        Textsinsidewidgets(
+                          words: 'Sort  |', 
+                          color: Apptheme.textclrdark,
+                          fontsize: 15,
+                          toppadding: 0,
+                        ),
+                    
+                        const SizedBox(width: 8),
+                    
+                        SizedBox(
+                          width: 120,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: DropdownButton<int>(
+                              isExpanded: true,
+                              value: selectedToggle,
+                              dropdownColor: Apptheme.widgetclrlight,
+                              iconEnabledColor: Apptheme.textclrdark,
+                              items: List.generate(toggleOptions.length, (index) {
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Textsinsidewidgets(
+                                    words: toggleOptions[index], 
+                                    color: Apptheme.textclrdark,
+                                    fontsize: 15,
+                                    toppadding: 0,
+                                  )
+                                );
+                              }),
+                              onChanged: (int? newIndex) {
+                                if (newIndex != null) {
+                                  setState(() {
+                                    selectedToggle = newIndex;
+                                  });
+                                }
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

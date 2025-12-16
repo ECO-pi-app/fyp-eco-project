@@ -16,7 +16,7 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
     with SingleTickerProviderStateMixin {
   bool _hovered = false;
   bool _openSubmenu = false;
-  double paddingbetweentiles = 8;
+  double paddingbetweentiles = 25;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,6 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
       
       _drawerTile((Icons.calculate),"Attributes", () => widget.onSelectPage(1)),
       _drawerTile((Icons.percent),"Allocation", () => widget.onSelectPage(2)),
-      _drawerTile((Icons.newspaper),"Sustainability News", () => widget.onSelectPage(3)),
       _drawerTile((Icons.info),"About Us", () => widget.onSelectPage(4)),
       _drawerTile((Icons.laptop),"Debug Page", () => widget.onSelectPage(5)),
     ];
@@ -111,14 +110,14 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
   // --- Helper Widgets ---
 Widget _drawerTile(IconData icon, String title, VoidCallback onTap) {
   return Padding(
-    padding: EdgeInsets.symmetric(vertical: paddingbetweentiles),
+    padding: EdgeInsets.symmetric(vertical: 12),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 16), // Icon padding
         SizedBox(
           height: 25,
-          child: Icon(icon,  color:Apptheme.iconslight, size: 20)
+          child: Icon(icon,  color:Apptheme.iconslight, size: 25)
         ),
         if (_hovered) ...[
           const SizedBox(width: 16), // Space between icon and label
@@ -147,7 +146,7 @@ Widget _parentTile({
     child: InkWell(
       onTap: _hovered ? onTap : null,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: paddingbetweentiles),
+        padding: EdgeInsets.symmetric(vertical: 12),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -156,7 +155,7 @@ Widget _parentTile({
               const SizedBox(width: 16), // Icon padding
               SizedBox(
                 height: 25,
-                child: Icon(icon, color:Apptheme.iconslight, size: 20)
+                child: Icon(icon, color:Apptheme.iconslight, size: 25)
               ),
               if (_hovered) ...[
                 const SizedBox(width: 16), // Space between icon and label

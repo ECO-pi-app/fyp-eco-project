@@ -163,7 +163,7 @@ class _InfoIconPopupDarkState extends State<InfoIconPopupDark> {
       onExit: (_) => _removeOverlay(),
       child: const Icon(
         Icons.info_outline,
-        color: Apptheme.iconslight,
+        color: Apptheme.iconsdark,
       ),
     );
   }

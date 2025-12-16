@@ -7,12 +7,10 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dar
 
 
 class DynamicSustainabilityNews extends StatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutoggle;
+
 
   const DynamicSustainabilityNews({super.key, 
-  required this.settingstogglee,
-  required this.menutoggle,
+  
   });
 
   @override
@@ -70,7 +68,6 @@ Future<void> fetchNews() async {
   @override
   Widget build(BuildContext context) {
     return PrimaryPages(
-      menutogglee: widget.menutoggle, 
       childofmainpage: Widgets1(
         maxheight: 250,
         backgroundcolor: Apptheme.widgetsecondaryclr,

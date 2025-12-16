@@ -33,11 +33,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 
-  bool _showSettings = false;
-  bool _showMenu = true;
-  double drawerwidth = 266;
-  double _prevscreenwidth = 0;
-
   late final List<Widget> pages;
 
 @override
@@ -47,23 +42,23 @@ void initState() {
   pages = [
     KeyedSubtree(
       key: ValueKey('home'),
-      child: Dynamichome(settingstogglee: settingstoggle, menutogglee: menutoggle),
+      child: Dynamichome(),
     ),
     KeyedSubtree(
       key: ValueKey('analysis'),
-      child: Dynamicprdanalysis(settingstogglee: settingstoggle, menutogglee: menutoggle),
+      child: Dynamicprdanalysis(),
     ),
     KeyedSubtree(
       key: ValueKey('allocation'),
-      child: DynamicAllocation(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: DynamicAllocation(),
     ),
     KeyedSubtree(
       key: ValueKey('news'),
-      child: DynamicSustainabilityNews(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: DynamicSustainabilityNews( ),
     ),
     KeyedSubtree(
       key: ValueKey('about'),
-      child: DynamicCredits(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: DynamicCredits(),
     ),
     KeyedSubtree(
       key: ValueKey('debug'),
@@ -73,47 +68,47 @@ void initState() {
     //--BOOKMARKS---------------------------------------------------------------------
     KeyedSubtree(
       key: ValueKey('cat1'),
-      child: BookmarkCategoryOne(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryOne(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat2'),
-      child: BookmarkCategoryTwo(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryTwo(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat3'),
-      child: BookmarkCategoryThree(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryThree( ),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat4'),
-      child: BookmarkCategoryFour(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryFour(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat5'),
-      child: BookmarkCategoryFive(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryFive(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat9'),
-      child: BookmarkCategoryNine(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryNine(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat10'),
-      child: BookmarkCategoryTen(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryTen(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat11'),
-      child: BookmarkCategoryEleven(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryEleven(),
     ),
 
     KeyedSubtree(
       key: ValueKey('cat12'),
-      child: BookmarkCategoryTwelve(settingstogglee: settingstoggle, menutoggle: menutoggle),
+      child: BookmarkCategoryTwelve(),
     ),
   ];
 }
@@ -123,46 +118,16 @@ void initState() {
    ref.read(currentPageProvider.notifier).state = index;
   }
 
-  void settingstoggle() {
-    setState(() {
-      if (MediaQuery.of(context).size.width < 750) {
-        if (!_showSettings) _showMenu = false;
-      }
-      _showSettings = !_showSettings;
-  });
-  }
-
-  void menutoggle() {
-    setState(() {
-      if (MediaQuery.of(context).size.width < 750) {
-        if (!_showMenu) _showSettings = false;
-      }
-      _showMenu = !_showMenu;
-  });
-  }
-
   @override
   Widget build(BuildContext context) {
 
     final MediaQueryData mediaQueryData = MediaQuery.of(context);
     final screenwidth = mediaQueryData.size.width;
 
-    const double openThreshold = 200;
-    
-    final double settingswidth = 200;
-    final double menuwidth = 400;
-
-    final double listWidth = min(400, screenwidth);
+    final double listWidth = min(340, screenwidth);
 
     final selectedIndex = ref.watch(currentPageProvider);
 
-    if (_prevscreenwidth >= openThreshold &&
-        screenwidth < openThreshold &&
-        _showSettings && _showMenu) {
-      _showSettings = false;
-    }
-
-    _prevscreenwidth = screenwidth;
 
     return Scaffold(
       body: 
@@ -180,9 +145,16 @@ void initState() {
           child: null,
         ),
 
+        Container(
+          color: Apptheme.transparentcheat,
+          width: double.infinity,
+          height: double.infinity,
+          child: BackgroundDrawer(onSelectPage: _onPageSelected)
+        ),
+
         Positioned(
           top: 0,
-          left: 0,
+          left: 60,
           right: 0,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -196,7 +168,6 @@ void initState() {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      const SizedBox(width: 60),
                       Padding(
                         padding: const EdgeInsets.all(5),
                         child: Container(
@@ -204,7 +175,7 @@ void initState() {
                             color: Apptheme.header,
                             borderRadius: BorderRadius.all( Radius.circular(5))
                           ),
-                          width: listWidth - 70,
+                          width: listWidth - 10,
                           child:  Padding(
                             padding: const EdgeInsets.only(bottom: 5),
                             child: Center(
@@ -234,26 +205,28 @@ void initState() {
                       borderRadius: BorderRadius.all( Radius.circular(5))
                     ),
                     height: 50,
-                    child: CurrentPageIndicator(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CurrentPageIndicator(),
+
+                        _titlebaricons((Icons.newspaper),() => _onPageSelected(3)),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
-              
-        Container(
-          color: Apptheme.transparentcheat,
-          width: double.infinity,
-          height: double.infinity,
-          child: BackgroundDrawer(onSelectPage: _onPageSelected)
-        ),
-              
+
+
+        //--Main               
         AnimatedPositioned(
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeIn,
-          right: _showSettings ? settingswidth: 10,
-          left: _showMenu ? menuwidth : 0,
+          right: 10,
+          left:  400,
           top: 70,
           bottom: 20,
           child: 
@@ -348,5 +321,23 @@ class CurrentPageIndicator extends ConsumerWidget {
       ),
     );
   }
+}
+
+
+Widget _titlebaricons(IconData icon,  VoidCallback onTap) {
+  return Padding(
+    padding: EdgeInsets.only(right: 35),
+    child: InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 25,
+        child: Icon(
+          icon,  
+          color:Apptheme.iconslight, 
+          size: 20
+        )
+      ),
+    ),
+  );
 }
 

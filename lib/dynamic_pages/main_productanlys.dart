@@ -12,12 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutogglee;
 
   const Dynamicprdanalysis({super.key, 
-  required this.settingstogglee,
-  required this.menutogglee,
   });
 
   @override
@@ -90,7 +86,7 @@ final List<Widget> widgetofpage1 = [
         title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
         color: Apptheme.textclrdark,
       ),
-      InfoIconPopup(text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production')
+      InfoIconPopupDark(text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production')
     ],
   ),
   Widgets1(
@@ -117,21 +113,15 @@ final List<Widget> widgetofpage1 = [
   ),
 
   //--ROW 2--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.widgetsecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5))
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Upstream Transportation | ${emissions.transport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(padding: EdgeInsetsGeometry.only(right: 10),child: InfoIconPopupDark(text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.'))
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Upstream Transportation | ${emissions.transport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(padding: EdgeInsetsGeometry.only(right: 10),child: InfoIconPopupDark(text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.'))
+    ],
   ),
   Widgets1(
     maxheight: 250,
@@ -158,24 +148,18 @@ final List<Widget> widgetofpage1 = [
 
 final List<Widget> widgetofpage2 = [
   //--ROW 1--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Machining | ${emissions.machining.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Power consumed during the operation of all processes required to create a product'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Machining | ${emissions.machining.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Power consumed during the operation of all processes required to create a product'),
+      ),
+    ],
   ),
 
   Widgets1(
@@ -202,24 +186,18 @@ final List<Widget> widgetofpage2 = [
   ),
 
   //--ROW 2--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Fugitive leaks | ${emissions.fugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Fugitive leaks | ${emissions.fugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear'),
+      ),
+    ],
   ),
 
   Widgets1(
@@ -250,29 +228,23 @@ final List<Widget> widgetofpage2 = [
 
 final List<Widget> widgetofpage3 = [
   //--ROW 1--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Downstream Distribution',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Transporting of products from it\'s production facility to the site of storage or retail'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Downstream Distribution',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Transporting of products from it\'s production facility to the site of storage or retail'),
+      ),
+    ],
   ),
 
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Transportation', 'Distance'],
       isTextFieldColumn: [false, true],
       addButtonLabel: 'Add transport cycle',
@@ -283,29 +255,23 @@ final List<Widget> widgetofpage3 = [
   ),
 
   //--ROW 2--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Downstream Storage',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Activities that are performed to store the product before retail'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Downstream Storage',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Activities that are performed to store the product before retail'),
+      ),
+    ],
   ),
 
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Facilities', 'Stored duration', 'Area', 'Select GHG'],
       isTextFieldColumn: [false, true, true, false],
       addButtonLabel: 'Add facility',
@@ -316,29 +282,23 @@ final List<Widget> widgetofpage3 = [
   ),
 
   //--ROW 3--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'Use Phase',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Activities that are performed during the expected use cycle of the product'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'Use Phase',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Activities that are performed during the expected use cycle of the product'),
+      ),
+    ],
   ),
 
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Use activity', 'Expected use cycle', 'Unit'],
       isTextFieldColumn: [false, true, true],
       addButtonLabel: 'Add use cycle',
@@ -349,29 +309,23 @@ final List<Widget> widgetofpage3 = [
   ),
 
   //--ROW 4--
-  Container(
-    decoration: BoxDecoration(
-      color: Apptheme.tertiarysecondaryclr,
-      borderRadius: BorderRadius.all(Radius.circular(5)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Labels(
-          title: 'End-of-life treatment',
-          color: Apptheme.textclrlight,
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 10),
-          child: InfoIconPopupDark(text: 'Treatment/disposal of products after their expected use cycle'),
-        ),
-      ],
-    ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Labels(
+        title: 'End-of-life treatment',
+        color: Apptheme.textclrdark,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right: 10),
+        child: InfoIconPopupDark(text: 'Treatment/disposal of products after their expected use cycle'),
+      ),
+    ],
   ),
 
   Widgets1(
     maxheight: 250,
-    child: DynamicDropdownMaterialAcquisition(
+    child: AttributesMenu(
       columnTitles: ['Product Type', 'Mass', 'Energy required'],
       isTextFieldColumn: [false, true, true],
       addButtonLabel: 'Add disassembly cycle',
@@ -387,7 +341,6 @@ final List<Widget> widgetofpage3 = [
 
 
     return PrimaryPages(
-      menutogglee: widget.menutogglee, 
       childofmainpage: Column(
         children: [
 

@@ -6,12 +6,8 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.
 
 
 class DynamicAllocation extends StatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutoggle;
 
   const DynamicAllocation({super.key, 
-  required this.settingstogglee,
-  required this.menutoggle,
   });
 
   @override
@@ -22,7 +18,6 @@ class _DynamicProfileState extends State<DynamicAllocation> {
   @override
   Widget build(BuildContext context) {
     return PrimaryPages(
-      menutogglee: widget.menutoggle,
       childofmainpage: Labels(
         title: 'Thing', 
         color: Apptheme.textclrdark,

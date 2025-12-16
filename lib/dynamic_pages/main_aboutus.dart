@@ -6,12 +6,8 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dar
 
 
 class DynamicCredits extends StatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutoggle;
 
   const DynamicCredits({super.key, 
-  required this.settingstogglee,
-  required this.menutoggle,
   });
 
   @override
@@ -21,8 +17,7 @@ class DynamicCredits extends StatefulWidget {
 class _DynamicCreditsState extends State<DynamicCredits> {
   @override
   Widget build(BuildContext context) {
-    return PrimaryPages(
-      menutogglee: widget.menutoggle, 
+    return PrimaryPages( 
       childofmainpage: Widgets1(
         maxheight: 500,
         backgroundcolor: Apptheme.widgetsecondaryclr,

@@ -6,10 +6,8 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.
 
 
 class Dynamichome extends ConsumerStatefulWidget {
-  final VoidCallback settingstogglee;
-  final VoidCallback menutogglee;
-  const Dynamichome({super.key, required this.settingstogglee
-  , required this.menutogglee,});
+  const Dynamichome({super.key,
+  });
 
 
   @override
@@ -31,7 +29,6 @@ final List<String> toggleOptions = [
   Widget build(BuildContext context) {
        
     return PrimaryPages(
-      menutogglee: widget.menutogglee, 
       backgroundcolor: Apptheme.widgetclrlight,
       childofmainpage: null
 ,

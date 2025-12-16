@@ -61,6 +61,7 @@ class _ContentofLState extends ConsumerState<ContentofL> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<double>(
                     dropdownColor: Apptheme.highlights,
+                    iconEnabledColor: Apptheme.textclrlight,
                     value: ref.watch(unitConversionProvider),
                     items: conversionFactors.entries.map((entry) {
                       return DropdownMenuItem<double>(
