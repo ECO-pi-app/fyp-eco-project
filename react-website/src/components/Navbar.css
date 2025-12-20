@@ -7,12 +7,11 @@
 
 .logo-text {
   margin-top: 4px;
-  font-size: 14px;
   font-weight: 600;
 }
 
 .navbar-logo-img {
-  height: 40px;
+  height: 56px;
   width: auto;
 }
 
@@ -174,6 +173,4 @@
     transition: 250ms;
   }
 }
-.btn {
-  margin-top: 0px;
-}
+

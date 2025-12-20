@@ -18,7 +18,7 @@ function Navbar() {
     };
 
     useEffect(() => {
-        showButton();
+        showButton()
     }, []);
 
 
@@ -27,7 +27,7 @@ function Navbar() {
         <>
         <nav className="navbar">
             <div className="navbar-container">
-                <Link to="/" className="navbar-logo">
+                <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
                     <div className="logo-wrapper">
                         <span className="logo-text">ECO-Pi</span>    
                         <img
