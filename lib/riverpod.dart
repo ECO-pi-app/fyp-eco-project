@@ -537,18 +537,12 @@ class Product {
 }
 
 Future<List<Product>> fetchProducts() async {
-  final token = await secureStorage.read(key: "access_token");
-
-  if (token == null) {
-    throw Exception("Not logged in");
-  }
-
-  final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/profiles'),
-    headers: {
-      "Authorization": "Bearer $token", 
-    },
-  );
+  final response = await authedRequestWithRetry((token) {
+    return http.get(
+      Uri.parse('http://127.0.0.1:8000/profiles'),
+      headers: {"Authorization": "Bearer <token>"},
+    );
+  });
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> map = jsonDecode(response.body);
@@ -557,7 +551,7 @@ Future<List<Product>> fetchProducts() async {
   } else if (response.statusCode == 401) {
     throw Exception("Unauthorized – please log in again");
   } else {
-    throw Exception('Failed to load products');
+    throw Exception('Failed to load products: ${response.statusCode}');
   }
 }
 
@@ -567,50 +561,32 @@ final productsProvider = FutureProvider<List<Product>>((ref) async {
 
 
 // ------------------- ADD/SAVE PROJECTS -------------------
-final saveProfileProvider = FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
-
-  final token = await secureStorage.read(key: "access_token");
-
-  if (token == null) {
-    throw Exception("Not logged in");
-  }
-
-
-
-  final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/profiles/save'),
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token", 
-    },
-    body: jsonEncode({
-      "profile_name": req.profileName,
-      "description": req.description,
-      "data": req.data,
-    }),
-  );
-
-
+final saveProfileProvider =
+    FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
+  final response = await authedRequestWithRetry((token) {
+    return http.post(
+      Uri.parse('http://127.0.0.1:8000/profiles/save'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "profile_name": req.profileName,
+        "description": req.description,
+        "data": req.data,
+      }),
+    );
+  });
 
   if (response.statusCode == 200) {
-
     final json = jsonDecode(response.body);
-
     ref.invalidate(productsProvider);
-
     return json["saved_profile"];
-
-  } else if (response.statusCode == 401) {
-
-    throw Exception("Unauthorized – please log in again");
-
   } else {
-
     throw Exception("Failed to save profile: ${response.body}");
-
   }
-
 });
+
 
 class ProfileSaveRequest {
   final String profileName;
@@ -646,7 +622,7 @@ final signUpAuth = FutureProvider.family<String, SignUpParameters>((ref, req) as
   if (response.statusCode == 200) {
     final json = jsonDecode(response.body);
     ref.invalidate(productsProvider);
-    return json["sign_up"];
+    return json["username"];
     
   } else {
     throw Exception("Failed to sign up");
@@ -677,15 +653,16 @@ final logInAuth = FutureProvider.family<String, LoginParameters>((ref, req) asyn
 
   if (response.statusCode == 200) {
     final json = jsonDecode(response.body);
-    final token = json["access_token"];
 
-    
-    await secureStorage.write(key: "access_token", value: token);
+    final access = json["access_token"] as String;
+    final refresh = json["refresh_token"] as String;
 
-    
+    await secureStorage.write(key: "access_token", value: access);
+    await secureStorage.write(key: "refresh_token", value: refresh);
+
     ref.invalidate(productsProvider);
+    return access;
 
-    return token;
   } else {
     debugLog("Login failed with status: ${response.statusCode}");
     throw Exception("Failed to log in");
@@ -719,6 +696,53 @@ void debugLog(String message) {
   }
 }
 
+Future<String> refreshAccessToken() async {
+  final refresh = await secureStorage.read(key: "refresh_token");
+  if (refresh == null) throw Exception("No refresh token (logged out)");
+
+  final res = await http.post(
+    Uri.parse('http://127.0.0.1:8000/auth/refresh'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"refresh_token": refresh}),
+  );
+
+  print("Refresh response status: ${res.statusCode}"); // <-- print status
+  print("Refresh response body: ${res.body}");    
+
+  if (res.statusCode != 200) {
+    // refresh invalid/expired/revoked -> force logout
+    await secureStorage.delete(key: "access_token");
+    await secureStorage.delete(key: "refresh_token");
+    throw Exception("Session expired. Please log in again.");
+  }
+
+  final json = jsonDecode(res.body);
+  final newAccess = json["access_token"] as String;
+
+  await secureStorage.write(key: "access_token", value: newAccess);
+  return newAccess;
+}
+
+Future<http.Response> authedRequestWithRetry(
+  Future<http.Response> Function(String accessToken) doRequest,
+) async {
+  String? access = await secureStorage.read(key: "access_token");
+  if (access == null) throw Exception("Not logged in");
+
+  http.Response res = await doRequest(access);
+  debugPrint("First request status = ${res.statusCode}");
+
+  if (res.statusCode == 401) {
+    debugPrint("Access expired -> refreshing...");
+    final newAccess = await refreshAccessToken();
+    res = await doRequest(newAccess);
+    debugPrint("Retry status = ${res.statusCode}");
+  }
+
+  return res;
+}
+
+
 // ------------------- DELETE PROJECTS -------------------
 class ProfileService {
   final String baseUrl;
@@ -726,23 +750,22 @@ class ProfileService {
   ProfileService(this.baseUrl);
 
   Future<bool> deleteProfile(String profileName) async {
-    final url = Uri.parse('http://127.0.0.1:8000/profiles/delete/$profileName');
-    final token = await secureStorage.read(key: "access_token");
+    final url = Uri.parse('$baseUrl/profiles/delete/$profileName');
 
-    final response = await http.delete(
-      url,
-      headers: {
-        "Authorization": "Bearer $token", 
-      },
-    );
+    final response = await authedRequestWithRetry((token) {
+      return http.delete(
+        url,
+        headers: {"Authorization": "Bearer $token"},
+      );
+    });
 
     if (response.statusCode == 200) return true;
     if (response.statusCode == 404) throw Exception("Profile not found");
-    if (response.statusCode == 401) throw Exception("Unauthorized – please log in again");
 
     throw Exception("Failed: ${response.statusCode}");
   }
 }
+
 
 final profileServiceProvider = Provider((ref) {
   
