@@ -14,6 +14,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from fastapi import Request
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
 USERS_FILE = os.path.join(BASE_DIR, "users.xlsx")
