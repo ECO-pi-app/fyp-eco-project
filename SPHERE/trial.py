@@ -118,8 +118,10 @@ def get_current_username(token: str = Depends(oauth2_scheme)) -> str:
         if not username:
             raise HTTPException(status_code=401, detail="Invalid token")
         return username
-    except JWTError:
+    except JWTError as e:
+        print("JWTError:", str(e))   # <-- ADD THIS
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 def ensure_users_excel():
     """
