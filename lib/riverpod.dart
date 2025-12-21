@@ -546,7 +546,7 @@ Future<List<Product>> fetchProducts() async {
   final response = await http.get(
     Uri.parse('http://127.0.0.1:8000/profiles'),
     headers: {
-      "Authorization": "Bearer $token", // ✅ REAL token
+      "Authorization": "Bearer $token", 
     },
   );
 
@@ -679,10 +679,10 @@ final logInAuth = FutureProvider.family<String, LoginParameters>((ref, req) asyn
     final json = jsonDecode(response.body);
     final token = json["access_token"];
 
-    // 🔑 STORE TOKEN
+    
     await secureStorage.write(key: "access_token", value: token);
 
-    // refresh profiles AFTER token is stored
+    
     ref.invalidate(productsProvider);
 
     return token;

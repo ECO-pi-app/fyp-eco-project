@@ -32,7 +32,7 @@ void dispose() {
     final productsAsync = ref.watch(productsProvider);
 
     return Scaffold(
-      backgroundColor: Apptheme.backgrounddark,
+      backgroundColor: Apptheme.backgroundlight,
       body: LayoutBuilder(builder: (context, constraints) {
 
         return Stack(

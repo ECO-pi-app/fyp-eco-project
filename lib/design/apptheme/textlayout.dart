@@ -277,7 +277,7 @@ class Textsinsidewidgets extends StatelessWidget {
   this.leftpadding = 0,
   this.toppadding = 10,
   this.maxLines = 10,
-  this.fontweight = FontWeight.w600,
+  this.fontweight = FontWeight.w500,
   });
 
   @override

@@ -239,8 +239,8 @@ class DeveloperPage extends ConsumerWidget {
         children: [
           // ----------------- UNIT CONVERSION -----------------
           _sectionHeader('Unit Conversion'),
-          Text('Current Unit: $unit'),
-          Text('Raw Conversion Factor: ${ref.watch(unitConversionProvider)}'),
+          Textsinsidewidgets(words: 'Current Unit: $unit', color: Apptheme.textclrlight,),
+          Textsinsidewidgets(words: 'Raw Conversion Factor: ${ref.watch(unitConversionProvider)}', color: Apptheme.textclrlight,),
 
           const SizedBox(height: 20),
 
@@ -250,43 +250,62 @@ class DeveloperPage extends ConsumerWidget {
             data: (meta) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Countries: ${meta.countries}'),
+                Textsinsidewidgets(words: 'Countries: ${meta.countries}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Materials: ${meta.materials}'),
+
+                Textsinsidewidgets(words: 'Materials: ${meta.materials}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Machines: ${meta.machines}'),
+
+                Textsinsidewidgets(words: 'Machines: ${meta.machines}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Packaging Types: ${meta.packagingTypes}'),
+
+                Textsinsidewidgets(words: 'Packaging Types: ${meta.packagingTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Recycling Types: ${meta.recyclingTypes}'),
+
+                Textsinsidewidgets(words: 'Recycling Types: ${meta.recyclingTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Transport Types: ${meta.transportTypes}'),
+
+                Textsinsidewidgets(words: 'Transport Types: ${meta.transportTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Indicator: ${meta.indicator}'),
+
+                Textsinsidewidgets(words: 'Indicator: ${meta.indicator}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('GHG: ${meta.ghg}'),
+
+                Textsinsidewidgets(words: 'GHG: ${meta.ghg}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('GWP: ${meta.gwp}'),
+
+                Textsinsidewidgets(words: 'GWP: ${meta.gwp}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Process: ${meta.process}'),
+
+                Textsinsidewidgets(words: 'Process: ${meta.process}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Facilities: ${meta.facilities}'),
+
+                Textsinsidewidgets(words: 'Facilities: ${meta.facilities}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Usage Types: ${meta.usageTypes}'),
+
+                Textsinsidewidgets(words: 'Usage Types: ${meta.usageTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Disassembly by Industry: ${meta.disassemblyByIndustry}'),
+
+                Textsinsidewidgets(words: 'Disassembly by Industry: ${meta.disassemblyByIndustry}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Machine Type: ${meta.machineType}'),
+
+                Textsinsidewidgets(words: 'Machine Type: ${meta.machineType}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('YCM Types: ${meta.ycmTypes}'),
+
+                Textsinsidewidgets(words: 'YCM Types: ${meta.ycmTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Amada Types: ${meta.amadaTypes}'),
+
+                Textsinsidewidgets(words: 'Amada Types: ${meta.amadaTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Mazak Types: ${meta.mazakTypes}'),
+
+                Textsinsidewidgets(words: 'Mazak Types: ${meta.mazakTypes}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('Van Mode: ${meta.vanMode}'),
+
+                Textsinsidewidgets(words: 'Van Mode: ${meta.vanMode}', color: Apptheme.textclrlight),
                 const SizedBox(height: 10),
-                Text('HGV Mode: ${meta.hgvMode}'),
+
+                Textsinsidewidgets(words: 'HGV Mode: ${meta.hgvMode}', color: Apptheme.textclrlight),
+
               ],
             ),
             loading: () => const Text('Loading meta options...'),
@@ -302,7 +321,7 @@ class DeveloperPage extends ConsumerWidget {
             data: (products) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: products
-                  .map((p) => Text('- ${p.name}', style: const TextStyle(fontSize: 14)))
+                  .map((p) => Textsinsidewidgets( words: '- ${p.name}', color: Apptheme.textclrlight,))
                   .toList(),
             ),
             loading: () => const Text('Loading products...'),
@@ -313,26 +332,29 @@ class DeveloperPage extends ConsumerWidget {
 
           // ----------------- EMISSIONS -----------------
           _sectionHeader('Emissions (raw)'),
-          Text('Material: ${emissions.material}'),
-          Text('Transport: ${emissions.transport}'),
-          Text('Machining: ${emissions.machining}'),
-          Text('Fugitive: ${emissions.fugitive}'),
-          Text('Total: ${emissions.total}'),
+          Textsinsidewidgets(words: 'Material: ${emissions.material}', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Transport: ${emissions.transport}', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Machining: ${emissions.machining}', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Fugitive: ${emissions.fugitive}', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Total: ${emissions.total}', color: Apptheme.textclrlight),
 
           const SizedBox(height: 10),
           _sectionHeader('Emissions (converted)'),
-          Text('Material: ${convertedEmissions.material} $unit'),
-          Text('Transport: ${convertedEmissions.transport} $unit'),
-          Text('Machining: ${convertedEmissions.machining} $unit'),
-          Text('Fugitive: ${convertedEmissions.fugitive} $unit'),
-          Text('Total: ${convertedEmissions.total} $unit'),
+          Textsinsidewidgets(words: 'Material: ${convertedEmissions.material} $unit', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Transport: ${convertedEmissions.transport} $unit', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Machining: ${convertedEmissions.machining} $unit', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Fugitive: ${convertedEmissions.fugitive} $unit', color: Apptheme.textclrlight),
+          Textsinsidewidgets(words: 'Total: ${convertedEmissions.total} $unit', color: Apptheme.textclrlight),
+
 
           const SizedBox(height: 20),
 
           // ----------------- DEBUG PRINTS (API POSTS) -----------------
           _sectionHeader('Debug Prints / API Logs'),
-          const Text(
-              'All prints from calculation, fetch, save, delete operations appear in your console.\nThis section can be extended to capture them in-app if needed.'),
+          const Textsinsidewidgets(
+              words: 'All prints from calculation, fetch, save, delete operations appear in your console.\nThis section can be extended to capture them in-app if needed.',
+              color: Apptheme.textclrlight,
+              ),
         ],
       );
 
@@ -341,9 +363,11 @@ class DeveloperPage extends ConsumerWidget {
   Widget _sectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      child: Textsinsidewidgets(
+        words: title,
+        color: Apptheme.textclrlight,
+        fontsize: 20,
+        fontweight: FontWeight.bold,
       ),
     );
   }
