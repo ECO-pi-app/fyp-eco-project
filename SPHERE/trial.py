@@ -9,11 +9,6 @@ from geopy.geocoders import Nominatim #converting a place name like "Germany" in
 import requests
 import re 
 import hashlib # for hashing passwords
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
-from datetime import datetime, timedelta
 from fastapi import Request
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
@@ -54,73 +49,9 @@ def load_profiles() -> dict:
         with open(PROFILE_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
-        save_profiles({})
-        # If file is corrupted/empty, fail safely with an empty dict
-        return {}
-
-SECRET_KEY = "CHANGE_ME_TO_SOMETHING_LONG_RANDOM"
-ALGORITHM = "HS256"
-REFRESH_TOKEN_EXPIRE_DAYS = 30
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-REFRESH_TOKENS_FILE = os.path.join(BASE_DIR, "refresh_tokens.json")
-
-def ensure_refresh_tokens_file():
-    if not os.path.exists(REFRESH_TOKENS_FILE):
-        with open(REFRESH_TOKENS_FILE, "w", encoding="utf-8") as f:
+        with open(PROFILE_FILE, "w", encoding="utf-8") as f:
             json.dump({}, f)
-
-def load_refresh_tokens() -> dict:
-    ensure_refresh_tokens_file()
-    with open(REFRESH_TOKENS_FILE, "r", encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            return {}
-
-def save_refresh_tokens(data: dict) -> None:
-    with open(REFRESH_TOKENS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-def create_access_token(username: str) -> str:
-    now = datetime.utcnow()
-    payload = {
-        "sub": username,
-        "type": "access",
-        "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
-    }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-def create_refresh_token(username: str) -> str:
-    now = datetime.utcnow()
-    payload = {
-        "sub": username,
-        "type": "refresh",
-        "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)).timestamp()),
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-    # store refresh token so you can revoke later
-    store = load_refresh_tokens()
-    store[token] = {"username": username, "exp": payload["exp"]}
-    save_refresh_tokens(store)
-
-    return token
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-def get_current_username(token: str = Depends(oauth2_scheme)) -> str:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        return username
-    except JWTError as e:
-        print("JWTError:", str(e))   # <-- ADD THIS
-        raise HTTPException(status_code=401, detail="Invalid token")
+        return {}
 
 
 def ensure_users_excel():
@@ -778,9 +709,6 @@ class UserLoginRequest(BaseModel):
     username: str
     password: str
 
-class RefreshRequest(BaseModel):
-    refresh_token: str
-
 
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
@@ -791,7 +719,7 @@ NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "adfd0f78d5304adea0d4490623f32aec")
 NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 
 @app.get("/meta/machines")
-def get_machinedata(username: str = Depends(get_current_username)):
+def get_machinedata():
     """
     machine information
     """
@@ -800,7 +728,7 @@ def get_machinedata(username: str = Depends(get_current_username)):
     } 
     
 @app.get("/meta/material type")
-def get_materialdata(username: str = Depends(get_current_username)):
+def get_materialdata():
     """
     material data 
     """
@@ -809,7 +737,7 @@ def get_materialdata(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/Grid_intensity_of_all_countries")
-def Grid_intensity_of_all_countries(username: str = Depends(get_current_username)):
+def Grid_intensity_of_all_countries():
     """
     Grid intensity for different countries
     """
@@ -819,7 +747,7 @@ def Grid_intensity_of_all_countries(username: str = Depends(get_current_username
     }
 
 @app.get("/meta/transport(cargotype)")
-def get_transport_types(username: str = Depends(get_current_username)):
+def get_transport_types():
     """
     different transport types
     """
@@ -828,7 +756,7 @@ def get_transport_types(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/GWP of GHG_gases")
-def getGWPvalues(username: str = Depends(get_current_username)):
+def getGWPvalues():
     """
     Values of the Indicator, GHG, and GWP values
     """
@@ -840,7 +768,7 @@ def getGWPvalues(username: str = Depends(get_current_username)):
     } 
 
 @app.get("/meta/options")
-def get_options(username: str = Depends(get_current_username)):
+def get_options():
     """
     Flutter calls this to populate dropdowns:
       - countries
@@ -886,7 +814,7 @@ def get_options(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/transport/config")
-def get_transport_config(username: str = Depends(get_current_username)):
+def get_transport_config():
     """
     Return all transport modes, and for each mode:
       - classes
@@ -909,7 +837,7 @@ def get_transport_config(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/machines_type")
-def get_machinetypes(username: str = Depends(get_current_username)):
+def get_machinetypes():
     '''
     -machine info like milling etc.
     '''
@@ -918,7 +846,7 @@ def get_machinetypes(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/YCM_model")
-def get_machinetypes_YCM(username: str = Depends(get_current_username)):
+def get_machinetypes_YCM():
     '''
     -YCM machine models
     -main spindle(kW)
@@ -931,7 +859,7 @@ def get_machinetypes_YCM(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/Amada_model")
-def get_machinetypes_YCM(username: str = Depends(get_current_username)):
+def get_machinetypes_YCM():
     '''
     -Amada machine models
     -main spindle(kW)
@@ -944,7 +872,7 @@ def get_machinetypes_YCM(username: str = Depends(get_current_username)):
     }
 
 @app.get("/meta/Mazak_model")
-def get_machinetypes_YCM(username: str = Depends(get_current_username)):
+def get_machinetypes_YCM():
     '''
     -Mazak machine models
     -main spindle(kW)
@@ -957,7 +885,7 @@ def get_machinetypes_YCM(username: str = Depends(get_current_username)):
     }
 
 @app.get("/news/sustainability", response_model=NewsResponse)
-def get_sustainability_news(username: str = Depends(get_current_username)):
+def get_sustainability_news():
     """
     Returns sustainability & carbon-emissions–related news articles
     for the Flutter UI.
@@ -1006,32 +934,18 @@ def get_sustainability_news(username: str = Depends(get_current_username)):
     )
 
 @app.get("/profiles/{profile_name}")
-def get_profile(profile_name: str, username: str = Depends(get_current_username)):
+def get_profile(profile_name: str):
     profiles = load_profiles()
     if profile_name not in profiles:
         raise HTTPException(status_code=404, detail="Profile not found")
+    return profiles[profile_name]
 
-    prof = profiles[profile_name]
-    if not isinstance(prof, dict) or prof.get("owner") != username:
-        raise HTTPException(status_code=403, detail="Not allowed")
-
-    return prof
 
 @app.get("/profiles")
-def list_profiles(
-    request: Request,
-    username: str = Depends(get_current_username)
-):
-    print("=== DEBUG /profiles ===")
-    print("Authorization header:", request.headers.get("authorization"))
-    print("Decoded username:", username)
-
+def list_profiles():
     profiles = load_profiles()
-    filtered = [
-        name for name, info in profiles.items()
-        if isinstance(info, dict) and info.get("owner") == username
-    ]
-    return {"profiles": filtered}
+    return {"profiles": list(profiles.keys())}
+
 
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
@@ -1065,13 +979,13 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
     }
 
 @app.get("/meta/machining/mazak")
-def get_mazak_list(username: str = Depends(get_current_username)):
+def get_mazak_list():
     return {
         "Mazak_machine_model": Mazak_machine_model
     }
 
 @app.get("/meta/machining/countries")
-def get_countries(username: str = Depends(get_current_username)):
+def get_countries():
     return {
         "countries": country_list
     }
@@ -1225,26 +1139,21 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
     }
 
 @app.post("/profiles/save")
-def save_profile(req: ProfileSaveRequest, username: str = Depends(get_current_username)):
+def save_profile(req: ProfileSaveRequest):
     profiles = load_profiles()
     profiles[req.profile_name] = {
         "description": req.description,
-        "data": req.data,
-        "owner": username
+        "data": req.data
     }
     save_profiles(profiles)
     return {"status": "ok", "saved_profile": req.profile_name}
 
     
 @app.delete("/profiles/delete/{profile_name}")
-def delete_profile(profile_name: str, username: str = Depends(get_current_username)):
+def delete_profile(profile_name: str):
     profiles = load_profiles()
     if profile_name not in profiles:
         raise HTTPException(status_code=404, detail="Profile not found")
-
-    prof = profiles[profile_name]
-    if not isinstance(prof, dict) or prof.get("owner") != username:
-        raise HTTPException(status_code=403, detail="Not allowed")
 
     del profiles[profile_name]
     save_profiles(profiles)
@@ -1252,20 +1161,16 @@ def delete_profile(profile_name: str, username: str = Depends(get_current_userna
 
 
 @app.post("/profiles/rename")
-def rename_profile(req: ProfileRenameRequest, username: str = Depends(get_current_username)):
+def rename_profile(req: ProfileRenameRequest):
     profiles = load_profiles()
 
     if req.old_name not in profiles:
         raise HTTPException(status_code=404, detail="Old profile name not found")
 
-    old_prof = profiles[req.old_name]
-    if not isinstance(old_prof, dict) or old_prof.get("owner") != username:
-        raise HTTPException(status_code=403, detail="Not allowed")
-
     if req.new_name in profiles:
         raise HTTPException(status_code=400, detail="New profile name already exists")
 
-    profiles[req.new_name] = old_prof
+    profiles[req.new_name] = profiles[req.old_name]
     del profiles[req.old_name]
     save_profiles(profiles)
     return {"status": "renamed", "old_name": req.old_name, "new_name": req.new_name}
@@ -1287,52 +1192,21 @@ def signup(req: UserSignupRequest):
 
 
 @app.post("/auth/login")
-def login_user(form: OAuth2PasswordRequestForm = Depends()):
+def login_user(req: UserLoginRequest):
     wb, ws = load_users_sheet()
 
-    row = find_user_row(ws, form.username)
+    row = find_user_row(ws, req.username)
     if row is None:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     stored_hash = ws.cell(row=row, column=2).value
-    if stored_hash != hash_password(form.password):
+    if stored_hash != hash_password(req.password):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     profiles = load_profiles()
-    user_profiles = [
-        name for name, info in profiles.items()
-        if isinstance(info, dict) and info.get("owner") == form.username
-    ]
-
-    access = create_access_token(form.username)
-    refresh = create_refresh_token(form.username)
-
     return {
-        "access_token": access,
-        "refresh_token": refresh,
-        "token_type": "bearer",
-        "username": form.username,
-        "profiles": user_profiles
-}
+        "status": "ok",
+        "username": req.username,
+        "profiles": list(profiles.keys())
+    }
 
-
-@app.post("/auth/refresh")
-def refresh_access_token(req: RefreshRequest):
-    # check exists in server store (revocation support)
-    store = load_refresh_tokens()
-    if req.refresh_token not in store:
-        raise HTTPException(status_code=401, detail="Refresh token revoked or unknown")
-
-    try:
-        payload = jwt.decode(req.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("type") != "refresh":
-            raise HTTPException(status_code=401, detail="Wrong token type")
-        username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
-
-    # issue NEW access token
-    new_access = create_access_token(username)
-    return {"access_token": new_access, "token_type": "bearer"}
