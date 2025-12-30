@@ -140,6 +140,9 @@ sheet15 = book['Amada']
 sheet16 = book['Mazak']
 sheet17 = book['Van']
 sheet18 = book['HGV']
+sheet19 = book['Freight Flight']
+sheet20 = book['Rail']
+sheet21 = book['Ship']
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -255,6 +258,18 @@ HGV_emission_cells     = sheet18['C21':'C52']
 HGV_r_mode_cells       = sheet18['E21':'E52']
 HGV_r_emission_cells   = sheet18['G21':'G52']
 
+Freight_Flight_mode_cells       = sheet19['A10':'A15']
+Freight_Flight_emission_cells   = sheet19['C10':'C15']
+
+Rail_mode_cells      = sheet20['A7':'A8']
+Rail_emission_cells  = sheet20['C7':'C8']
+
+Sea_Tanker_mode_cells    = sheet21['L2':'L25']
+Sea_Tanker_emission_cells = sheet21['N2':'N25']
+
+Cargo_ship_mode_cells       = sheet21['L26':'L54']
+Cargo_ship_emission_cells   = sheet21['N26':'N54']
+
 machine_value_cells                 = sheet4['A2':'A999']
 specific_machine_energy_use_cells   = sheet4['B2':'B999']
 machine_types_cells                 = sheet13['A2':'A999']
@@ -321,6 +336,14 @@ HGV_mode_list       = extract_list(HGV_mode_cells)
 HGV_emission_list   = extract_list(HGV_emission_cells)
 HGV_r_mode_list     = extract_list(HGV_r_mode_cells)
 HGV_r_emission_list = extract_list(HGV_r_emission_cells)
+Freight_Flight_mode_list    = extract_list(Freight_Flight_mode_cells)
+Freight_Flight_emission_list    = extract_emission_list(Freight_Flight_emission_cells)
+Rail_mode_list      = extract_list(Rail_mode_cells)
+Rail_emission_list = extract_emission_list(Rail_emission_cells)
+Sea_Tanker_mode_list = extract_list(Sea_Tanker_mode_cells)
+Sea_Tanker_emission_list = extract_emission_list(Sea_Tanker_emission_cells)
+Cargo_ship_mode_list     = extract_list(Cargo_ship_mode_cells)
+Cargo_ship_emission_list = extract_emission_list(Cargo_ship_emission_cells)
 
 flight_list        = extract_list(flight_cells)
 Int_flight_list    = extract_list(Int_flight_cells)
@@ -386,6 +409,10 @@ Process = extract_selection_list(Process_cells)
 van_lookup = dict(zip(van_mode_list, van_emission_list))
 hgv_lookup = dict(zip(HGV_mode_list, HGV_emission_list))
 hgv_refrig_lookup = dict(zip(HGV_r_mode_list, HGV_r_emission_list))
+freight_flight_lookup = dict(zip(Freight_Flight_mode_list, Freight_Flight_emission_list))
+rail_lookup           = dict(zip(Rail_mode_list, Rail_emission_list))
+sea_tanker_lookup     =dict(zip(Sea_Tanker_mode_list,Sea_Tanker_emission_list))
+cargo_ship_lookup     =dict(zip(Cargo_ship_mode_list,Cargo_ship_emission_list))
 
 # ---- Transport configuration for all modes ----
 
@@ -455,6 +482,10 @@ TRANSPORT_CONFIG = {
     # mapping crude_tanker_list -> crude_value_list, etc.
 }
 
+def tonkm1000_to_kgkm_emission(ef_per_1000kg_km: float, mass_kg: float, distance_km: float) -> float:
+    # Excel EF is kgCO2e per 1000kg·km
+    ef_per_kg_km = float(ef_per_1000kg_km) / 1000.0
+    return ef_per_kg_km * mass_kg * distance_km
 
 
 # ---------- Machine Optimization ("Pareto suggestion") ----------
@@ -662,6 +693,11 @@ class TransportCalcRequest(BaseModel):
     # mass_tonnes is optional – only needed if your EF is in kgCO2e per ton-km
     mass_tonnes: Optional[float] = None
 
+class TonKmRequest(BaseModel):
+    transport_type: str
+    distance_km: float
+    mass_kg: float
+
 class TransportRow(BaseModel):
     mode: str
     vehicle_class: str
@@ -784,7 +820,7 @@ def get_options():
       - Usage Types
       - Disassembly by Industry
       - Machine Types
-      - Van Types
+      - Transport types
     """
     return {
         "countries": country_list,
@@ -810,7 +846,15 @@ def get_options():
         "HGV_mode":HGV_mode_list,
         "HGV_emissions":HGV_emission_list,
         "HGV_r_mode":HGV_r_mode_list,
-        "HGV_r_emissions":HGV_r_emission_list
+        "HGV_r_emissions":HGV_r_emission_list,
+        "Freight_flight_modes":Freight_Flight_mode_list,
+        "Freight_flight_emissions":Freight_Flight_emission_list,
+        "Rail_mode":Rail_mode_list,
+        "Rail_emissions":Rail_emission_list,
+        "Sea_Tanker_mode":Sea_Tanker_mode_list,
+        "Sea_Tanker_emissions":Sea_Tanker_emission_list,
+        "Cargo_ship_mode":Cargo_ship_mode_list,
+        "Cargo_ship_emissions":Cargo_ship_emission_list
     }
 
 @app.get("/meta/transport/config")
@@ -835,6 +879,7 @@ def get_transport_config():
         "classes_by_mode": classes_by_mode,
         "variants_by_mode": variants_by_mode
     }
+
 
 @app.get("/meta/machines_type")
 def get_machinetypes():
@@ -1092,6 +1137,78 @@ def calculate_transport_emission(data: TransportCalcRequest):
         }
 
     return {"error": "Invalid transport type."}
+
+@app.post("/calculate/freight_flight")
+def calculate_freight_flight(req: TonKmRequest):
+    if req.transport_type not in freight_flight_lookup:
+        raise HTTPException(status_code=400, detail="Invalid freight flight type")
+
+    ef_1000 = freight_flight_lookup[req.transport_type]
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
+
+    return {
+        "category": "Freight Flight",
+        "transport_type": req.transport_type,
+        "distance_km": req.distance_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
+        "total_emission_kgco2e": total
+    }
+
+@app.post("/calculate/rail_sheet")
+def calculate_rail_sheet(req: TonKmRequest):
+    if req.transport_type not in rail_lookup:
+        raise HTTPException(status_code=400, detail="Invalid rail type")
+
+    ef_1000 = rail_lookup[req.transport_type]
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
+
+    return {
+        "category": "Rail",
+        "transport_type": req.transport_type,
+        "distance_km": req.distance_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
+        "total_emission_kgco2e": total
+    }
+
+@app.post("/calculate/sea_tanker")
+def calculate_sea_tanker(req: TonKmRequest):
+    if req.transport_type not in sea_tanker_lookup:
+        raise HTTPException(status_code=400, detail="Invalid sea tanker type")
+
+    ef_1000 = sea_tanker_lookup[req.transport_type]  # kgCO2e / 1000kg·km
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
+
+    return {
+        "category": "Sea Tanker",
+        "transport_type": req.transport_type,
+        "distance_km": req.distance_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
+        "total_emission_kgco2e": total
+    }
+
+@app.post("/calculate/cargo_ship")
+def calculate_cargo_ship(req: TonKmRequest):
+    if req.transport_type not in cargo_ship_lookup:
+        raise HTTPException(status_code=400, detail="Invalid cargo ship type")
+
+    ef_1000 = cargo_ship_lookup[req.transport_type]
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
+
+    return {
+        "category": "Cargo Ship",
+        "transport_type": req.transport_type,
+        "distance_km": req.distance_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
+        "total_emission_kgco2e": total
+    }
 
 @app.post("/calculate/van")
 def calculate_van(req: dict):
