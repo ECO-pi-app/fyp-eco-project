@@ -482,7 +482,7 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
       }
     },
     'upstream_transport': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/van',
+      'endpoint': 'http://127.0.0.1:8000/calculate/sea_tanker',
       'apiKeys': {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",

@@ -1187,7 +1187,6 @@ def calculate_sea_tanker(req: DistanceOnlyRequest):
 
     return {
         "vehicle_type": None,
-        "category": "Sea Tanker",
         "transport_type": req.transport_type,
         "distance_km": req.distance_km,
         "emission_factor_per_km": ef_per_km,
