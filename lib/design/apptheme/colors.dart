@@ -5,6 +5,7 @@ class Apptheme{
   static const Color lightpallete1 = Color(0xFFF7F4EB);
   static const Color lightpallete2 = Color(0xFFEFE8DF); 
   static const Color primarycolour1 = Color(0xFF838D75) ; 
+  static const Color primarycolour3 = Color(0xFFE2DDD3);
   static const Color primarycolour2 = Color(0xFF595E48); 
   static const Color darkpallete5 = Color(0xFF4E5454); 
   static const Color darkpallete6 = Color(0xFF2B343F);
@@ -48,6 +49,7 @@ class Apptheme{
   static const Color widgetclrlight = lightpallete2;
   static const Color widgetsecondaryclr = primarycolour1;
   static const Color tertiarysecondaryclr = primarycolour2;
+  static const Color widgettertiaryclr = primarycolour3;
   static const Color widgetclrdark = darkpallete6;
 
 

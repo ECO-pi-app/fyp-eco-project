@@ -7,6 +7,7 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.d
 import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
+import 'package:test_app/dynamic_pages/popup_pages.dart';
 import 'package:test_app/riverpod.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
@@ -56,9 +57,35 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Labels(
-            title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Labels(
+                title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+                color: Apptheme.textclrdark,
+              ),
+
+              SizedBox(width: 10),
+
+              SizedBox(
+                width: 35,
+                height: 20,
+                child: ElevatedButton(
+                  onPressed: () => showAdvancedMaterials(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    backgroundColor: Apptheme.widgettertiaryclr,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: Icon(Icons.double_arrow_sharp, 
+                    color: Apptheme.iconsdark,
+                    size: 20,
+                    ),
+                ),
+              ),
+            ],
           ),
           InfoIconPopupDark(
             text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
@@ -84,27 +111,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      Widgets1(
-        maxheight: 250,
-        child: AttributesMenu(
-          columnTitles: ['Class', 'Distance (km)'],
-          isTextFieldColumn: [false, true],
-          dropDownLists: [
-            ref.watch(vanModeProvider),
-            [],
-          ],
-          addButtonLabel: 'Add transport cycle',
-          padding: 5,
-          onTotalEmissionCalculated: (total) {
-            setState(() {
-              materialtransportEmission = total;
-            });
-          },
-          apiKeyMap: apiKeytransport,
-          endpoint: 'http://127.0.0.1:8000/calculate/van',
-          type: 'transport',
-        ),
-      ),
+      UpstreamTransportAttributesMenu(ref: ref)
     ];
 
     // ------------------- Pages 2 & 3 remain unchanged -------------------
@@ -125,28 +132,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      Widgets1(
-        maxheight: 250,
-        child: AttributesMenu(
-          columnTitles: ['Machine', 'Country', 'Time of operation (hr)'],
-          isTextFieldColumn: [false, false, true],
-          dropDownLists: [
-            ref.watch(mazakTypesProvider),
-            ref.watch(countriesProvider),
-            [],
-          ],
-          addButtonLabel: 'Add machine cycle',
-          type: 'machining',
-          padding: 5,
-          apiKeyMap: apiKeymachining,
-          endpoint: 'http://127.0.0.1:8000/calculate/machine_power_emission',
-          onTotalEmissionCalculated: (total) {
-            setState(() {
-              machiningemissions = total;
-            });
-          },
-        ),
-      ),
+      MachiningAttributesMenu(ref: ref),
 
       //--ROW 2: Fugitive leaks--
       Row(
@@ -164,28 +150,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      Widgets1(
-        maxheight: 250,
-        child: AttributesMenu(
-          columnTitles: ['GHG', 'Total Charge (kg)', 'Remaining Charge (kg)'],
-          isTextFieldColumn: [false, true, true],
-          dropDownLists: [
-            ref.watch(ghgProvider),
-            [],
-            [],
-          ],
-          addButtonLabel: 'Add GHG',
-          type: 'fugitive',
-          padding: 5,
-          onTotalEmissionCalculated: (total) {
-            setState(() {
-              fugitiveemissions = total;
-            });
-          },
-          apiKeyMap: apiKeyfugitive,
-          endpoint: 'http://127.0.0.1:8000/calculate/fugitive_emissions',
-        ),
-      ),
+      FugitiveLeaksAttributesMenu(ref: ref)
     ];
 
     final List<Widget> widgetofpage3 = [
@@ -366,35 +331,38 @@ class MaterialAttributesMenu extends ConsumerWidget {
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildColumn(
-                    title: 'Material',
-                    values: tableState.materials,
-                    items: materials,
-                    onChanged: (row, value) =>
-                        tableNotifier.updateCell(row: row, column: 'Material', value: value),
-                  ),
-                  const SizedBox(width: 10),
-                  _buildColumn(
-                    title: 'Country',
-                    values: tableState.countries,
-                    items: countries,
-                    onChanged: (row, value) =>
-                        tableNotifier.updateCell(row: row, column: 'Country', value: value),
-                  ),
-                  const SizedBox(width: 10),
-                  _buildColumn(
-                    title: 'Mass (kg)',
-                    values: tableState.masses,
-                    isTextField: true,
-                    onChanged: (row, value) =>
-                        tableNotifier.updateCell(row: row, column: 'Mass', value: value),
-                  ),
-                  const SizedBox(width: 10),
-                  
-                ],
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildColumn(
+                      title: 'Material',
+                      values: tableState.materials,
+                      items: materials,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Material', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Country',
+                      values: tableState.countries,
+                      items: countries,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Country', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Mass (kg)',
+                      values: tableState.masses,
+                      isTextField: true,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Mass', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    
+                  ],
+                ),
               ),
             ),
           ),
@@ -413,16 +381,18 @@ class MaterialAttributesMenu extends ConsumerWidget {
                   await ref.read(emissionCalculatorProvider.notifier).calculate('material', rows);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.widgetsecondaryclr,
+                  backgroundColor: Apptheme.widgettertiaryclr,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                 ),
                 child: const Labelsinbuttons(
                   title: 'Calculate Emissions',
-                  color: Apptheme.textclrlight,
+                  color: Apptheme.textclrdark,
                   fontsize: 15,
                 ),
               ),
             ),
+
+            SizedBox(width: 10),
           
             Row(
               children: [
@@ -441,77 +411,462 @@ class MaterialAttributesMenu extends ConsumerWidget {
       ],
     );
   }
+}
 
-  Widget _buildColumn({
-    required String title,
-    required List<String?> values,
-    List<String>? items,
-    bool isTextField = false,
-    required void Function(int row, String? value) onChanged,
-  }) {
-    return Container(
-      width: 315,
-      decoration: BoxDecoration(
-        color: Apptheme.transparentcheat,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Apptheme.widgetclrdark),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 5),
-          Labels(title: title, color: Apptheme.textclrdark, fontsize: 16,),
-          const SizedBox(height: 5),
-          for (int i = 0; i < values.length; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Container(
-                width: 305,
-                height: 30,
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: Apptheme.widgetsecondaryclr,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: isTextField
-                    ? TextFormField(
-                        initialValue: values[i],
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Apptheme.iconsprimary),
-                          ),
-                        ),
-                        onChanged: (value) => onChanged(i, value),
-                      )
-                    : DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          dropdownColor: Apptheme.widgetsecondaryclr,
-                          value: items!.contains(values[i]) ? values[i] : null,
-                          isExpanded: true,
-                          icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconslight),
-                          items: items
-                              .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(
-                                      e,
-                                      style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) => onChanged(i, value),
-                        ),
-                      ),
-              ),
-            ),
+
+// ------------------- Manual Upstream Transport Attributes Menu -------------------
+class UpstreamTransportAttributesMenu extends ConsumerWidget {
+  const UpstreamTransportAttributesMenu({super.key, required WidgetRef ref});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tableState = ref.watch(upstreamTransportTableProvider);
+    final tableNotifier = ref.read(upstreamTransportTableProvider.notifier);
+
+    final vehicles = ref.watch(transportTypesProvider);
+
+    List<RowFormat> rows = List.generate(
+      tableState.vehicles.length,
+      (i) => RowFormat(
+        columnTitles: ['Vehicle', 'Class', 'Distance (km)'],
+        isTextFieldColumn: [false, false, true],
+        selections: [
+          tableState.vehicles[i],
+          tableState.classes[i],
+          tableState.distances[i],
         ],
       ),
     );
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildColumn(
+                  title: 'Vehicle',
+                  values: tableState.vehicles,
+                  items: vehicles,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Vehicle', value: value),
+                ),
+                const SizedBox(width: 10),
+                _buildDynamicColumn(
+                  title: 'Class',
+                  values: tableState.classes,
+                  itemsPerRow: List.generate(tableState.vehicles.length, (i) {
+                    // Provide fallback empty string if vehicle is null
+                    final selectedVehicle = tableState.vehicles[i] ?? '';
+                    return ref.watch(classOptionsProvider(selectedVehicle));
+                  }),
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Class', value: value),
+                ),
+                const SizedBox(width: 10),
+                _buildColumn(
+                  title: 'Distance (km)',
+                  values: tableState.distances,
+                  isTextField: true,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Distance (km)', value: value),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            SizedBox(width: 20),
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider.notifier)
+                      .calculate('upstream_transport', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: tableNotifier.addRow,
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: tableNotifier.removeRow,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
+
+
+class MachiningAttributesMenu extends ConsumerWidget {
+  const MachiningAttributesMenu({super.key, required WidgetRef ref});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tableState = ref.watch(machiningTableProvider);
+    final tableNotifier = ref.read(machiningTableProvider.notifier);
+
+    final machines = ref.watch(mazakTypesProvider);
+    final countries = ref.watch(countriesProvider);
+
+    List<RowFormat> rows = List.generate(
+      tableState.machines.length,
+      (i) => RowFormat(
+        columnTitles: ['Machine', 'Country', 'Time of operation (hr)'],
+        isTextFieldColumn: [false, false, true],
+        selections: [
+          tableState.machines[i],
+          tableState.countries[i],
+          tableState.times[i],
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildColumn(
+                  title: 'Machine',
+                  values: tableState.machines,
+                  items: machines,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Machine', value: value),
+                ),
+                const SizedBox(width: 10),
+                _buildColumn(
+                  title: 'Country',
+                  values: tableState.countries,
+                  items: countries,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Country', value: value),
+                ),
+                const SizedBox(width: 10),
+                _buildColumn(
+                  title: 'Time of operation (hr)',
+                  values: tableState.times,
+                  isTextField: true,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Time', value: value),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            SizedBox(width: 20),
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider.notifier).calculate('machining', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: tableNotifier.addRow,
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: tableNotifier.removeRow,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class FugitiveLeaksAttributesMenu extends ConsumerWidget {
+  const FugitiveLeaksAttributesMenu({super.key, required WidgetRef ref});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tableState = ref.watch(fugitiveLeaksTableProvider);
+    final tableNotifier = ref.read(fugitiveLeaksTableProvider.notifier);
+
+    final ghgList = ref.watch(ghgProvider);
+
+    List<RowFormat> rows = List.generate(
+      tableState.ghg.length,
+      (i) => RowFormat(
+        columnTitles: ['GHG', 'Total Charge (kg)', 'Remaining Charge (kg)'],
+        isTextFieldColumn: [false, true, true],
+        selections: [
+          tableState.ghg[i],
+          tableState.totalCharge[i],
+          tableState.remainingCharge[i],
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildColumn(
+                  title: 'GHG',
+                  values: tableState.ghg,
+                items: ghgList,
+                onChanged: (row, value) =>
+                    tableNotifier.updateCell(row: row, column: 'GHG', value: value),
+              ),
+              const SizedBox(width: 10),
+              _buildColumn(
+                title: 'Total Charge (kg)',
+                values: tableState.totalCharge,
+                isTextField: true,
+                onChanged: (row, value) =>
+                    tableNotifier.updateCell(row: row, column: 'Total', value: value),
+              ),
+              const SizedBox(width: 10),
+              _buildColumn(
+                title: 'Remaining Charge (kg)',
+                values: tableState.remainingCharge,
+                isTextField: true,
+                onChanged: (row, value) =>
+                    tableNotifier.updateCell(row: row, column: 'Remaining', value: value),
+              ),
+            ],
+          ),
+          ),
+        ),
+        Row(
+          children: [
+            SizedBox(width: 20),
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider.notifier).calculate('fugitive', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: tableNotifier.addRow,
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: tableNotifier.removeRow,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+
+
+Widget _buildColumn({
+  required String title,
+  required List<String?> values,
+  List<String>? items,
+  bool isTextField = false,
+  required void Function(int row, String? value) onChanged,
+}) {
+  return Container(
+    width: 315,
+    decoration: BoxDecoration(
+      color: Apptheme.transparentcheat,
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: Apptheme.widgetclrdark),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 5),
+        Labels(title: title, color: Apptheme.textclrdark, fontsize: 16,),
+        const SizedBox(height: 5),
+        for (int i = 0; i < values.length; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Container(
+              width: 305,
+              height: 30,
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Apptheme.widgetsecondaryclr,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: isTextField
+                  ? TextFormField(
+                      initialValue: values[i],
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Apptheme.iconsprimary),
+                        ),
+                      ),
+                      onChanged: (value) => onChanged(i, value),
+                    )
+                  : DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        dropdownColor: Apptheme.widgetsecondaryclr,
+                        value: (items != null && values[i] != null && items.contains(values[i]))
+                            ? values[i]
+                            : null,
+                        hint: const Text("Select"),
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconslight),
+                        items: (items ?? [])
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  e,
+                                  style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) => onChanged(i, value),
+                      ),
+
+                    ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+Widget _buildDynamicColumn({
+  required String title,
+  required List<String?> values,
+  required List<List<String>> itemsPerRow,
+  bool isTextField = false,
+  required void Function(int row, String? value) onChanged,
+}) {
+  return Container(
+    width: 315,
+    decoration: BoxDecoration(
+      color: Apptheme.transparentcheat,
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: Apptheme.widgetclrdark),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 5),
+        Labels(title: title, color: Apptheme.textclrdark, fontsize: 16,),
+        const SizedBox(height: 5),
+        for (int i = 0; i < values.length; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Container(
+              width: 305,
+              height: 30,
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Apptheme.widgetsecondaryclr,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: isTextField
+                  ? TextFormField(
+                      initialValue: values[i],
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Apptheme.iconsprimary),
+                        ),
+                      ),
+                      onChanged: (value) => onChanged(i, value),
+                    )
+                  : DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        dropdownColor: Apptheme.widgetsecondaryclr,
+                        value: (itemsPerRow[i].contains(values[i])) ? values[i] : null,
+                        hint: const Text("Select"),
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconslight),
+                        items: itemsPerRow[i]
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  e,
+                                  style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) => onChanged(i, value),
+                      ),
+                    ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+
+
+
+
+
 

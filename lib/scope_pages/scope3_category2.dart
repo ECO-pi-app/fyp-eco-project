@@ -26,7 +26,7 @@ class _BookmarkCategoryTwoState extends State<BookmarkCategoryTwo> {
               maxheight: 500,
               child: Column(
                 children: [
-                  Labels(title: 'Attributes included', color: Apptheme.textclrdark)
+                  Center(child: Labels(title: 'Attributes included', color: Apptheme.textclrdark))
                 ],
               ),
             ),

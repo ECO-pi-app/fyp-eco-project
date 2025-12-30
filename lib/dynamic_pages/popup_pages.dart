@@ -5,11 +5,116 @@ import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
 
+//----------------------------------SETTINGS POPUP PAGES----------------------------------------------
+void showAdvancedMaterials(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierLabel: "Popup",
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.9, end: 1.0).animate(curved),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 50,
+                left: 70,
+                right: 10,
+                bottom: 70,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color: Apptheme.transparentcheat,
+                      borderRadius: BorderRadius.circular(7.5),
+                    ),
+                    child: UnitsPage(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+class AdvancedMaterials extends ConsumerWidget {
+  const AdvancedMaterials({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FrostedBackgroundGeneral(
+      child: Row(
+        children: [
+          SizedBox(
+            width: 150,
+            child: ListView(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Labels(
+                      title: "Display unit",
+                      color: Apptheme.textclrlight,
+                      fontsize: 19,
+                      toppadding: 0,
+                      leftpadding: 10,
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Labels(
+                      title: "[]",
+                      color: Apptheme.textclrlight,
+                      fontsize: 19,
+                      toppadding: 0,
+                      leftpadding: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
+          Expanded(
+            child: FrostedBackgroundGeneral(
+              child: ListView(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Textsinsidewidgets(
+                      words: 'Output display unit: ${ref.watch(unitNameProvider)}', 
+                      color: Apptheme.textclrlight,
+                      fontsize: 17,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+
+        ],
+      ),
+    );
+  }
+}
 
 
 
-
-//-------------------------------------GENERAL-------------------------------------------------------
+//-------------------------------------GENERAL--------------------------------------------------------
 class GeneralPage extends StatelessWidget {
   const GeneralPage({super.key});
 
@@ -27,7 +132,7 @@ class GeneralPage extends StatelessWidget {
   }
 }
 
-//-------------------------------------UNITS-------------------------------------------------------
+//-------------------------------------UNITS----------------------------------------------------------
 void showUnitsPopup(BuildContext context) {
   showGeneralDialog(
     context: context,
@@ -134,7 +239,7 @@ class UnitsPage extends ConsumerWidget {
   }
 }
 
-//-------------------------------------ECO-pi METHODOLOGY-------------------------------------------------------
+//-------------------------------------ECO-pi METHODOLOGY---------------------------------------------
 void showMethodologyPopup(BuildContext context) {
   showGeneralDialog(
     context: context,

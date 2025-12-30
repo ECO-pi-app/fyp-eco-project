@@ -1219,6 +1219,10 @@ def calculate_cargo_ship(req: TonKmRequest):
 @app.post("/calculate/van")
 def calculate_van(req: dict):
 
+    print(req)
+    print(req.keys())
+
+
     transport_type = req["transport_type"]       # dropdown selection
     distance = req["distance_km"]                # entered by user
 
@@ -1227,7 +1231,10 @@ def calculate_van(req: dict):
 
     ef = van_lookup[transport_type]
 
+    
+
     return {
+        "vehicle_type": None,
         "transport_type": transport_type,
         "distance_km": distance,
         "emission_factor": ef,

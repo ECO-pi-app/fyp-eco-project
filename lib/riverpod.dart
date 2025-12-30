@@ -320,6 +320,30 @@ final hgvModeProvider = Provider<List<String>>((ref) {
 });
 
 
+
+
+final classOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
+  switch (vehicle) {
+    case 'Van':
+      return ref.watch(vanModeProvider);
+    case 'HGV (Diesel)':
+      return ref.watch(hgvModeProvider);
+    default:
+      return [];
+  }
+});
+
+final brandOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
+  switch (vehicle) {
+    case 'Van':
+      return ref.watch(vanModeProvider);
+    case 'HGV (Diesel)':
+      return ref.watch(hgvModeProvider);
+    default:
+      return [];
+  }
+});
+
 // ------------------- CALCULATION AND RESULT  -------------------
 class RowFormat {
   final List<String> columnTitles;
@@ -396,9 +420,10 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
         "Mass (kg)": "mass_kg",
       }
     },
-    'transport': {
+    'upstream_transport': {
       'endpoint': 'http://127.0.0.1:8000/calculate/van',
       'apiKeys': {
+        "Vehicle": "vehicle_type",
         "Class": "transport_type",
         "Distance (km)": "distance_km",
       }
@@ -477,7 +502,7 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
       case 'material':
         state = state.copyWith(material: subtotal);
         break;
-      case 'transport':
+      case 'upstream_transport':
         state = state.copyWith(transport: subtotal);
         break;
       case 'machining':
@@ -817,36 +842,34 @@ class DeleteProfileNotifier extends AsyncNotifier<void> {
 
 
 
-// --------------- StateNotifier -----------------
+// --------------- MATERIAL STATE -----------------
 class MaterialTableState {
   final List<String?> materials;
   final List<String?> countries;
   final List<String?> masses;
-  final List<String?> allocationValues; // NEW COLUMN
+  final List<String?> materialAllocationValues; // NEW COLUMN
 
   MaterialTableState({
     required this.materials,
     required this.countries,
     required this.masses,
-    required this.allocationValues,
+    required this.materialAllocationValues,
   });
 
   MaterialTableState copyWith({
     List<String?>? materials,
     List<String?>? countries,
     List<String?>? masses,
-    List<String?>? allocationValues,
+    List<String?>? materialAllocationValues,
   }) {
     return MaterialTableState(
       materials: materials ?? this.materials,
       countries: countries ?? this.countries,
       masses: masses ?? this.masses,
-      allocationValues: allocationValues ?? this.allocationValues,
+      materialAllocationValues: materialAllocationValues ?? this.materialAllocationValues,
     );
   }
 }
-
-// ---------------- NOTIFIER ----------------
 
 class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
   MaterialTableNotifier()
@@ -855,7 +878,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
             materials: [''],
             countries: [''],
             masses: [''],
-            allocationValues: [''], // NEW
+            materialAllocationValues: [''], // NEW
           ),
         );
 
@@ -864,7 +887,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
       materials: [...state.materials, ''],
       countries: [...state.countries, ''],
       masses: [...state.masses, ''],
-      allocationValues: [...state.allocationValues, ''],
+      materialAllocationValues: [...state.materialAllocationValues, ''],
     );
   }
 
@@ -874,7 +897,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
         materials: state.materials.sublist(0, state.materials.length - 1),
         countries: state.countries.sublist(0, state.countries.length - 1),
         masses: state.masses.sublist(0, state.masses.length - 1),
-        allocationValues: state.allocationValues.sublist(0, state.allocationValues.length - 1),
+        materialAllocationValues: state.materialAllocationValues.sublist(0, state.materialAllocationValues.length - 1),
       );
     }
   }
@@ -887,7 +910,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
     final materials = [...state.materials];
     final countries = [...state.countries];
     final masses = [...state.masses];
-    final allocationValues = [...state.allocationValues];
+    final materialAllocationValues = [...state.materialAllocationValues];
 
     switch (column) {
       case 'Material':
@@ -900,7 +923,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
         masses[row] = value;
         break;
       case 'Allocation Value':
-        allocationValues[row] = value;
+        materialAllocationValues[row] = value;
         break;
     }
 
@@ -908,14 +931,317 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
       materials: materials,
       countries: countries,
       masses: masses,
-      allocationValues: allocationValues,
+      materialAllocationValues: materialAllocationValues,
     );
   }
 }
-
 
 final materialTableProvider =
     StateNotifierProvider<MaterialTableNotifier, MaterialTableState>(
         (ref) => MaterialTableNotifier());
 
 
+// --------------- UPSTREAM TRANSPORT STATE -----------------
+class UpstreamTransportTableState {
+  final List<String?> vehicles;
+  final List<String?> classes;
+  final List<String?> distances;
+  final List<String?> transportAllocationValues; // NEW COLUMN
+
+  UpstreamTransportTableState({
+    required this.vehicles,
+    required this.classes,
+    required this.distances,
+    required this.transportAllocationValues,
+  });
+
+  UpstreamTransportTableState copyWith({
+    List<String?>? vehicles,
+    List<String?>? classes,
+    List<String?>? distances,
+    List<String?>? transportAllocationValues,
+  }) {
+    return UpstreamTransportTableState(
+      vehicles: vehicles ?? this.vehicles,
+      classes: classes ?? this.classes,
+      distances: distances ?? this.distances,
+      transportAllocationValues: transportAllocationValues ?? this.transportAllocationValues,
+    );
+  }
+}
+
+class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTableState> {
+  UpstreamTransportTableNotifier()
+      : super(
+          UpstreamTransportTableState(
+            vehicles: [''],
+            classes: [''],
+            distances: [''],
+            transportAllocationValues: [''], // NEW
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      vehicles: [...state.vehicles, ''],
+      classes: [...state.classes, ''],
+      distances: [...state.distances, ''],
+      transportAllocationValues: [...state.transportAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.vehicles.length > 1) {
+      state = state.copyWith(
+        vehicles: state.vehicles.sublist(0, state.vehicles.length - 1),
+        classes: state.classes.sublist(0, state.classes.length - 1),
+        distances: state.distances.sublist(0, state.distances.length - 1),
+        transportAllocationValues: state.transportAllocationValues.sublist(0, state.transportAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column, // 'Material', 'Country', 'Mass', 'Notes'
+    required String? value,
+  }) {
+    final vehicles = [...state.vehicles];
+    final classes = [...state.classes];
+    final distances = [...state.distances];
+    final transportAllocationValues = [...state.transportAllocationValues];
+
+    switch (column) {
+      case 'Vehicle':
+        vehicles[row] = value;
+        break;
+      case 'Class':
+        classes[row] = value;
+        break;
+      case 'Distance (km)':
+        distances[row] = value;
+        break;
+      case 'Allocation Value':
+        transportAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      vehicles: vehicles,
+      classes: classes,
+      distances: distances,
+      transportAllocationValues: transportAllocationValues,
+    );
+  }
+}
+
+final upstreamTransportTableProvider =
+    StateNotifierProvider<UpstreamTransportTableNotifier, UpstreamTransportTableState>(
+        (ref) => UpstreamTransportTableNotifier());
+
+
+
+// ---------------- MACHINING STATE ----------------
+
+class MachiningTableState {
+  final List<String?> machines;
+  final List<String?> countries;
+  final List<String?> times;
+  final List<String?> machiningAllocationValues; 
+
+  MachiningTableState({
+    required this.machines,
+    required this.countries,
+    required this.times,
+    required this.machiningAllocationValues,
+  });
+
+  MachiningTableState copyWith({
+    List<String?>? machines,
+    List<String?>? countries,
+    List<String?>? times,
+    List<String?>? machiningAllocationValues,
+  }) {
+    return MachiningTableState(
+      machines: machines ?? this.machines,
+      countries: countries ?? this.countries,
+      times: times ?? this.times,
+      machiningAllocationValues: machiningAllocationValues ?? this.machiningAllocationValues,
+    );
+  }
+}
+
+class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
+  MachiningTableNotifier()
+      : super(
+          MachiningTableState(
+            machines: [''],
+            countries: [''],
+            times: [''],
+            machiningAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      machines: [...state.machines, ''],
+      countries: [...state.countries, ''],
+      times: [...state.times, ''],
+      machiningAllocationValues: [...state.machiningAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.machines.length > 1) {
+      state = state.copyWith(
+        machines: state.machines.sublist(0, state.machines.length - 1),
+        countries: state.countries.sublist(0, state.countries.length - 1),
+        times: state.times.sublist(0, state.times.length - 1),
+        machiningAllocationValues: state.machiningAllocationValues.sublist(0, state.machiningAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column,
+    required String? value,
+  }) {
+    final machines = [...state.machines];
+    final countries = [...state.countries];
+    final times = [...state.times];
+    final machiningAllocationValues = [...state.machiningAllocationValues];
+
+    switch (column) {
+      case 'Machine':
+        machines[row] = value;
+        break;
+      case 'Country':
+        countries[row] = value;
+        break;
+      case 'Time':
+      case 'Time of operation (hr)':
+        times[row] = value;
+        break;
+      case 'Allocation Value':
+        machiningAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      machines: machines,
+      countries: countries,
+      times: times,
+      machiningAllocationValues: machiningAllocationValues,
+    );
+  }
+}
+
+final machiningTableProvider =
+    StateNotifierProvider<MachiningTableNotifier, MachiningTableState>(
+  (ref) => MachiningTableNotifier(),
+);
+
+
+// ---------------- FUGITIVE STATE ----------------
+
+class FugitiveLeaksTableState {
+  final List<String?> ghg;
+  final List<String?> totalCharge;
+  final List<String?> remainingCharge;
+  final List<String?> fugitiveAllocationValues;
+
+  FugitiveLeaksTableState({
+    required this.ghg,
+    required this.totalCharge,
+    required this.remainingCharge,
+    required this.fugitiveAllocationValues,
+  });
+
+  FugitiveLeaksTableState copyWith({
+    List<String?>? ghg,
+    List<String?>? totalCharge,
+    List<String?>? remainingCharge,
+    List<String?>? fugitiveAllocationValues,
+  }) {
+    return FugitiveLeaksTableState(
+      ghg: ghg ?? this.ghg,
+      totalCharge: totalCharge ?? this.totalCharge,
+      remainingCharge: remainingCharge ?? this.remainingCharge,
+      fugitiveAllocationValues: fugitiveAllocationValues ?? this.fugitiveAllocationValues,
+    );
+  }
+}
+
+class FugitiveLeaksTableNotifier
+    extends StateNotifier<FugitiveLeaksTableState> {
+  FugitiveLeaksTableNotifier()
+      : super(
+          FugitiveLeaksTableState(
+            ghg: [''],
+            totalCharge: [''],
+            remainingCharge: [''],
+            fugitiveAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      ghg: [...state.ghg, ''],
+      totalCharge: [...state.totalCharge, ''],
+      remainingCharge: [...state.remainingCharge, ''],
+      fugitiveAllocationValues: [...state.fugitiveAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.ghg.length > 1) {
+      state = state.copyWith(
+        ghg: state.ghg.sublist(0, state.ghg.length - 1),
+        totalCharge: state.totalCharge.sublist(0, state.totalCharge.length - 1),
+        remainingCharge: state.remainingCharge.sublist(0, state.remainingCharge.length - 1),
+        fugitiveAllocationValues: state.fugitiveAllocationValues.sublist(0, state.fugitiveAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column,
+    required String? value,
+  }) {
+    final ghg = [...state.ghg];
+    final total = [...state.totalCharge];
+    final remaining = [...state.remainingCharge];
+    final fugitiveAllocationValues = [...state.fugitiveAllocationValues];
+
+    switch (column) {
+      case 'GHG':
+        ghg[row] = value;
+        break;
+      case 'Total':
+      case 'Total Charge (kg)':
+        total[row] = value;
+        break;
+      case 'Remaining':
+      case 'Remaining Charge (kg)':
+        remaining[row] = value;
+        break;
+      case 'Allocation Value':  
+        fugitiveAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      ghg: ghg,
+      totalCharge: total,
+      remainingCharge: remaining,
+      fugitiveAllocationValues: fugitiveAllocationValues,
+    );
+  }
+}
+
+final fugitiveLeaksTableProvider =
+    StateNotifierProvider<FugitiveLeaksTableNotifier, FugitiveLeaksTableState>(
+  (ref) => FugitiveLeaksTableNotifier(),
+);

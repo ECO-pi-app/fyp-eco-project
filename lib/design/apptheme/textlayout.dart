@@ -252,7 +252,11 @@ class Labels extends StatelessWidget {
           color: color,
           fontWeight: FontWeight.w500,
           fontSize: fontsize,
-        ),)
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.fade,
+        softWrap: true,
+        )
       );
     } 
 
@@ -269,6 +273,7 @@ class Textsinsidewidgets extends StatelessWidget {
   final double toppadding;
   final int maxLines;
   final FontWeight fontweight;
+  final bool softWrap;
 
   const Textsinsidewidgets({super.key, 
   required this.words,
@@ -278,6 +283,7 @@ class Textsinsidewidgets extends StatelessWidget {
   this.toppadding = 10,
   this.maxLines = 10,
   this.fontweight = FontWeight.w500,
+  this.softWrap = true,
   });
 
   @override
@@ -297,7 +303,7 @@ class Textsinsidewidgets extends StatelessWidget {
             ),
             textAlign: TextAlign.left,
             overflow: TextOverflow.fade,
-            softWrap: true,
+            softWrap: softWrap,
             maxLines: maxLines,
           ),
         )

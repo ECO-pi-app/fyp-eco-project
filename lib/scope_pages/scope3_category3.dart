@@ -26,37 +26,9 @@ class _BookmarkCategoryThreeState extends State<BookmarkCategoryThree> {
               maxheight: 500,
               child: Column(
                 children: [
-                  Labels(title: 'Attributes included', color: Apptheme.textclrdark)
+                  Center(child: Labels(title: 'NOT YET IMPLEMENTED', color: Apptheme.textclrdark))
                 ],
               ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Widgets1(
-              maxheight: 500,
-              child: Padding(
-                padding: const EdgeInsets.all(0),
-                child: Column(
-                  children: [
-                    Labels(title: 'Emissions by activities', color: Apptheme.textclrdark),
-
-                  ],
-                )
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Widgets1(
-              maxheight: 500,
-              child: Column(
-                children: [
-                  Labels(title: 'Declarations', color: Apptheme.textclrdark)
-                ],
-              )
             ),
           ),
 
