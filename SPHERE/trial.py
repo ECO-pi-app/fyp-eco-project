@@ -693,10 +693,9 @@ class TransportCalcRequest(BaseModel):
     # mass_tonnes is optional – only needed if your EF is in kgCO2e per ton-km
     mass_tonnes: Optional[float] = None
 
-class TonKmRequest(BaseModel):
+class DistanceOnlyRequest(BaseModel):
     transport_type: str
     distance_km: float
-    mass_kg: float
 
 class TransportRow(BaseModel):
     mode: str
@@ -880,7 +879,6 @@ def get_transport_config():
         "variants_by_mode": variants_by_mode
     }
 
-
 @app.get("/meta/machines_type")
 def get_machinetypes():
     '''
@@ -985,12 +983,10 @@ def get_profile(profile_name: str):
         raise HTTPException(status_code=404, detail="Profile not found")
     return profiles[profile_name]
 
-
 @app.get("/profiles")
 def list_profiles():
     profiles = load_profiles()
     return {"profiles": list(profiles.keys())}
-
 
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
@@ -1067,7 +1063,6 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
-    
 @app.post("/calculate/transport_table") #for tables
 def calculate_transport_table(req: TransportTableRequest):
     total = 0.0
@@ -1139,7 +1134,7 @@ def calculate_transport_emission(data: TransportCalcRequest):
     return {"error": "Invalid transport type."}
 
 @app.post("/calculate/freight_flight")
-def calculate_freight_flight(req: TonKmRequest):
+def calculate_freight_flight(req: DistanceOnlyRequest):
 
     if req.transport_type not in freight_flight_lookup:
         raise HTTPException(status_code=400, detail="Invalid freight flight type")
@@ -1159,7 +1154,7 @@ def calculate_freight_flight(req: TonKmRequest):
     }
 
 @app.post("/calculate/rail_sheet")
-def calculate_rail_sheet(req: TonKmRequest):
+def calculate_rail_sheet(req: DistanceOnlyRequest):
 
     if req.transport_type not in rail_lookup:
         raise HTTPException(status_code=400, detail="Invalid rail type")
@@ -1180,7 +1175,7 @@ def calculate_rail_sheet(req: TonKmRequest):
 
 
 @app.post("/calculate/sea_tanker")
-def calculate_sea_tanker(req: TonKmRequest):
+def calculate_sea_tanker(req: DistanceOnlyRequest):
 
     if req.transport_type not in sea_tanker_lookup:
         raise HTTPException(status_code=400, detail="Invalid sea tanker type")
