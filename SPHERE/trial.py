@@ -1195,7 +1195,7 @@ def calculate_sea_tanker(req: DistanceOnlyRequest):
     }
 
 @app.post("/calculate/cargo_ship")
-def calculate_cargo_ship(req: TonKmRequest):
+def calculate_cargo_ship(req: DistanceOnlyRequest):
 
     if req.transport_type not in cargo_ship_lookup:
         raise HTTPException(status_code=400, detail="Invalid cargo ship type")
