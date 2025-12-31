@@ -548,9 +548,8 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
 
-        // Collect all possible emission keys safely
         subtotal += (json["materialacq_emission"] ?? 0).toDouble();
-        subtotal += (json["total_emission"] ?? 0).toDouble();
+        subtotal += (json["total_emission_kgco2e"] ?? 0).toDouble();
         subtotal += (json["emissions_kgco2e"] ?? 0).toDouble();
         subtotal += (json["emissions"] ?? 0).toDouble();
       } else {
