@@ -693,9 +693,10 @@ class TransportCalcRequest(BaseModel):
     # mass_tonnes is optional – only needed if your EF is in kgCO2e per ton-km
     mass_tonnes: Optional[float] = None
 
-class DistanceOnlyRequest(BaseModel):
+class TonKmRequest(BaseModel):
     transport_type: str
     distance_km: float
+    mass_kg: float
 
 class TransportRow(BaseModel):
     mode: str
@@ -879,6 +880,7 @@ def get_transport_config():
         "variants_by_mode": variants_by_mode
     }
 
+
 @app.get("/meta/machines_type")
 def get_machinetypes():
     '''
@@ -983,10 +985,12 @@ def get_profile(profile_name: str):
         raise HTTPException(status_code=404, detail="Profile not found")
     return profiles[profile_name]
 
+
 @app.get("/profiles")
 def list_profiles():
     profiles = load_profiles()
     return {"profiles": list(profiles.keys())}
+
 
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
@@ -1063,6 +1067,7 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
+    
 @app.post("/calculate/transport_table") #for tables
 def calculate_transport_table(req: TransportTableRequest):
     total = 0.0
@@ -1134,91 +1139,76 @@ def calculate_transport_emission(data: TransportCalcRequest):
     return {"error": "Invalid transport type."}
 
 @app.post("/calculate/freight_flight")
-def calculate_freight_flight(req: DistanceOnlyRequest):
-
+def calculate_freight_flight(req: TonKmRequest):
     if req.transport_type not in freight_flight_lookup:
         raise HTTPException(status_code=400, detail="Invalid freight flight type")
 
-    ef = float(freight_flight_lookup[req.transport_type])  # kgCO2e per 1000 km
-    ef_per_km = ef / 1000.0
-
-    total = ef_per_km * req.distance_km
+    ef_1000 = freight_flight_lookup[req.transport_type]
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
 
     return {
-        "vehicle_type": None,
         "category": "Freight Flight",
         "transport_type": req.transport_type,
         "distance_km": req.distance_km,
-        "emission_factor_per_km": ef_per_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
         "total_emission_kgco2e": total
     }
 
 @app.post("/calculate/rail_sheet")
-def calculate_rail_sheet(req: DistanceOnlyRequest):
-
+def calculate_rail_sheet(req: TonKmRequest):
     if req.transport_type not in rail_lookup:
         raise HTTPException(status_code=400, detail="Invalid rail type")
 
-    ef = float(rail_lookup[req.transport_type])  # kgCO2e per 1000 km
-    ef_per_km = ef / 1000.0
-
-    total = ef_per_km * req.distance_km
+    ef_1000 = rail_lookup[req.transport_type]
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
 
     return {
-        "vehicle_type": None,
         "category": "Rail",
         "transport_type": req.transport_type,
         "distance_km": req.distance_km,
-        "emission_factor_per_km": ef_per_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
         "total_emission_kgco2e": total
     }
 
-
 @app.post("/calculate/sea_tanker")
-def calculate_sea_tanker(req: DistanceOnlyRequest):
-
+def calculate_sea_tanker(req: TonKmRequest):
     if req.transport_type not in sea_tanker_lookup:
         raise HTTPException(status_code=400, detail="Invalid sea tanker type")
 
-    ef = float(sea_tanker_lookup[req.transport_type])  # kgCO2e per 1000 km
-    ef_per_km = ef / 1000.0
-
-    total = ef_per_km * req.distance_km
+    ef_1000 = sea_tanker_lookup[req.transport_type]  # kgCO2e / 1000kg·km
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
 
     return {
-        "vehicle_type": None,
+        "category": "Sea Tanker",
         "transport_type": req.transport_type,
         "distance_km": req.distance_km,
-        "emission_factor_per_km": ef_per_km,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_1000kg_km": float(ef_1000),
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0,
         "total_emission_kgco2e": total
     }
 
-@app.post("/calculate/cargo_ship")
-def calculate_cargo_ship(req: DistanceOnlyRequest):
-
+@app.post("/calculate/cargo_ship") 
+def calculate_cargo_ship(req: TonKmRequest):
     if req.transport_type not in cargo_ship_lookup:
-        raise HTTPException(status_code=400, detail="Invalid cargo ship type")
-
-    ef = float(cargo_ship_lookup[req.transport_type])  # kgCO2e per 1000 km
-    ef_per_km = ef / 1000.0
-
-    total = ef_per_km * req.distance_km
-
-    return {
-        "vehicle_type": None,
+            raise HTTPException(status_code=400, detail="Invalid cargo ship type")
+         
+    ef_1000 = cargo_ship_lookup[req.transport_type] 
+    total = tonkm1000_to_kgkm_emission(ef_1000, req.mass_kg, req.distance_km)
+    return { 
         "category": "Cargo Ship",
-        "transport_type": req.transport_type,
-        "distance_km": req.distance_km,
-        "emission_factor_per_km": ef_per_km,
-        "total_emission_kgco2e": total
-    }
-
+        "transport_type": req.transport_type, 
+        "distance_km": req.distance_km, 
+        "mass_kg": req.mass_kg, 
+        "ef_kgco2e_per_1000kg_km": float(ef_1000), 
+        "ef_kgco2e_per_kg_km": float(ef_1000) / 1000.0, 
+        "total_emission_kgco2e": total }
 @app.post("/calculate/van")
 def calculate_van(req: dict):
-
-    print(req)
-    print(req.keys())
-
 
     transport_type = req["transport_type"]       # dropdown selection
     distance = req["distance_km"]                # entered by user
@@ -1228,10 +1218,7 @@ def calculate_van(req: dict):
 
     ef = van_lookup[transport_type]
 
-    
-
     return {
-        "vehicle_type": None,
         "transport_type": transport_type,
         "distance_km": distance,
         "emission_factor": ef,
