@@ -1006,12 +1006,14 @@ class UpstreamTransportTableState {
   final List<String?> vehicles;
   final List<String?> classes;
   final List<String?> distances;
+  final List<String?> masses;
   final List<String?> transportAllocationValues; // NEW COLUMN
 
   UpstreamTransportTableState({
     required this.vehicles,
     required this.classes,
     required this.distances,
+    required this.masses,
     required this.transportAllocationValues,
   });
 
@@ -1019,12 +1021,14 @@ class UpstreamTransportTableState {
     List<String?>? vehicles,
     List<String?>? classes,
     List<String?>? distances,
+    List<String?>? masses,
     List<String?>? transportAllocationValues,
   }) {
     return UpstreamTransportTableState(
       vehicles: vehicles ?? this.vehicles,
       classes: classes ?? this.classes,
       distances: distances ?? this.distances,
+      masses: masses ?? this.masses,
       transportAllocationValues: transportAllocationValues ?? this.transportAllocationValues,
     );
   }
@@ -1037,6 +1041,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
             vehicles: [''],
             classes: [''],
             distances: [''],
+            masses: [''], 
             transportAllocationValues: [''], // NEW
           ),
         );
@@ -1046,6 +1051,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
       vehicles: [...state.vehicles, ''],
       classes: [...state.classes, ''],
       distances: [...state.distances, ''],
+      masses: [...state.masses, ''],
       transportAllocationValues: [...state.transportAllocationValues, ''],
     );
   }
@@ -1056,6 +1062,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
         vehicles: state.vehicles.sublist(0, state.vehicles.length - 1),
         classes: state.classes.sublist(0, state.classes.length - 1),
         distances: state.distances.sublist(0, state.distances.length - 1),
+        masses: state.masses.sublist(0, state.masses.length - 1), 
         transportAllocationValues: state.transportAllocationValues.sublist(0, state.transportAllocationValues.length - 1),
       );
     }
@@ -1069,6 +1076,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
     final vehicles = [...state.vehicles];
     final classes = [...state.classes];
     final distances = [...state.distances];
+    final masses = [...state.masses];
     final transportAllocationValues = [...state.transportAllocationValues];
 
     switch (column) {
@@ -1081,6 +1089,9 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
       case 'Distance (km)':
         distances[row] = value;
         break;
+      case 'Mass (kg)':
+        masses[row] = value;
+        break;
       case 'Allocation Value':
         transportAllocationValues[row] = value;
         break;
@@ -1090,6 +1101,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
       vehicles: vehicles,
       classes: classes,
       distances: distances,
+      masses: masses,
       transportAllocationValues: transportAllocationValues,
     );
   }

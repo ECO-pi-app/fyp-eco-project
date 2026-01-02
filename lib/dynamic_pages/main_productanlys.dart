@@ -57,45 +57,35 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Labels(
+            title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+          ),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Labels(
-                title: 'Material Acquisition | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-                color: Apptheme.textclrdark,
-              ),
-
-              SizedBox(width: 10),
-
               SizedBox(
                 width: 35,
                 height: 20,
-                child: ElevatedButton(
-                  onPressed: () => showAdvancedMaterials(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    backgroundColor: Apptheme.widgettertiaryclr,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: Icon(Icons.double_arrow_sharp, 
+                child: InkWell(
+                  onTap: () => showAdvancedMaterials(context),
+                  child: Icon(Icons.tune, 
                     color: Apptheme.iconsdark,
                     size: 20,
                     ),
                 ),
               ),
+              SizedBox(width: 10),
+              InfoIconPopupDark(
+                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+              ),
             ],
-          ),
-          InfoIconPopupDark(
-            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
           ),
         ],
       ),
-      // **Manual hardcoded Material Table**
       MaterialAttributesMenu(ref: ref),
 
-      //--ROW 2: Upstream Transport--
+      //--ROW 2: Upstream Transportation--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -428,12 +418,13 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
     List<RowFormat> rows = List.generate(
       tableState.vehicles.length,
       (i) => RowFormat(
-        columnTitles: ['Vehicle', 'Class', 'Distance (km)'],
-        isTextFieldColumn: [false, false, true],
+        columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
+        isTextFieldColumn: [false, false, true, true],
         selections: [
           tableState.vehicles[i],
           tableState.classes[i],
           tableState.distances[i],
+          tableState.masses[i],
         ],
       ),
     );
@@ -473,6 +464,14 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
                   isTextField: true,
                   onChanged: (row, value) =>
                       tableNotifier.updateCell(row: row, column: 'Distance (km)', value: value),
+                ),
+                const SizedBox(width: 10),
+                _buildColumn(
+                  title: 'Mass (kg)',
+                  values: tableState.masses,
+                  isTextField: true,
+                  onChanged: (row, value) =>
+                      tableNotifier.updateCell(row: row, column: 'Mass (kg)', value: value),
                 ),
               ],
             ),
@@ -740,14 +739,14 @@ Widget _buildColumn({
               margin: const EdgeInsets.symmetric(vertical: 4),
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: Apptheme.widgetsecondaryclr,
+                color: Apptheme.widgettertiaryclr,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: isTextField
                   ? TextFormField(
                       initialValue: values[i],
                       keyboardType: TextInputType.number,
-                      style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                      style: TextStyle(color: Apptheme.textclrdark, fontSize: 15),
                       decoration: const InputDecoration(
                         isDense: true,
                         border: OutlineInputBorder(),
@@ -760,20 +759,20 @@ Widget _buildColumn({
                     )
                   : DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        dropdownColor: Apptheme.widgetsecondaryclr,
+                        dropdownColor: Apptheme.widgettertiaryclr,
                         value: (items != null && values[i] != null && items.contains(values[i]))
                             ? values[i]
                             : null,
                         hint: const Text("Select"),
                         isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconslight),
+                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconsdark),
                         items: (items ?? [])
                             .map(
                               (e) => DropdownMenuItem(
                                 value: e,
                                 child: Text(
                                   e,
-                                  style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
+                                  style: TextStyle(color: Apptheme.textclrdark, fontSize: 15),
                                 ),
                               ),
                             )

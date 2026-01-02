@@ -124,8 +124,9 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
       2: FixedColumnWidth(120),
-      3: FlexColumnWidth(),
-      4: FixedColumnWidth(70),
+      3: FixedColumnWidth(120),
+      4: FlexColumnWidth(),
+      5: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -136,6 +137,7 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Vehicle", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Class", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Distance", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
@@ -147,6 +149,7 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
             _staticCell(s.vehicles[i]),
             _staticCell(s.classes[i]),
             _staticCell(s.distances[i]),
+            _staticCell(s.masses[i]),
             _editableCell(
               text: s.transportAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
