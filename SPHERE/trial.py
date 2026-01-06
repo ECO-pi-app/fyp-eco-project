@@ -10,6 +10,7 @@ import requests
 import re 
 import hashlib # for hashing passwords
 from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
 USERS_FILE = os.path.join(BASE_DIR, "users.xlsx")
@@ -749,6 +750,13 @@ class UserLoginRequest(BaseModel):
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- NewsAPI configuration ---
 NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "adfd0f78d5304adea0d4490623f32aec")
@@ -945,7 +953,7 @@ def get_sustainability_news():
         "q": 'sustainability OR "carbon emissions" OR "climate change"',
         "apiKey": NEWSAPI_KEY,
         "language": "en",
-        "pageSize": 10,
+        "pageSize": 50,
         "sortBy": "publishedAt",
     }
 
