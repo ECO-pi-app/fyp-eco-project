@@ -31,7 +31,8 @@ export default function TrailerModal({ open, onClose, url }) {
       </div>
 
       <div style={{ height: "calc(60vh - 50px)" }}>
-        <ReactPlayer url={url} width="100%" height="100%" playing controls />
+        {open && (<ReactPlayer url={url} width="100%" height="100%" playing={false} controls/>)}
+
       </div>
     </Modal>
   );
