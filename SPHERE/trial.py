@@ -104,6 +104,17 @@ def save_profiles(profiles: dict) -> None:
     with open(PROFILE_FILE, "w", encoding="utf-8") as f:
         json.dump(profiles, f, indent=2, ensure_ascii=False)
 
+def get_user_profiles_bucket(all_profiles: dict, username: str) -> dict:
+    """
+    Returns the dict of profiles for this user, creating it if missing.
+    profiles.json becomes:
+      { "username": { "profile_name": {...}, ... }, ... }
+    """
+    if username not in all_profiles or not isinstance(all_profiles.get(username), dict):
+        all_profiles[username] = {}
+    return all_profiles[username]
+
+
 def load_custom_emission_factors():
     if os.path.exists(EMISSION_FACTORS_FILE):
         with open(EMISSION_FACTORS_FILE, "r", encoding="utf-8") as f:
@@ -715,12 +726,13 @@ class FugitiveEmissionFromExcelRequest(BaseModel):
     current_charge_amount_kg: float
 
 class ProfileSaveRequest(BaseModel):
+    username: str
     profile_name: str
     description: Optional[str] = ""
     data: dict  # full UI state
 
-
 class ProfileRenameRequest(BaseModel):
+    username: str
     old_name: str
     new_name: str
 
@@ -888,7 +900,6 @@ def get_transport_config():
         "variants_by_mode": variants_by_mode
     }
 
-
 @app.get("/meta/machines_type")
 def get_machinetypes():
     '''
@@ -987,17 +998,21 @@ def get_sustainability_news():
     )
 
 @app.get("/profiles/{profile_name}")
-def get_profile(profile_name: str):
-    profiles = load_profiles()
-    if profile_name not in profiles:
+def get_profile(profile_name: str, username: str):
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(username, {})
+
+    if profile_name not in bucket:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return profiles[profile_name]
+
+    return bucket[profile_name]
 
 
 @app.get("/profiles")
-def list_profiles():
-    profiles = load_profiles()
-    return {"profiles": list(profiles.keys())}
+def list_profiles(username: str):
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(username, {})
+    return {"username": username, "profiles": list(bucket.keys())}
 
 
 @app.post("/calculate/material_emission")
@@ -1263,40 +1278,50 @@ def calculate_fugitive_emissions(req: FugitiveEmissionFromExcelRequest):
 
 @app.post("/profiles/save")
 def save_profile(req: ProfileSaveRequest):
-    profiles = load_profiles()
-    profiles[req.profile_name] = {
+    all_profiles = load_profiles()
+    bucket = get_user_profiles_bucket(all_profiles, req.username)
+
+    bucket[req.profile_name] = {
         "description": req.description,
         "data": req.data
     }
-    save_profiles(profiles)
-    return {"status": "ok", "saved_profile": req.profile_name}
 
+    save_profiles(all_profiles)
+    return {"status": "ok", "saved_profile": req.profile_name, "username": req.username}
     
-@app.delete("/profiles/delete/{profile_name}")
-def delete_profile(profile_name: str):
-    profiles = load_profiles()
-    if profile_name not in profiles:
+@app.delete("/profiles/delete/{username}/{profile_name}")
+def delete_profile(username: str, profile_name: str):
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(username, {})
+
+    if profile_name not in bucket:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    del profiles[profile_name]
-    save_profiles(profiles)
-    return {"status": "deleted", "profile_name": profile_name}
+    del bucket[profile_name]
+    all_profiles[username] = bucket
+    save_profiles(all_profiles)
+
+    return {"status": "deleted", "username": username, "profile_name": profile_name}
 
 
 @app.post("/profiles/rename")
 def rename_profile(req: ProfileRenameRequest):
-    profiles = load_profiles()
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(req.username, {})
 
-    if req.old_name not in profiles:
+    if req.old_name not in bucket:
         raise HTTPException(status_code=404, detail="Old profile name not found")
 
-    if req.new_name in profiles:
+    if req.new_name in bucket:
         raise HTTPException(status_code=400, detail="New profile name already exists")
 
-    profiles[req.new_name] = profiles[req.old_name]
-    del profiles[req.old_name]
-    save_profiles(profiles)
-    return {"status": "renamed", "old_name": req.old_name, "new_name": req.new_name}
+    bucket[req.new_name] = bucket[req.old_name]
+    del bucket[req.old_name]
+
+    all_profiles[req.username] = bucket
+    save_profiles(all_profiles)
+
+    return {"status": "renamed","username": req.username,"old_name": req.old_name,"new_name": req.new_name}
 
 
 @app.post("/auth/signup")
@@ -1326,10 +1351,6 @@ def login_user(req: UserLoginRequest):
     if stored_hash != hash_password(req.password):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    profiles = load_profiles()
-    return {
-        "status": "ok",
-        "username": req.username,
-        "profiles": list(profiles.keys())
-    }
-
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(req.username, {})
+    return {"status": "ok","username": req.username,"profiles": list(bucket.keys())}
