@@ -1,1 +1,16 @@
-{}
+{
+  "demoUser": {
+    "Try": {
+      "description": "Mock description",
+      "data": {
+        "sample": "test"
+      }
+    },
+    "Test": {
+      "description": "Mock description",
+      "data": {
+        "sample": "test"
+      }
+    }
+  }
+}

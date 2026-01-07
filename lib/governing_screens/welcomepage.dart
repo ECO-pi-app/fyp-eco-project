@@ -179,7 +179,7 @@ void dispose() {
                                                 padding: const EdgeInsets.only(left: 20),
                                                 child: Labels(
                                                   title: product.name,
-                                                  color: Apptheme.textclrlight,
+                                                  color: Apptheme.textclrdark,
                                                 ),
                                               ),
                                             ),
@@ -234,7 +234,7 @@ void dispose() {
                                     children: [
                                       Labels(
                                         title: "Create Profile",
-                                        color: Apptheme.textclrlight,
+                                        color: Apptheme.textclrdark,
                                       ),
 
                                       const SizedBox(height: 10),
@@ -268,7 +268,7 @@ void dispose() {
                                               )
                                             )
                                           ),
-                                          style: TextStyle(color: Apptheme.textclrlight),
+                                          style: TextStyle(color: Apptheme.textclrdark),
                                         ),
                                       ),
 

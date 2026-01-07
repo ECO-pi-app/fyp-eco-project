@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 
+
 final secureStorage = FlutterSecureStorage();
 
 // -------------------  PAGE TRACKING  -------------------
@@ -651,33 +652,46 @@ class Product {
 }
 
 // ---------------- FETCH PRODUCTS ----------------
-Future<List<Product>> fetchProducts() async {
-  final url = Uri.parse('http://127.0.0.1:8000/profiles');
+Future<List<Product>> fetchProducts(String username) async {
+  print("Fetching products for username: $username");
+
+  final url = Uri.parse('http://127.0.0.1:8000/profiles?username=$username');
 
   final response = await http.get(
     url,
     headers: {"Content-Type": "application/json"},
   );
 
+  print("Fetch status code: ${response.statusCode}");
+  print("Fetch response body: ${response.body}");
+
   if (response.statusCode == 200) {
     final Map<String, dynamic> map = jsonDecode(response.body);
     final List<dynamic> rawList = map["profiles"];
-    return rawList.map((item) => Product.fromJson(item)).toList();
+    final products = rawList.map((item) => Product.fromJson(item)).toList();
+    print("Fetched products: ${products.map((p) => p.name).toList()}");
+    return products;
   } else if (response.statusCode == 401) {
+    print("Unauthorized — username may be invalid or token expired");
     throw Exception("Unauthorized – please log in again");
   } else {
+    print("Failed to load products with status: ${response.statusCode}");
     throw Exception('Failed to load products: ${response.statusCode}');
   }
 }
 
-// ---------------- PROVIDER ----------------
+// ---------------- PRODUCTS PROVIDER ----------------
 final productsProvider = FutureProvider<List<Product>>((ref) async {
-  return fetchProducts();
+  final username = await ref.watch(usernameProvider.future);
+  print("Username loaded from provider for products fetch: $username");
+
+  if (username == null) {
+    print("No username saved — cannot fetch products");
+    throw Exception("No username saved — user is not logged in");
+  }
+
+  return fetchProducts(username);
 });
-
-
-// ------------------- ADD/SAVE PROJECTS -------------------
-
 
 // ---------------- PROFILE SAVE REQUEST ----------------
 
@@ -717,6 +731,7 @@ final saveProfileProvider =
   } else {
     throw Exception("Failed to save profile: ${response.body}");
   }
+
 });
 
 // ---------------- SIGN UP REQUEST ----------------
@@ -771,8 +786,7 @@ class LoginParameters {
   });
 }
 
-// --------- LOGIN CALL ----------
-
+// ---------------- LOGIN PROVIDER ----------------
 final logInProvider =
     FutureProvider.family<void, LoginParameters>((ref, req) async {
   final payload = jsonEncode({
@@ -788,14 +802,34 @@ final logInProvider =
     body: payload,
   );
 
-  print("Login status: ${response.statusCode}");
-  print("Login body: ${response.body}");
+  print("Login status code: ${response.statusCode}");
+  print("Login response body: ${response.body}");
 
   if (response.statusCode != 200) {
     throw Exception("Login failed: ${response.body}");
   }
 
-  // If backend returns tokens, you could read & store them here later
+  // Save username in secure storage
+  await secureStorage.write(
+    key: "username",
+    value: req.profileName,
+  );
+  print("Saved username to secure storage: ${req.profileName}");
+
+  // Read back immediately for debug
+  final savedUsername = await secureStorage.read(key: "username");
+  print("Verified username read from storage: $savedUsername");
+
+  // Invalidate providers so UI can refresh
+  ref.invalidate(usernameProvider);
+  ref.invalidate(productsProvider);
+});
+
+// ---------------- USERNAME PROVIDER ----------------
+final usernameProvider = FutureProvider<String?>((ref) async {
+  final username = await secureStorage.read(key: "username");
+  print("Loaded username from storage in provider: $username");
+  return username;
 });
 
 
