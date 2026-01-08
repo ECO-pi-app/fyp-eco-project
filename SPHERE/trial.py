@@ -156,6 +156,7 @@ sheet19 = book['Freight Flight']
 sheet20 = book['Rail']
 sheet21 = book['Ship']
 sheet22 = book['Usage']
+sheet23 = book['End-of-Life']
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -323,6 +324,9 @@ Usage_Consumables_cells = sheet22["G2":"G5"]
 Usage_Consumables_ef_cells = sheet22["H2":"H5"]
 Usage_services_cells    = sheet22["I2":"I5"]
 Usage_services_ef_cells    = sheet22["J2":"J5"]
+
+End_of_Life_Activities_cells  = sheet23["A2":"A5"]
+End_of_Life_ef_cells          = sheet23["B2":"B5"]
 # turn into lists
 country_list      = extract_selection_list(country_cells)
 distance_list     = extract_list(distance_cells)
@@ -426,6 +430,7 @@ Disassembly_by_Industry = extract_selection_list(Disassembly_by_Industry_cells)
 Usage_type = extract_selection_list(Usage_type_cells)
 Facilities = extract_selection_list(Facilities_cells)
 Process = extract_selection_list(Process_cells)
+
 Usage_category = extract_selection_list(Usage_category_cells)
 Usage_electronic = extract_selection_list(Usage_electronic_cells)
 Usage_electronic_ef = extract_selection_list(Usage_electronic_ef_cells)
@@ -435,6 +440,9 @@ Usage_Consumables = extract_selection_list(Usage_Consumables_cells)
 Usage_Consumables_ef = extract_selection_list(Usage_Consumables_ef_cells)
 Usage_services = extract_selection_list(Usage_services_cells)
 Usage_services_ef = extract_selection_list(Usage_services_ef_cells)
+
+End_of_Life_Activities = extract_selection_list(End_of_Life_Activities_cells)
+End_of_Life_ef         = extract_selection_list(End_of_Life_ef_cells)
 
 # --- LOOKUP DICTIONARIES FOR FAST CALCULATION ---
 van_lookup = dict(zip(van_mode_list, van_emission_list))
@@ -903,7 +911,9 @@ def get_options():
         "Usage_consumables": Usage_Consumables,
         "Usage_consumables_ef": Usage_Consumables_ef,
         "Usage_services": Usage_services,
-        "USage_services_ef": Usage_services_ef
+        "USage_services_ef": Usage_services_ef,
+        "End_of_Life_Activites": End_of_Life_Activities,
+        "End_of_Life_ef": End_of_Life_ef
     }
 
 @app.get("/meta/transport/config")
