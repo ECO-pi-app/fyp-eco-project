@@ -21,7 +21,7 @@ function HeroSection() {
           buttonSize='btn--large'
           onClick={() =>
             window.open(
-              "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+              "https://youtu.be/ck3uW0bA78k?si=EkELNoZOIWgw1bL-",
               "_blank",
               "noopener,noreferrer"
             )
