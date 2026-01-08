@@ -162,6 +162,25 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         ],
       ),
       UsageCycleAttributesMenu(productID: widget.productID),
+
+
+      //--ROW 2: End of Life--
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'End of Life | ${emissions.endofLife.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: InfoIconPopupDark(
+              text: 'Emissions from the disposal and treatment of the product at the end of its useful life.',
+            ),
+          ),
+        ],
+      ),
+      EndofLifeAttributesMenu(productID: widget.productID),
     ];
 
     return PrimaryPages(
@@ -812,6 +831,125 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
         ),
       ],
     ); // Placeholder
+  }
+}
+
+class EndofLifeAttributesMenu extends ConsumerWidget {
+  final String productID;
+  const EndofLifeAttributesMenu({super.key, required this.productID});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tableState = ref.watch(endOfLifeTableProvider(productID));
+    final tableNotifier = ref.read(endOfLifeTableProvider(productID).notifier);
+
+    final endOfLifeMethods = ref.watch(endOfLifeActivitiesProvider);
+
+    List<RowFormat> rows = List.generate(
+      tableState.endOfLifeOptions.length,
+      (i) => RowFormat(
+        columnTitles: ['End of Life Method', 'Product Mass', 'Percentage of Mass'],
+        isTextFieldColumn: [false, true, true],
+        selections: [
+          tableState.endOfLifeOptions[i],
+          tableState.endOfLifeTotalMass[i],
+          tableState.endOfLifePercentage[i],
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        // ---------------- Table ----------------
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Apptheme.transparentcheat,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildColumn(
+                      title: 'End of Life Method',
+                      values: tableState.endOfLifeOptions,
+                      items: endOfLifeMethods,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'End of Life Method', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Product Mass (kg)',
+                      values: tableState.endOfLifeTotalMass,
+                      isTextField: true,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Product Mass (kg)', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Percentage of Mass (%)',
+                      values: tableState.endOfLifePercentage,
+                      isTextField: true,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Percentage of Mass (%)', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // ---------------- Calculate Button ----------------
+        
+        Row(
+          children: [
+            SizedBox(width: 20),
+
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('end_of_life', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+
+            SizedBox(width: 10),
+          
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: tableNotifier.addRow,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: tableNotifier.removeRow,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 

@@ -42,6 +42,7 @@ class MetaOptions {
   final List<String> usageCycleEnergy;
   final List<String> usageCycleConsumables;
   final List<String> usageCycleServices;
+  final List<String> endOfLifeActivities;
 
   MetaOptions({
     required this.countries,
@@ -73,6 +74,7 @@ class MetaOptions {
     required this.usageCycleEnergy,
     required this.usageCycleConsumables,
     required this.usageCycleServices,
+    required this.endOfLifeActivities,
   });
 
   factory MetaOptions.fromJson(Map<String, dynamic> json) {
@@ -106,8 +108,7 @@ class MetaOptions {
       usageCycleEnergy: List<String>.from(json['Usage_energy'] ?? []),
       usageCycleConsumables: List<String>.from(json['Usage_consumables'] ?? []),
       usageCycleServices: List<String>.from(json['Usage_services'] ?? []),
-
-
+      endOfLifeActivities: List<String>.from(json['End_of_Life_Activities'] ?? [],),
     );
   }
 }
@@ -392,6 +393,17 @@ final usageCycleServicesProvider = Provider<List<String>>((ref) {
   );
 });
 
+final endOfLifeActivitiesProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.endOfLifeActivities,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+
+
 final classOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
   switch (vehicle) {
     case 'Van': return ref.watch(vanModeProvider);
@@ -436,6 +448,7 @@ class EmissionResults {
   final double machining;
   final double fugitive;
   final double usageCycle;
+  final double endofLife;
 
   const EmissionResults({
     this.material = 0,
@@ -443,6 +456,7 @@ class EmissionResults {
     this.machining = 0,
     this.fugitive = 0,
     this.usageCycle = 0,
+    this.endofLife = 0,
   });
 
   // Returns a new instance with updated values
@@ -452,6 +466,7 @@ class EmissionResults {
     double? machining,
     double? fugitive,
     double? usageCycle,
+    double? endofLife,
   }) {
     return EmissionResults(
       material: material ?? this.material,
@@ -459,11 +474,12 @@ class EmissionResults {
       machining: machining ?? this.machining,
       fugitive: fugitive ?? this.fugitive,
       usageCycle: usageCycle ?? this.usageCycle,
+      endofLife: endofLife ?? this.endofLife,
     );
   }
 
   // Total of all emissions
-  double get total => material + transport + machining + fugitive + usageCycle;
+  double get total => material + transport + machining + fugitive + usageCycle + endofLife;
 }
 
 final emissionCalculatorProvider = StateNotifierProvider.family<
@@ -482,6 +498,7 @@ final convertedEmissionsProvider =
   final machiningAlloc = ref.watch(machiningAllocationSumProvider(productId));
   final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(productId));
   final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(productId));
+  final endOfLifeAlloc = ref.watch(endOfLifeAllocationSumProvider(productId));
 
 
   return EmissionResults(
@@ -490,6 +507,7 @@ final convertedEmissionsProvider =
     machining: base.machining * (machiningAlloc / 100) * factor,
     fugitive: base.fugitive * (fugitiveAlloc / 100) * factor,
     usageCycle: base.usageCycle * (usageCycleAlloc / 100) * factor,
+    endofLife: base.endofLife * (endOfLifeAlloc / 100) * factor,
   );
 });
 
@@ -536,11 +554,19 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
     'usage_cycle': {
       'endpoint': 'http://127.0.0.1:8000/calculate/usage_cycle',
       'apiKeys': {
-        "Usage Frequency": "usage_frequency",
-        "Product Type": "product_type",
-        "Category": "category",
+        "Usage Frequency": "[]",
+        "Product Type": "[]",
+        "Category": "[]",
       }
     },
+    'end_of_life': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/end_of_life',
+      'apiKeys': {
+        "End of Life": "[]",
+        "Product Mass (kg)": "[]",
+        "Percentage of Mass (%)": "[]",
+      }
+    }
   };
 
 Future<void> calculate(String featureType, List<RowFormat> rows) async {
@@ -1482,6 +1508,114 @@ final usageCycleAllocationSumProvider = Provider.family<double, String>((ref, pr
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b); 
 });
+
+// ---------------- END OF LIFE STATE ----------------
+class EndOfLifeTableState {
+  final List<String?> endOfLifeOptions;
+  final List<String?> endOfLifeTotalMass;
+  final List<String?> endOfLifePercentage;
+  final List<String?> endOfLifeAllocationValues;
+
+  EndOfLifeTableState({
+    required this.endOfLifeOptions,
+    required this.endOfLifeTotalMass,
+    required this.endOfLifePercentage,
+    required this.endOfLifeAllocationValues,
+  });
+
+  EndOfLifeTableState copyWith({
+    List<String?>? endOfLifeOptions,
+    List<String?>? endOfLifeTotalMass,
+    List<String?>? endOfLifePercentage,
+    List<String?>? endOfLifeAllocationValues,
+  }) {
+    return EndOfLifeTableState(
+      endOfLifeOptions: endOfLifeOptions ?? this.endOfLifeOptions,
+      endOfLifeTotalMass: endOfLifeTotalMass ?? this.endOfLifeTotalMass,
+      endOfLifePercentage: endOfLifePercentage ?? this.endOfLifePercentage,
+      endOfLifeAllocationValues: endOfLifeAllocationValues ?? this.endOfLifeAllocationValues,
+    );
+  }
+}
+
+class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
+  EndOfLifeTableNotifier()
+      : super(
+          EndOfLifeTableState(
+            endOfLifeOptions: [''],
+            endOfLifeTotalMass: [''],
+            endOfLifePercentage: [''],
+            endOfLifeAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      endOfLifeOptions: [...state.endOfLifeOptions, ''],
+      endOfLifeTotalMass: [...state.endOfLifeTotalMass, ''],
+      endOfLifePercentage: [...state.endOfLifePercentage, ''],
+      endOfLifeAllocationValues: [...state.endOfLifeAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.endOfLifeOptions.length > 1) {
+      state = state.copyWith(
+        endOfLifeOptions: state.endOfLifeOptions.sublist(0, state.endOfLifeOptions.length - 1),
+        endOfLifeTotalMass: state.endOfLifeTotalMass.sublist(0, state.endOfLifeTotalMass.length - 1),
+        endOfLifePercentage: state.endOfLifePercentage.sublist(0, state.endOfLifePercentage.length - 1),
+        endOfLifeAllocationValues: state.endOfLifeAllocationValues.sublist(0, state.endOfLifeAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column,
+    required String? value,
+  }) {
+    final endOfLifeOptions = [...state.endOfLifeOptions];
+    final endOfLifeTotalMass = [...state.endOfLifeTotalMass];
+    final endOfLifePercentage = [...state.endOfLifePercentage];
+    final endOfLifeAllocationValues = [...state.endOfLifeAllocationValues]; 
+
+    switch (column) {
+      case 'End of Life Option':
+        endOfLifeOptions[row] = value;
+        break;
+      case 'Total Mass':
+        endOfLifeTotalMass[row] = value;
+        break;
+      case 'Percentage':
+        endOfLifePercentage[row] = value;
+        break;
+      case 'Allocation Value':
+        endOfLifeAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      endOfLifeOptions: endOfLifeOptions,
+      endOfLifeTotalMass: endOfLifeTotalMass,
+      endOfLifePercentage: endOfLifePercentage,
+      endOfLifeAllocationValues: endOfLifeAllocationValues,
+    );
+  }
+}
+
+final endOfLifeTableProvider =
+    StateNotifierProvider.family<EndOfLifeTableNotifier, EndOfLifeTableState, String>(
+  (ref, productID) => EndOfLifeTableNotifier(),
+);
+
+final endOfLifeAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(endOfLifeTableProvider(productID));
+
+  return table.endOfLifeAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b); 
+});
+
 
 // ------------------- UNIT CONVERSION -------------------
 
