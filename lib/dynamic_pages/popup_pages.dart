@@ -333,7 +333,6 @@ class DeveloperPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final metaOptionsAsync = ref.watch(metaOptionsProvider);
     final productsAsync = ref.watch(productsProvider);
-    final emissions = ref.watch(emissionCalculatorProvider);
     final unit = ref.watch(unitLabelProvider);
 
     return 
@@ -434,13 +433,6 @@ class DeveloperPage extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // ----------------- EMISSIONS -----------------
-          _sectionHeader('Emissions (raw)'),
-          Textsinsidewidgets(words: 'Material: ${emissions.material}', color: Apptheme.textclrlight),
-          Textsinsidewidgets(words: 'Transport: ${emissions.transport}', color: Apptheme.textclrlight),
-          Textsinsidewidgets(words: 'Machining: ${emissions.machining}', color: Apptheme.textclrlight),
-          Textsinsidewidgets(words: 'Fugitive: ${emissions.fugitive}', color: Apptheme.textclrlight),
-          Textsinsidewidgets(words: 'Total: ${emissions.total}', color: Apptheme.textclrlight),
 
 
 

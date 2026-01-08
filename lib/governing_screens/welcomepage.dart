@@ -6,7 +6,6 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo
 import 'package:test_app/sub_navigator.dart';
 import 'package:test_app/riverpod.dart';
 
-// Product model is the same as above
 
 class Welcomepage extends ConsumerStatefulWidget {
   const Welcomepage({super.key});

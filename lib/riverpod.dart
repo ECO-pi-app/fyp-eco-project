@@ -11,46 +11,6 @@ final secureStorage = FlutterSecureStorage();
 // -------------------  PAGE TRACKING  -------------------
 final currentPageProvider = StateProvider<int>((ref) => 0);
 
-// ------------------- UNIT CONVERSION -------------------
-
-// Dropdown options you will show in UI
-const Map<String, double> conversionFactors = {
-  "Metric (kg CO₂)" : 1.0,     // default
-  "Imperial (lb CO₂)" : 2.20462,
-  "Grams (g CO₂)" : 1000.0,
-  "Centimeters (cm)" : 100,
-};
-Map<double, String> unitLabels = {
-  1.0: 'kg',
-  2.20462: 'lb',
-  1000.0: 'g',
-  100.0 : 'cm'
-};
-Map<double, String> unitNames = {
-  1.0: 'Metric',
-  2.20462: 'Imperial',
-  1000.0: 'Metric x10^-3',
-  100 : 'Me'
-};
-
-// Stores the selected unit
-final unitConversionProvider = StateProvider<double>((ref) => 1.0); // default 
-
-final unitLabelProvider = Provider<String>((ref) {
-  final factor = ref.watch(unitConversionProvider);
-  return unitLabels[factor] ?? 'kg'; // default 
-});
-
-final unitNameProvider = Provider<String>((ref) {
-  final factor = ref.watch(unitConversionProvider);
-  return unitNames[factor] ?? 'Metric'; // default 
-});
-
-
-final myCheckboxProvider = StateProvider<bool>((ref) => false);
-
-
-
 // ------------------- DATA FETCHING  -------------------
 class MetaOptions {
   final List<String> countries;
@@ -77,6 +37,11 @@ class MetaOptions {
   final List<String> freightFlightMode;
   final List<String> seaTankerMode;
   final List<String> cargoShipMode;
+  final List<String> usageCycleCategories;
+  final List<String> usageCycleElectronics;
+  final List<String> usageCycleEnergy;
+  final List<String> usageCycleConsumables;
+  final List<String> usageCycleServices;
 
   MetaOptions({
     required this.countries,
@@ -103,6 +68,11 @@ class MetaOptions {
     required this.freightFlightMode,
     required this.seaTankerMode,
     required this.cargoShipMode,
+    required this.usageCycleCategories,
+    required this.usageCycleElectronics,
+    required this.usageCycleEnergy,
+    required this.usageCycleConsumables,
+    required this.usageCycleServices,
   });
 
   factory MetaOptions.fromJson(Map<String, dynamic> json) {
@@ -131,6 +101,13 @@ class MetaOptions {
       freightFlightMode: List<String>.from(json['Freight_flight_modes'] ?? []),
       seaTankerMode: List<String>.from(json['Sea_Tanker_mode'] ?? []),
       cargoShipMode: List<String>.from(json['Cargo_ship_mode'] ?? []),
+      usageCycleCategories: List<String>.from(json['Usage_categories'] ?? []),
+      usageCycleElectronics: List<String>.from(json['Usage_electronics'] ?? []),
+      usageCycleEnergy: List<String>.from(json['Usage_energy'] ?? []),
+      usageCycleConsumables: List<String>.from(json['Usage_consumables'] ?? []),
+      usageCycleServices: List<String>.from(json['Usage_services'] ?? []),
+
+
     );
   }
 }
@@ -370,6 +347,50 @@ final cargoShipModeProvider = Provider<List<String>>((ref) {
   );
 });
 
+final usageCycleCategoriesProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.usageCycleCategories,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final usageCycleElectronicsProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.usageCycleElectronics,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final usageCycleEnergyProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.usageCycleEnergy,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final usageCycleConsumablesProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.usageCycleConsumables,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final usageCycleServicesProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.usageCycleServices,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
 
 final classOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
   switch (vehicle) {
@@ -414,12 +435,14 @@ class EmissionResults {
   final double transport;
   final double machining;
   final double fugitive;
+  final double usageCycle;
 
   const EmissionResults({
     this.material = 0,
     this.transport = 0,
     this.machining = 0,
     this.fugitive = 0,
+    this.usageCycle = 0,
   });
 
   // Returns a new instance with updated values
@@ -428,42 +451,45 @@ class EmissionResults {
     double? transport,
     double? machining,
     double? fugitive,
+    double? usageCycle,
   }) {
     return EmissionResults(
       material: material ?? this.material,
       transport: transport ?? this.transport,
       machining: machining ?? this.machining,
       fugitive: fugitive ?? this.fugitive,
+      usageCycle: usageCycle ?? this.usageCycle,
     );
   }
 
   // Total of all emissions
-  double get total => material + transport + machining + fugitive;
+  double get total => material + transport + machining + fugitive + usageCycle;
 }
 
-final emissionCalculatorProvider = StateNotifierProvider<
-    EmissionCalculator, EmissionResults>(
-  (ref) => EmissionCalculator(),
+final emissionCalculatorProvider = StateNotifierProvider.family<
+    EmissionCalculator, EmissionResults, String>(
+  (ref, productId) => EmissionCalculator(),
 );
 
 final convertedEmissionsProvider =
     Provider.family<EmissionResults, String>((ref, productId) {
-  final base = ref.watch(emissionCalculatorProvider);
+  final base = ref.watch(emissionCalculatorProvider(productId));
   final factor = ref.watch(unitConversionProvider);
 
   // per-product material allocation
   final materialAlloc = ref.watch(materialAllocationSumProvider(productId));
+  final transportAlloc = ref.watch(transportAllocationSumProvider(productId));
+  final machiningAlloc = ref.watch(machiningAllocationSumProvider(productId));
+  final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(productId));
+  final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(productId));
 
-  
-  final transportAlloc = ref.watch(transportAllocationSumProvider);
-  final machiningAlloc = ref.watch(machiningAllocationSumProvider);
-  final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider);
 
   return EmissionResults(
     material: base.material * (materialAlloc / 100) * factor,
     transport: base.transport * (transportAlloc / 100) * factor,
     machining: base.machining * (machiningAlloc / 100) * factor,
     fugitive: base.fugitive * (fugitiveAlloc / 100) * factor,
+    usageCycle: base.usageCycle * (usageCycleAlloc / 100) * factor,
   );
 });
 
@@ -505,6 +531,14 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
         "GHG": "ghg_name",
         "Total Charge (kg)": "total_charged_amount_kg",
         "Remaining Charge (kg)": "current_charge_amount_kg",
+      }
+    },
+    'usage_cycle': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/usage_cycle',
+      'apiKeys': {
+        "Usage Frequency": "usage_frequency",
+        "Product Type": "product_type",
+        "Category": "category",
       }
     },
   };
@@ -590,6 +624,9 @@ Future<void> calculate(String featureType, List<RowFormat> rows) async {
     case 'fugitive':
       state = state.copyWith(fugitive: subtotal);
       break;
+    case 'usage_cycle':
+      state = state.copyWith(usageCycle: subtotal);
+      break;
     default:
       throw Exception("Invalid feature type: $featureType");
   }
@@ -650,12 +687,10 @@ class Product {
   Product({required this.name});
 
   factory Product.fromJson(dynamic value) {
-    // backend returns a simple string for each profile
     return Product(name: value.toString());
   }
 }
 
-// ---------------- FETCH PRODUCTS ----------------
 Future<List<Product>> fetchProducts(String username) async {
   print("Fetching products for username: $username");
 
@@ -697,7 +732,7 @@ final productsProvider = FutureProvider<List<Product>>((ref) async {
   return fetchProducts(username);
 });
 
-// ---------------- PROFILE SAVE REQUEST ----------------
+// ---------------- PROFILE SAVE ----------------
 
 class ProfileSaveRequest {
   final String profileName;
@@ -712,8 +747,6 @@ class ProfileSaveRequest {
     required this.username,
   });
 }
-
-// ---------------- SAVE PROFILE PROVIDER ----------------
 
 final saveProfileProvider =
     FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
@@ -893,9 +926,6 @@ class DeleteProfileNotifier extends AsyncNotifier<void> {
   }
 }
 
-
-
-// Helper function to convert string to double safely
 double _toDouble(String? value) {
   if (value == null) return 0.0;
   return double.tryParse(value) ?? 0.0;
@@ -998,13 +1028,13 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
 final materialTableProvider = StateNotifierProvider.family<
     MaterialTableNotifier,
     MaterialTableState,
-    String>((ref, productId) {
+    String>((ref, productID) {
   return MaterialTableNotifier();
 });
 
 
-final materialAllocationSumProvider = Provider.family<double, String>((ref, productId) {
-  final table = ref.watch(materialTableProvider(productId));
+final materialAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(materialTableProvider(productID));
   return table.materialAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b);
@@ -1119,12 +1149,11 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
 }
 
 final upstreamTransportTableProvider =
-    StateNotifierProvider<UpstreamTransportTableNotifier, UpstreamTransportTableState>(
-        (ref) => UpstreamTransportTableNotifier());
+    StateNotifierProvider.family<UpstreamTransportTableNotifier, UpstreamTransportTableState, String>(
+        (ref, productID) => UpstreamTransportTableNotifier());
 
-final transportAllocationSumProvider = Provider<double>((ref) {
-  final table = ref.watch(upstreamTransportTableProvider);
-
+final transportAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(upstreamTransportTableProvider(productID));
   return table.transportAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b);
@@ -1227,12 +1256,12 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
 }
 
 final machiningTableProvider =
-    StateNotifierProvider<MachiningTableNotifier, MachiningTableState>(
-  (ref) => MachiningTableNotifier(),
+    StateNotifierProvider.family<MachiningTableNotifier, MachiningTableState, String>(
+  (ref, productID) => MachiningTableNotifier(),
 );
 
-final machiningAllocationSumProvider = Provider<double>((ref) {
-  final table = ref.watch(machiningTableProvider);
+final machiningAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(machiningTableProvider(productID));
 
   return table.machiningAllocationValues
       .map(_toDouble)
@@ -1338,16 +1367,156 @@ class FugitiveLeaksTableNotifier
 }
 
 final fugitiveLeaksTableProvider =
-    StateNotifierProvider<FugitiveLeaksTableNotifier, FugitiveLeaksTableState>(
-  (ref) => FugitiveLeaksTableNotifier(),
+    StateNotifierProvider.family<FugitiveLeaksTableNotifier, FugitiveLeaksTableState, String>(
+  (ref, productID) => FugitiveLeaksTableNotifier(),
 );
 
-final fugitiveAllocationSumProvider = Provider<double>((ref) {
-  final table = ref.watch(fugitiveLeaksTableProvider);
+final fugitiveAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(fugitiveLeaksTableProvider(productID));
 
   return table.fugitiveAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b);
 });
 
+
+// ---------------- USAGE CYCLE ----------------
+
+class UsageCycleState {
+  final List<String?> categories;
+  final List<String?> productTypes;
+  final List<String?> usageFrequencies;
+  final List<String?> usageCycleAllocationValues;
+
+  UsageCycleState({
+    required this.categories,
+    required this.productTypes,
+    required this.usageFrequencies,
+    required this.usageCycleAllocationValues,
+  });
+
+  UsageCycleState copyWith({
+    List<String?>? categories,
+    List<String?>? productTypes,
+    List<String?>? usageFrequencies,
+    List<String?>? usageCycleAllocationValues,
+  }) {
+    return UsageCycleState(
+      categories: categories ?? this.categories,
+      productTypes: productTypes ?? this.productTypes,
+      usageFrequencies: usageFrequencies ?? this.usageFrequencies,
+      usageCycleAllocationValues: usageCycleAllocationValues ?? this.usageCycleAllocationValues,
+    );
+  }
+}
+
+class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
+  UsageCycleNotifier()
+      : super(
+          UsageCycleState(
+            categories: [''],
+            productTypes: [''],
+            usageFrequencies: [''],
+            usageCycleAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      categories: [...state.categories, ''],
+      productTypes: [...state.productTypes, ''],
+      usageFrequencies: [...state.usageFrequencies, ''],
+      usageCycleAllocationValues: [...state.usageCycleAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.categories.length > 1) {
+      state = state.copyWith(
+        categories: state.categories.sublist(0, state.categories.length - 1),
+        productTypes: state.productTypes.sublist(0, state.productTypes.length - 1),
+        usageFrequencies: state.usageFrequencies.sublist(0, state.usageFrequencies.length - 1),
+        usageCycleAllocationValues: state.usageCycleAllocationValues.sublist(0, state.usageCycleAllocationValues.length - 1),
+      );
+    }
+  }
+  void updateCell({
+    required int row,
+    required String column,
+    required String? value,
+  }) {
+    final categories = [...state.categories];
+    final productTypes = [...state.productTypes];
+    final usageFrequencies = [...state.usageFrequencies];
+    final usageCycleAllocationValues = [...state.usageCycleAllocationValues];
+    switch (column) {
+      case 'Category':
+        categories[row] = value;
+        break;
+      case 'Product Type':
+        productTypes[row] = value;
+        break;
+      case 'Usage Frequency':
+        usageCycleAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      categories: categories,
+      productTypes: productTypes,
+      usageFrequencies: usageFrequencies,
+      usageCycleAllocationValues: usageCycleAllocationValues,
+    );
+  }
+}
+
+final usageCycleTableProvider =
+    StateNotifierProvider.family<UsageCycleNotifier, UsageCycleState, String>(
+  (ref, productID) => UsageCycleNotifier(),
+);
+
+final usageCycleAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(usageCycleTableProvider(productID));
+
+  return table.usageCycleAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b); 
+});
+
+// ------------------- UNIT CONVERSION -------------------
+
+// Dropdown options you will show in UI
+const Map<String, double> conversionFactors = {
+  "Metric (kg CO₂)" : 1.0,     // default
+  "Imperial (lb CO₂)" : 2.20462,
+  "Grams (g CO₂)" : 1000.0,
+  "Centimeters (cm)" : 100,
+};
+Map<double, String> unitLabels = {
+  1.0: 'kg',
+  2.20462: 'lb',
+  1000.0: 'g',
+  100.0 : 'cm'
+};
+Map<double, String> unitNames = {
+  1.0: 'Metric',
+  2.20462: 'Imperial',
+  1000.0: 'Metric x10^-3',
+  100 : 'Me'
+};
+
+// Stores the selected unit
+final unitConversionProvider = StateProvider<double>((ref) => 1.0); // default 
+
+final unitLabelProvider = Provider<String>((ref) {
+  final factor = ref.watch(unitConversionProvider);
+  return unitLabels[factor] ?? 'kg'; // default 
+});
+
+final unitNameProvider = Provider<String>((ref) {
+  final factor = ref.watch(unitConversionProvider);
+  return unitNames[factor] ?? 'Metric'; // default 
+});
+
+final myCheckboxProvider = StateProvider<bool>((ref) => false);
 
