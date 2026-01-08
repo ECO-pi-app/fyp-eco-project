@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../App.css';
 import { Button } from './Button';
 import './HeroSection.css';
-import TrailerModal from './Trailermodal';
 
 function HeroSection() {
-  const [open, setOpen] = useState(false);
-
   return (
     <div className='hero-container'>
       <video src="/videos/nature.mp4" autoPlay loop muted />
@@ -22,19 +19,20 @@ function HeroSection() {
           className='btns'
           buttonStyle='btn--primary'
           buttonSize='btn--large'
-          onClick={() => setOpen(true)}
+          onClick={() =>
+            window.open(
+              "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
         >
           WATCH TRAILER <i className='far fa-play-circle' />
         </Button>
       </div>
-
-      <TrailerModal
-        open={open}
-        onClose={() => setOpen(false)}
-        url="https://www.youtube.com/watch?v=Z_M5SYSCOdk"
-      />
     </div>
   );
 }
 
 export default HeroSection;
+
