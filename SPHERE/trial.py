@@ -903,7 +903,7 @@ def get_options():
         "Usage_consumables": Usage_Consumables,
         "Usage_consumables_ef": Usage_Consumables_ef,
         "Usage_services": Usage_services,
-        "USage_services": Usage_services_ef
+        "USage_services_ef": Usage_services_ef
     }
 
 @app.get("/meta/transport/config")
