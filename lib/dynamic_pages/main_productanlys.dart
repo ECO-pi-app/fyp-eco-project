@@ -707,6 +707,12 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(usageCycleTableProvider(productID));
     final tableNotifier = ref.read(usageCycleTableProvider(productID).notifier);
 
+    final usageCycleCategories = ref.watch(usageCycleCategoriesProvider);
+    final usageCycleElectronics = ref.watch(usageCycleElectronicsProvider);
+    final usageCycleEnergy = ref.watch(usageCycleEnergyProvider);
+    final usageCycleConsumables = ref.watch(usageCycleConsumablesProvider);
+    final usageCycleServices = ref.watch(usageCycleServicesProvider);
+
     List<RowFormat> rows = List.generate(
       tableState.usageCycleAllocationValues.length,
       (i) => RowFormat(
@@ -740,6 +746,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                     _buildColumn(
                       title: 'Category',
                       values: tableState.categories,
+                      items: usageCycleCategories,
                       onChanged: (row, value) =>
                           tableNotifier.updateCell(row: row, column: 'Category', value: value),
                     ),
@@ -747,6 +754,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                     _buildColumn(
                       title: 'Product',
                       values: tableState.productTypes,
+                      items: usageCycleElectronics,
                       onChanged: (row, value) =>
                           tableNotifier.updateCell(row: row, column: 'Product', value: value),
                     ),
