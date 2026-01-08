@@ -15,14 +15,17 @@ class DebugPage extends ConsumerWidget {
     final materialState = ref.watch(materialTableProvider(productID));
     final materialNotifier = ref.read(materialTableProvider(productID).notifier);
 
-    final upstreamTransportState = ref.watch(upstreamTransportTableProvider);
-    final upstreamTransportNotifier = ref.read(upstreamTransportTableProvider.notifier);
+    final upstreamTransportState = ref.watch(upstreamTransportTableProvider(productID));
+    final upstreamTransportNotifier = ref.read(upstreamTransportTableProvider(productID).notifier);
 
-    final machiningState = ref.watch(machiningTableProvider);
-    final machiningNotifier = ref.read(machiningTableProvider.notifier);
+    final machiningState = ref.watch(machiningTableProvider(productID));
+    final machiningNotifier = ref.read(machiningTableProvider(productID).notifier);
 
-    final leaksState = ref.watch(fugitiveLeaksTableProvider);
-    final leaksNotifier = ref.read(fugitiveLeaksTableProvider.notifier);
+    final leaksState = ref.watch(fugitiveLeaksTableProvider(productID));
+    final leaksNotifier = ref.read(fugitiveLeaksTableProvider(productID).notifier);
+
+    final usageCycleState = ref.watch(usageCycleTableProvider(productID));
+    final usageCycleNotifier = ref.read(usageCycleTableProvider(productID).notifier);
 
     return PrimaryPages(
       childofmainpage: ListView(
@@ -65,11 +68,22 @@ class DebugPage extends ConsumerWidget {
           const SizedBox(height: 10),
           _buildFugitiveLeaksTable(leaksState, leaksNotifier),
           const SizedBox(height: 30),
+
+          // -------------------- USAGE CYCLE --------------------
+          Labels(
+            title: "Usage Cycle",
+            color: Apptheme.textclrdark,
+          ),
+          const SizedBox(height: 10),
+          _buildUsageCycleTable(usageCycleState, usageCycleNotifier),
         ],
       ),
     );
   }
 }
+
+
+
 
 // -------------------- MATERIAL TABLE --------------------
 Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
@@ -249,6 +263,54 @@ Widget _buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNot
     ],
   );
 }
+
+// -------------------- USAGE CYCLE TABLE --------------------
+Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
+  final rowCount = s.usageFrequencies.length;
+
+  return Table(
+    defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+    columnWidths: const {
+      0: FixedColumnWidth(200),
+      1: FixedColumnWidth(120),
+      2: FixedColumnWidth(120),
+      3: FlexColumnWidth(),
+      4: FixedColumnWidth(70),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(
+          color: Apptheme.widgettertiaryclr,
+        ),
+        children: const [
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Categories", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Product", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Usage Frequency", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
+        ],
+      ),
+
+      for (int i = 0; i < rowCount; i++)
+        TableRow(
+          children: [
+            _staticCell(s.categories[i]),
+            _staticCell(s.productTypes[i]),
+            _staticCell(s.usageFrequencies[i]),
+            _editableCell(
+              text: s.usageCycleAllocationValues[i],
+              onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
+            ),
+            _checkCell(),
+          ],
+        ),
+    ],
+  );
+}
+
+
+
+
 
 // -------------------- SHARED CELL HELPERS --------------------
 Widget _staticCell(String? text) => Padding(

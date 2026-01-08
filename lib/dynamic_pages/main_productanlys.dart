@@ -84,7 +84,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      MaterialAttributesMenu(productId: widget.productID),
+      MaterialAttributesMenu(productID: widget.productID),
 
       //--ROW 2: Upstream Transportation--
       Row(
@@ -102,7 +102,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      UpstreamTransportAttributesMenu(ref: ref)
+      UpstreamTransportAttributesMenu(productID: widget.productID)
     ];
 
     // ------------------- Pages 2 & 3 remain unchanged -------------------
@@ -123,7 +123,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      MachiningAttributesMenu(ref: ref),
+      MachiningAttributesMenu(productID: widget.productID),
 
       //--ROW 2: Fugitive leaks--
       Row(
@@ -141,7 +141,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      FugitiveLeaksAttributesMenu(ref: ref)
+      FugitiveLeaksAttributesMenu(productID: widget.productID)
     ];
 
     final List<Widget> widgetofpage3 = [
@@ -150,29 +150,18 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Downstream Distribution',
+            title: 'Usage Cycle | ${emissions.usageCycle.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: InfoIconPopupDark(
-              text: 'Transporting of products from it\'s production facility to the site of storage or retail',
+              text: 'Emissions from the usage of the product by the end user.',
             ),
           ),
         ],
       ),
-      Widgets1(
-        maxheight: 250,
-        child: AttributesMenu(
-          columnTitles: ['Transportation', 'Distance'],
-          isTextFieldColumn: [false, true],
-          addButtonLabel: 'Add transport cycle',
-          padding: 5,
-          apiKeyMap: apiKeymaterials,
-          endpoint: 'http://127.0.0.1:8000/calculate/material_emission',
-        ),
-      ),
-      // ... other downstream widgets remain unchanged ...
+      UsageCycleAttributesMenu(productID: widget.productID),
     ];
 
     return PrimaryPages(
@@ -284,16 +273,15 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 }
 
 // ------------------- Manual Material Attributes Menu -------------------
-
 class MaterialAttributesMenu extends ConsumerWidget {
-  final String productId;
+  final String productID;
 
-  const MaterialAttributesMenu({super.key, required this.productId});
+  const MaterialAttributesMenu({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(materialTableProvider(productId));
-    final tableNotifier = ref.read(materialTableProvider(productId).notifier);
+    final tableState = ref.watch(materialTableProvider(productID));
+    final tableNotifier = ref.read(materialTableProvider(productID).notifier);
 
     final materials = ref.watch(materialsProvider);
     final countries = ref.watch(countriesProvider);
@@ -371,7 +359,7 @@ class MaterialAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider.notifier).calculate('material', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('material', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -406,15 +394,14 @@ class MaterialAttributesMenu extends ConsumerWidget {
   }
 }
 
-
-// ------------------- Manual Upstream Transport Attributes Menu -------------------
 class UpstreamTransportAttributesMenu extends ConsumerWidget {
-  const UpstreamTransportAttributesMenu({super.key, required WidgetRef ref});
+  final String productID;
+  const UpstreamTransportAttributesMenu({super.key,required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(upstreamTransportTableProvider);
-    final tableNotifier = ref.read(upstreamTransportTableProvider.notifier);
+    final tableState = ref.watch(upstreamTransportTableProvider(productID));
+    final tableNotifier = ref.read(upstreamTransportTableProvider(productID).notifier);
 
     final vehicles = ref.watch(transportTypesProvider);
 
@@ -487,7 +474,7 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider.notifier)
+                  await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate('upstream_transport', rows);
                 },
                 style: ElevatedButton.styleFrom(
@@ -518,14 +505,14 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
   }
 }
 
-
 class MachiningAttributesMenu extends ConsumerWidget {
-  const MachiningAttributesMenu({super.key, required WidgetRef ref});
+  final String productID;
+  const MachiningAttributesMenu({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(machiningTableProvider);
-    final tableNotifier = ref.read(machiningTableProvider.notifier);
+    final tableState = ref.watch(machiningTableProvider(productID));
+    final tableNotifier = ref.read(machiningTableProvider(productID).notifier);
 
     final machines = ref.watch(mazakTypesProvider);
     final countries = ref.watch(countriesProvider);
@@ -587,7 +574,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider.notifier).calculate('machining', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('machining', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -616,12 +603,13 @@ class MachiningAttributesMenu extends ConsumerWidget {
 }
 
 class FugitiveLeaksAttributesMenu extends ConsumerWidget {
-  const FugitiveLeaksAttributesMenu({super.key, required WidgetRef ref});
+  final String productID;
+  const FugitiveLeaksAttributesMenu({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(fugitiveLeaksTableProvider);
-    final tableNotifier = ref.read(fugitiveLeaksTableProvider.notifier);
+    final tableState = ref.watch(fugitiveLeaksTableProvider(productID));
+    final tableNotifier = ref.read(fugitiveLeaksTableProvider(productID).notifier);
 
     final ghgList = ref.watch(ghgProvider);
 
@@ -682,7 +670,7 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider.notifier).calculate('fugitive', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('fugitive', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -710,6 +698,114 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
   }
 }
 
+class UsageCycleAttributesMenu extends ConsumerWidget {
+  final String productID;
+  const UsageCycleAttributesMenu({super.key, required this.productID});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tableState = ref.watch(usageCycleTableProvider(productID));
+    final tableNotifier = ref.read(usageCycleTableProvider(productID).notifier);
+
+    List<RowFormat> rows = List.generate(
+      tableState.usageCycleAllocationValues.length,
+      (i) => RowFormat(
+        columnTitles: ['Category', 'Product', 'Usage Frequency'],
+        isTextFieldColumn: [false, false, true],
+        selections: [
+          tableState.categories[i],
+          tableState.productTypes[i],
+          tableState.usageFrequencies[i],
+        ],
+      ),
+    );
+    return Column(
+      children: [
+        // ---------------- Table ----------------
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Apptheme.transparentcheat,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildColumn(
+                      title: 'Category',
+                      values: tableState.categories,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Category', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Product',
+                      values: tableState.productTypes,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Product', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildColumn(
+                      title: 'Usage Frequency',
+                      values: tableState.usageFrequencies,
+                      isTextField: true,
+                      onChanged: (row, value) =>
+                          tableNotifier.updateCell(row: row, column: 'Usage Frequency', value: value),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),  
+            ),
+          ),
+        ),
+        // ---------------- Calculate Button ----------------
+        Row(
+          children: [
+            SizedBox(width: 20),
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('usage_cycle', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: tableNotifier.addRow,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: tableNotifier.removeRow,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ); // Placeholder
+  }
+}
 
 
 Widget _buildColumn({

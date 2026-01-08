@@ -10,6 +10,7 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 class AttributesMenu extends ConsumerStatefulWidget {
   final List<String> columnTitles;
   final List<bool> isTextFieldColumn;
+  final String productID;
   
   final List<List<String>>? dropDownLists;
 
@@ -27,6 +28,7 @@ class AttributesMenu extends ConsumerStatefulWidget {
     super.key,
     required this.columnTitles,
     required this.isTextFieldColumn,
+    required this.productID,
 
     this.dropDownLists,
 
@@ -387,7 +389,7 @@ List<Map<String, String?>> formattedRows(TableState tableState) {
                     child: InkWell(
                       onTap:  () async {
                   await ref
-                      .read(emissionCalculatorProvider.notifier)
+                      .read(emissionCalculatorProvider(widget.productID).notifier)
                       .calculate(widget.type, rows);
                 },
                      
