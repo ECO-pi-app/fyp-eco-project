@@ -795,6 +795,10 @@ class MaterialEmissionAdvancedReq(BaseModel):
     material: str
     country: str
 
+    time_operated_main_hr: float = 0.0
+    time_operated_sub_hr: float = 0.0
+    time_operated_secondary_hr: float = 0.0
+
     # masses (kg)
     total_material_purchased_kg: float   # total purchased for that material type
     material_used_kg: float              # how much of that purchased amount is used/allocated to product
@@ -1107,6 +1111,102 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "materialacq_emission":calculated_emission
     }
 
+@app.post("/calculate/material_emission_advanced")
+def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
+
+    # --- validate country ---
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail="Country not found in Data Sheet")
+    cidx = country_list.index(req.country)
+
+    # --- validate material + get regular EF from Excel ---
+    materials = {
+        "Steel": steel_list,
+        "Aluminum": aluminium_list,
+        "Cement": cement_list,
+        "Plastic": plastic_list,
+        "Carbon Fiber": carbon_fiber_list
+    }
+    if req.material not in materials:
+        raise HTTPException(status_code=400, detail="Material not supported for calculation")
+
+    try:
+        regular_ef = float(materials[req.material][cidx])  # kgCO2e per kg
+    except Exception:
+        raise HTTPException(status_code=500, detail="Emission factor missing in Data Sheet.")
+
+    # --- normalize RCS: accept 0-1 OR 0-100 ---
+    rcs = float(req.RCS_of_material)
+    if rcs > 1.0:
+        rcs = rcs / 100.0
+    if rcs < 0:
+        rcs = 0.0
+    if rcs > 1:
+        rcs = 1.0
+
+    # --- validate masses ---
+    total_purchased = float(req.total_material_purchased_kg)
+    used = float(req.material_used_kg)
+    recycled_inhouse_mass = float(req.mass_of_material_recycled_kg or 0.0)
+
+    if total_purchased <= 0:
+        raise HTTPException(status_code=400, detail="total_material_purchased_kg must be > 0")
+    if used < 0:
+        raise HTTPException(status_code=400, detail="material_used_kg cannot be negative")
+    if used > total_purchased:
+        raise HTTPException(status_code=400, detail="material_used_kg cannot exceed total_material_purchased_kg")
+    if recycled_inhouse_mass < 0:
+        raise HTTPException(status_code=400, detail="mass_of_material_recycled_kg cannot be negative")
+
+    # --- custom factors (optional) ---
+    recycled_ef = float(req.custom_ef_of_material) if req.custom_ef_of_material is not None else 0.0
+    internal_ef = float(req.custom_internal_ef) if req.custom_internal_ef is not None else 0.0
+
+    # =========================
+    # FORMULAS (from your doc)
+    # =========================
+    # regular materials emissions = ef_material × total_mass × RCS
+    regular_materials_emissions = regular_ef * total_purchased * rcs
+
+    # recycled materials emissions = custom_ef_material × total_mass × RCS
+    recycled_materials_emissions = recycled_ef * total_purchased * rcs
+
+    # in-house recycling emissions = custom_internal_ef × mass_recycled
+    in_house_recycling_emissions = internal_ef * recycled_inhouse_mass
+
+    # total emissions = recycled materials emissions + normal material emissions
+    total_material_emissions = regular_materials_emissions + recycled_materials_emissions + in_house_recycling_emissions
+
+    # recycled content share per material type (RCS) = total_material_emissions / total_material_purchased × 100%
+    rcs_per_material_type_percent = (total_material_emissions / total_purchased) * 100.0
+
+    # allocated emissions per material = (total_material_emissions / total_material_purchased) × material_used
+    allocated_emissions_per_material = (total_material_emissions / total_purchased) * used
+
+    return {
+        "country": req.country,
+        "material": req.material,
+
+        "total_material_purchased_kg": total_purchased,
+        "material_used_kg": used,
+        "mass_of_material_recycled_kg": recycled_inhouse_mass,
+
+        "regular_ef_kgco2e_per_kg": regular_ef,
+        "custom_ef_of_material_kgco2e_per_kg": recycled_ef,
+        "custom_internal_ef_kgco2e_per_kg": internal_ef,
+
+        "RCS_of_material_input": req.RCS_of_material,
+        "RCS_of_material_normalized_0_to_1": rcs,
+
+        "regular_materials_emissions": regular_materials_emissions,
+        "recycled_materials_emissions": recycled_materials_emissions,
+        "in_house_recycling_emissions": in_house_recycling_emissions,
+
+        "total_material_emissions": total_material_emissions,
+        "recycled_content_share_per_material_type_percent": rcs_per_material_type_percent,
+        "allocated_emissions_per_material": allocated_emissions_per_material
+    }
+
 
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
@@ -1141,26 +1241,36 @@ def calculate_machine(req:MachineEmissionsReq):
     secondary_spindle_kw = float(Mazak_secondary_spindle[midx])
     second_spindle_kw = float(Mazak_second_spindle[midx])
 
-    power_drawed_main = main_spindle_kw     #main
-    power_drawed_second = second_spindle_kw #second
-    power_drawed_secondary = secondary_spindle_kw #secondary
+    t_main = float(req.time_operated_main_hr)
+    t_second = float(req.time_operated_second_hr)
+    t_secondary = float(req.time_operated_secondary_hr)
 
-    time_operated = req.time_operated_hr          # hours
-    emissions_main = power_drawed_main * grid_intensity * time_operated
-    emissions_second = power_drawed_second * grid_intensity * time_operated
-    emissions_secondary = power_drawed_secondary * grid_intensity * time_operated
+    if t_main < 0 or t_second < 0 or t_secondary < 0:
+        raise HTTPException(status_code=400, detail="Time operated cannot be negative.")
+
+    emissions_main = main_spindle_kw * grid_intensity * t_main
+    emissions_second = second_spindle_kw * grid_intensity * t_second
+    emissions_secondary = secondary_spindle_kw * grid_intensity * t_secondary
+
+    total_emissions = emissions_main + emissions_second + emissions_secondary
 
     return {
         "country": req.country,
         "machine_model": req.machine_model,
-        "time_operated_hr": time_operated,
-        "power_drawed_main": power_drawed_main,
-        "power_drawed_second": power_drawed_second,
-        "power_drawed_secondary": power_drawed_secondary,
         "grid_intensity": grid_intensity,
+
+        "power_drawed_main_kw": main_spindle_kw,
+        "power_drawed_second_kw": second_spindle_kw,
+        "power_drawed_secondary_kw": secondary_spindle_kw,
+
+        "time_operated_main_hr": t_main,
+        "time_operated_second_hr": t_second,
+        "time_operated_secondary_hr": t_secondary,
+
         "emissions_main": emissions_main,
         "emissions_second": emissions_second,
-        "emissions_secondary": emissions_secondary
+        "emissions_secondary": emissions_secondary,
+        "total_emissions": total_emissions
     }
 
 @app.post("/calculate/machine_power_emission")
