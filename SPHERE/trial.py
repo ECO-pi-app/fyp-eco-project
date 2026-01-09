@@ -780,7 +780,6 @@ class UserSignupRequest(BaseModel):
     username: str
     password: str
 
-
 class UserLoginRequest(BaseModel):
     username: str
     password: str
@@ -1202,6 +1201,24 @@ def calculate_transport_emission(data: TransportCalcRequest):
         }
 
     return {"error": "Invalid transport type."}
+
+@app.post("/calculate/hgv")
+def calculate_hgv(req: DistanceOnlyRequest):
+    transport_type = req.transport_type
+    distance = req.distance_km
+
+    if transport_type not in hgv_lookup:
+        raise HTTPException(status_code=400, detail="Invalid HGV transport type")
+
+    ef = float(hgv_lookup[transport_type])
+
+    return {
+        "category": "HGV",
+        "transport_type": transport_type,
+        "distance_km": distance,
+        "emission_factor": ef,
+        "total_transport_type_emission": ef * distance
+    }
 
 @app.post("/calculate/hgv_r")
 def calculate_hgv_r(req: DistanceOnlyRequest):
