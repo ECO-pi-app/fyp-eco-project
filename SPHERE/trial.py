@@ -298,7 +298,8 @@ Amada_sub_spindle_cells             = sheet15['C2':'C999']
 
 Mazak_machine_model_cells           = sheet16['A2':'A999']
 Mazak_main_spindle_cells            = sheet16['B2':'B999']
-Mazak_sub_spindle_cells             = sheet16['C2':'C999']
+Mazak_secondary_spindle_cells       = sheet16['C2':'C999']
+Mazak_second_spindle_cells          = sheet16['D2':'D999']
 
 metal_recycling_types_cells    = sheet5['A2':'A999']
 metal_recycling_emission_cells = sheet5['B2':'B999']
@@ -333,7 +334,7 @@ distance_list     = extract_list(distance_cells)
 steel_list        = extract_list(steel_cells)
 aluminium_list    = extract_list(aluminium_cells)
 cement_list       = extract_list(cement_cells)
-electricity_list  = extract_list(electricity_cells)
+electricity_list  = extract_selection_list(electricity_cells)
 plastic_list      = extract_list(plastic_cells)
 carbon_fiber_list = extract_list(carbon_fiber_cells)
 material_list     = extract_material_list(materials_cells)
@@ -413,8 +414,8 @@ Amada_sub_spindle                = extract_selection_list(Amada_sub_spindle_cell
 
 Mazak_machine_model              = extract_selection_list(Mazak_machine_model_cells)
 Mazak_main_spindle               = extract_selection_list(Mazak_main_spindle_cells)
-Mazak_sub_spindle                = extract_selection_list(Mazak_sub_spindle_cells)
-
+Mazak_secondary_spindle          = extract_selection_list(Mazak_secondary_spindle_cells)
+Mazak_second_spindle             = extract_selection_list(Mazak_second_spindle_cells)
 
 metal_recycling_types_list    = extract_selection_list(metal_recycling_types_cells)
 metal_recycling_emission_list = extract_emission_list(metal_recycling_emission_cells)
@@ -981,12 +982,13 @@ def get_machinetypes_YCM():
     '''
     -Mazak machine models
     -main spindle(kW)
-    -Sub Spindle(kW)
+    -Secondary Spindle(kW)
     '''
     return{
         "Machine Model":Mazak_machine_model,
         "main_spindle":Mazak_main_spindle,
-        "Sub Spindle":Mazak_sub_spindle
+        "Secondary Spindle":Mazak_secondary_spindle,
+        "Second Spindle":Mazak_second_spindle,
     }
 
 @app.get("/news/sustainability", response_model=NewsResponse)
@@ -1099,6 +1101,48 @@ def get_countries():
         "countries": country_list
     }
 
+@app.post("/calculate/machining_advanced")
+def calculate_machine(req:MachineEmissionsReq):
+    if req.country not in country_list:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Country '{req.country}' not found in grid intensity list."
+        )
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
+
+    # 2) Get Mazak main spindle power from selected machine
+    if req.machine_model not in Mazak_machine_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Mazak machine '{req.machine_model}' not found."
+        )
+    midx = Mazak_machine_model.index(req.machine_model)
+    main_spindle_kw = float(Mazak_main_spindle[midx])  # kW
+    secondary_spindle_kw = float(Mazak_secondary_spindle[midx])
+    second_spindle_kw = float(Mazak_second_spindle[midx])
+
+    power_drawed_main = main_spindle_kw     #main
+    power_drawed_second = second_spindle_kw #second
+    power_drawed_secondary = secondary_spindle_kw #secondary
+
+    time_operated = req.time_operated_hr          # hours
+    emissions_main = power_drawed_main * grid_intensity * time_operated
+    emissions_second = power_drawed_second * grid_intensity * time_operated
+    emissions_secondary = power_drawed_secondary * grid_intensity * time_operated
+
+    return {
+        "country": req.country,
+        "machine_model": req.machine_model,
+        "time_operated_hr": time_operated,
+        "power_drawed_main": power_drawed_main,
+        "power_drawed_second": power_drawed_second,
+        "power_drawed_secondary": power_drawed_secondary,
+        "grid_intensity": grid_intensity,
+        "emissions_main": emissions_main,
+        "emissions_second": emissions_second,
+        "emissions_secondary": emissions_secondary
+    }
 @app.post("/calculate/machine_power_emission")
 def calculate_machine_power_emission(req:MachineEmissionsReq):
     if req.country not in country_list:
