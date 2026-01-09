@@ -287,6 +287,7 @@ Cargo_ship_emission_cells   = sheet21['N26':'N54']
 machine_value_cells                 = sheet4['A2':'A999']
 specific_machine_energy_use_cells   = sheet4['B2':'B999']
 machine_types_cells                 = sheet13['A2':'A999']
+Machine_brands_cells                = sheet13['C2':'C999']
 
 YCM_machine_model_cells             = sheet14['A2':'A999']
 YCM_main_spindle_cells              = sheet14['B2':'B999']
@@ -403,6 +404,7 @@ roro_value_list      = extract_list(roro_value_cells)
 machine_value_list               = extract_selection_list(machine_value_cells)
 specific_machine_energy_use_list = extract_list(specific_machine_energy_use_cells)
 machine_types                    = extract_selection_list(machine_types_cells)
+Machine_brands                   = extract_selection_list(Machine_brands_cells)
 
 YCM_machine_model                = extract_selection_list(YCM_machine_model_cells)
 YCM_main_spindle                 = extract_selection_list(YCM_main_spindle_cells)
@@ -789,6 +791,24 @@ class DistanceOnlyRequest(BaseModel):
     transport_type: str
     distance_km: float
 
+class MaterialEmissionAdvancedReq(BaseModel):
+    material: str
+    country: str
+
+    # masses (kg)
+    total_material_purchased_kg: float   # total purchased for that material type
+    material_used_kg: float              # how much of that purchased amount is used/allocated to product
+    mass_of_material_recycled_kg: float = 0.0  # in-house recycled mass (optional)
+
+    # recycled content share (RCS): you can send 0-1 or 0-100 (we normalize)
+    RCS_of_material: float = 0.0
+
+    # optional overrides (if you don’t send them, backend uses Excel EF for regular,
+    # and 0 for custom/recycled/internal unless you provide)
+    custom_ef_of_material: Optional[float] = None          # EF for recycled material (kgCO2e/kg)
+    custom_internal_ef: Optional[float] = None             # EF for in-house recycling (kgCO2e/kg)
+
+
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
@@ -916,7 +936,8 @@ def get_options():
         "Usage_services": Usage_services,
         "Usage_services_ef": Usage_services_ef,
         "End_of_Life_Activities": End_of_Life_Activities,
-        "End_of_Life_ef": End_of_Life_ef
+        "End_of_Life_ef": End_of_Life_ef,
+        "Machine_brands": Machine_brands
     }
 
 @app.get("/meta/transport/config")
@@ -1082,12 +1103,10 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
     calculated_emission=emisson_factor*req.mass_kg
 
     return{
-        "country":req.country,
-        "material":req.material,
-        "mass_kg":req.mass_kg,
-        "material_emission_factor":emisson_factor,
+        "country":req.country, "material":req.material, "mass_kg":req.mass_kg, "material_emission_factor":emisson_factor,
         "materialacq_emission":calculated_emission
     }
+
 
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
@@ -1143,6 +1162,7 @@ def calculate_machine(req:MachineEmissionsReq):
         "emissions_second": emissions_second,
         "emissions_secondary": emissions_secondary
     }
+
 @app.post("/calculate/machine_power_emission")
 def calculate_machine_power_emission(req:MachineEmissionsReq):
     if req.country not in country_list:
