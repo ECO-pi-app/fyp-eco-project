@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import portalocker
 from openpyxl import load_workbook
 
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
 USERS_FILE = os.path.join(BASE_DIR, "users.xlsx")
 
@@ -134,7 +135,6 @@ custom_emission_factors = load_custom_emission_factors()
 
 # Open the Excel workbook
 EXCEL_PATH = os.path.join(os.path.dirname(__file__), "Emission Data.xlsx")
-
 LOCK_PATH = EXCEL_PATH + ".lock"
 
 def _atomic_save_workbook(wb, excel_path: str):
@@ -178,6 +178,7 @@ sheet21 = book['Ship']
 sheet22 = book['Usage']
 sheet23 = book['End-of-Life']
 sheet24 = book['Assembly']
+sheet25 = book['Waste']
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -353,6 +354,9 @@ End_of_Life_ef_cells          = sheet23["B2":"B5"]
 
 Assembly_modes_cells  = sheet24["A2":"A999"]
 Assembly_ef_cells     = sheet24["B2":"B999"]
+
+Waste_mode_cells    = sheet25["A2":"A999"]
+Waste_ef_cells      = sheet25["B2":"B999"]
 # turn into lists
 country_list      = extract_selection_list(country_cells)
 distance_list     = extract_list(distance_cells)
@@ -474,6 +478,8 @@ End_of_Life_ef         = extract_selection_list(End_of_Life_ef_cells)
 Assembly_modes  = extract_selection_list(Assembly_modes_cells)
 Assembly_ef     = extract_selection_list(Assembly_ef_cells)
 
+Waste_mode  = extract_selection_list(Waste_mode_cells)
+Waste_ef    = extract_selection_list(Waste_ef_cells)
 # --- LOOKUP DICTIONARIES FOR FAST CALCULATION ---
 van_lookup = dict(zip(van_mode_list, van_emission_list))
 hgv_lookup = dict(zip(HGV_mode_list, HGV_emission_list))
@@ -482,6 +488,8 @@ freight_flight_lookup = dict(zip(Freight_Flight_mode_list, Freight_Flight_emissi
 rail_lookup           = dict(zip(Rail_mode_list, Rail_emission_list))
 sea_tanker_lookup     =dict(zip(Sea_Tanker_mode_list,Sea_Tanker_emission_list))
 cargo_ship_lookup     =dict(zip(Cargo_ship_mode_list,Cargo_ship_emission_list))
+waste_lookup = dict(zip(Waste_mode,Waste_ef))
+Assembly_lookup = dict(zip(Assembly_modes,Assembly_ef))
 
 # ---- Transport configuration for all modes ----
 
@@ -854,8 +862,14 @@ class ExcelUpdateCellRequest(BaseModel):
 class ExcelUpdateCellsRequest(BaseModel):
     sheet: str
     updates: List[ExcelUpdateCellRequest]
+    
+class WasteRequest(BaseModel):
+    waste_mode: str
+    mass_kg: float
 
-
+class AssemblyRequest(BaseModel):
+    Assembly_mode: str
+    Power: float
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
@@ -987,7 +1001,9 @@ def get_options():
         "End_of_Life_ef": End_of_Life_ef,
         "Machine_brands": Machine_brands,
         "Assembly_modes": Assembly_modes,
-        "Assembly_ef"   : Assembly_ef
+        "Assembly_ef"   : Assembly_ef,
+        "Waste_mode"    : Waste_mode,
+        "Waste_ef"      : Waste_ef
     }
 
 @app.get("/meta/transport/config")
@@ -1128,7 +1144,6 @@ def list_profiles(username: str):
     bucket = all_profiles.get(username, {})
     return {"username": username, "profiles": list(bucket.keys())}
 
-
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
     if req.country not in country_list:
@@ -1253,40 +1268,6 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "allocated_emissions_per_material": allocated_emissions_per_material
     }
 
-@app.post("/excel/update_cell")
-def excel_update_cell(req: ExcelUpdateCellRequest):
-    if req.row < 1 or req.col < 1:
-        raise HTTPException(status_code=400, detail="row/col must be >= 1")
-
-    with portalocker.Lock(LOCK_PATH, timeout=10):
-        wb = load_workbook(EXCEL_PATH, data_only=False)  # IMPORTANT for writing
-        if req.sheet not in wb.sheetnames:
-            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
-        ws = wb[req.sheet]
-        ws.cell(row=req.row, column=req.col).value = req.value
-        _atomic_save_workbook(wb, EXCEL_PATH)
-
-    return {"status": "ok"}
-
-@app.post("/excel/update_cells")
-def excel_update_cells(req: ExcelUpdateCellsRequest):
-    with portalocker.Lock(LOCK_PATH, timeout=10):
-        wb = load_workbook(EXCEL_PATH, data_only=False)
-        if req.sheet not in wb.sheetnames:
-            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
-        ws = wb[req.sheet]
-
-        for u in req.updates:
-            if u.sheet != req.sheet:
-                raise HTTPException(status_code=400, detail="All updates must be in the same sheet")
-            if u.row < 1 or u.col < 1:
-                raise HTTPException(status_code=400, detail="row/col must be >= 1")
-            ws.cell(row=u.row, column=u.col).value = u.value
-
-        _atomic_save_workbook(wb, EXCEL_PATH)
-
-    return {"status": "ok", "count": len(req.updates)}
-
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
     return {
@@ -1384,7 +1365,40 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
-    
+@app.post("/calculate/waste")
+def calculate_waste(req: WasteRequest):
+
+    if req.waste_mode not in waste_lookup:
+        raise HTTPException(status_code=400, detail="Invalid waste mode")
+
+    ef = waste_lookup[req.waste_mode]  # kgCO2e per kg
+    emissions = req.mass_kg * ef
+
+    return {
+        "category": "Waste",
+        "waste_mode": req.waste_mode,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_kg": float(ef),
+        "emissions_kgco2e": round(emissions, 4)
+    }
+
+@app.post("/calculate/assembly")
+def calculate_waste(req: AssemblyRequest):
+
+    if req.Assembly_mode not in Assembly_lookup:
+        raise HTTPException(status_code=400, detail="Invalid assembly mode")
+
+    ef = Assembly_lookup[req.Assembly_mode]  # kgCO2e per kg
+    emissions = req.Power * ef
+
+    return {
+        "category": "Assembly",
+        "waste_mode": req.Assembly_mode,
+        "Power": req.Power,
+        "ef_kgco2e_per_kg": float(ef),
+        "emissions_kgco2e": round(emissions, 4)
+    }
+
 @app.post("/calculate/transport_table") #for tables
 def calculate_transport_table(req: TransportTableRequest):
     total = 0.0
@@ -1685,3 +1699,37 @@ def login_user(req: UserLoginRequest):
     all_profiles = load_profiles()
     bucket = all_profiles.get(req.username, {})
     return {"status": "ok","username": req.username,"profiles": list(bucket.keys())}
+
+@app.post("/excel/update_cell")
+def excel_update_cell(req: ExcelUpdateCellRequest):
+    if req.row < 1 or req.col < 1:
+        raise HTTPException(status_code=400, detail="row/col must be >= 1")
+
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)  # must be False for writing
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+        ws.cell(row=req.row, column=req.col).value = req.value
+        _atomic_save_workbook(wb, EXCEL_PATH)
+
+    return {"status": "ok"}
+
+@app.post("/excel/update_cells")
+def excel_update_cells(req: ExcelUpdateCellsRequest):
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+
+        for u in req.updates:
+            if u.sheet != req.sheet:
+                raise HTTPException(status_code=400, detail="All updates must use the same sheet")
+            if u.row < 1 or u.col < 1:
+                raise HTTPException(status_code=400, detail="row/col must be >= 1")
+            ws.cell(row=u.row, column=u.col).value = u.value
+
+        _atomic_save_workbook(wb, EXCEL_PATH)
+
+    return {"status": "ok", "count": len(req.updates)}
