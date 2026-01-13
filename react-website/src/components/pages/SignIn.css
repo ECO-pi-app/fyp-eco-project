@@ -1,0 +1,111 @@
+.signin {
+  min-height: calc(100vh - 64px); /* accounts for your navbar height */
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: #ffffff;
+}
+
+.signin__left {
+  padding: 64px 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.signin__title {
+  font-size: 44px;
+  line-height: 1.1;
+  margin: 0 0 28px;
+  color: #111;
+  font-weight: 700;
+}
+
+.signin__form {
+  width: 100%;
+  max-width: 520px;
+}
+
+.signin__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2b2b2b;
+  margin: 18px 0 8px;
+}
+
+.signin__input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #cfcfcf;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.signin__input:focus {
+  border-color: #6aa06a;
+  box-shadow: 0 0 0 3px rgba(106, 160, 106, 0.18);
+}
+
+.signin__button {
+  width: 100%;
+  height: 52px;
+  margin-top: 26px;
+  border: none;
+  border-radius: 999px;
+  background: #f6c800; /* close to KNIME yellow */
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.signin__button:hover {
+  filter: brightness(0.96);
+}
+
+.signin__footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.signin__link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #5a5a5a;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.signin__link:hover {
+  color: #111;
+}
+
+/* Right-side panel (image/graphic) */
+.signin__right {
+  background: linear-gradient(180deg, #f7f3d8, #f2edc6);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6), transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.5), transparent 45%),
+    url("/images/signin-bg.png"); /* optional: put an image in public/images */
+  background-size: cover;
+  background-position: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .signin {
+    grid-template-columns: 1fr;
+  }
+  .signin__right {
+    display: none;
+  }
+  .signin__left {
+    padding: 48px 22px;
+  }
+}
