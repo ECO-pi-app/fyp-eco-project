@@ -3,14 +3,17 @@ from pydantic import BaseModel #input quality checker which makes sure no requir
 import openpyxl #bridge that lets Python understand and extract data from Excel spreadsheets.
 import json #used to store text files like dictionaries or lists
 import os #lets python interact with operation systems. e.g.windows,macOS,Linux
+import tempfile
 from typing import List, Dict, Optional, Any
 from geopy.distance import geodesic #used to calculate the shortest distance btw two point on the earth, using latitude and longitude
 from geopy.geocoders import Nominatim #converting a place name like "Germany" into latitude and longtiude coordinates
 import requests
-import re 
+import re
 import hashlib # for hashing passwords
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
+import portalocker
+from openpyxl import load_workbook
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
 USERS_FILE = os.path.join(BASE_DIR, "users.xlsx")
@@ -131,6 +134,23 @@ custom_emission_factors = load_custom_emission_factors()
 
 # Open the Excel workbook
 EXCEL_PATH = os.path.join(os.path.dirname(__file__), "Emission Data.xlsx")
+
+LOCK_PATH = EXCEL_PATH + ".lock"
+
+def _atomic_save_workbook(wb, excel_path: str):
+    folder = os.path.dirname(excel_path)
+    fd, tmp_path = tempfile.mkstemp(prefix="excel_", suffix=".xlsx", dir=folder)
+    os.close(fd)
+    try:
+        wb.save(tmp_path)
+        os.replace(tmp_path, excel_path)
+    finally:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except:
+                pass
+
 book = openpyxl.load_workbook(EXCEL_PATH, data_only=True)
 
 # Load each sheet that SPHERE uses
@@ -825,6 +845,16 @@ class MaterialEmissionAdvancedReq(BaseModel):
     custom_ef_of_material: Optional[float] = None          # EF for recycled material (kgCO2e/kg)
     custom_internal_ef: Optional[float] = None             # EF for in-house recycling (kgCO2e/kg)
 
+class ExcelUpdateCellRequest(BaseModel):
+    sheet: str
+    row: int
+    col: int
+    value: Any
+
+class ExcelUpdateCellsRequest(BaseModel):
+    sheet: str
+    updates: List[ExcelUpdateCellRequest]
+
 
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
@@ -1223,6 +1253,39 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "allocated_emissions_per_material": allocated_emissions_per_material
     }
 
+@app.post("/excel/update_cell")
+def excel_update_cell(req: ExcelUpdateCellRequest):
+    if req.row < 1 or req.col < 1:
+        raise HTTPException(status_code=400, detail="row/col must be >= 1")
+
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)  # IMPORTANT for writing
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+        ws.cell(row=req.row, column=req.col).value = req.value
+        _atomic_save_workbook(wb, EXCEL_PATH)
+
+    return {"status": "ok"}
+
+@app.post("/excel/update_cells")
+def excel_update_cells(req: ExcelUpdateCellsRequest):
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+
+        for u in req.updates:
+            if u.sheet != req.sheet:
+                raise HTTPException(status_code=400, detail="All updates must be in the same sheet")
+            if u.row < 1 or u.col < 1:
+                raise HTTPException(status_code=400, detail="row/col must be >= 1")
+            ws.cell(row=u.row, column=u.col).value = u.value
+
+        _atomic_save_workbook(wb, EXCEL_PATH)
+
+    return {"status": "ok", "count": len(req.updates)}
 
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
