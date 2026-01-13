@@ -488,6 +488,8 @@ freight_flight_lookup = dict(zip(Freight_Flight_mode_list, Freight_Flight_emissi
 rail_lookup           = dict(zip(Rail_mode_list, Rail_emission_list))
 sea_tanker_lookup     =dict(zip(Sea_Tanker_mode_list,Sea_Tanker_emission_list))
 cargo_ship_lookup     =dict(zip(Cargo_ship_mode_list,Cargo_ship_emission_list))
+waste_lookup = dict(zip(Waste_mode,Waste_ef))
+Assembly_lookup = dict(zip(Assembly_modes,Assembly_ef))
 
 # ---- Transport configuration for all modes ----
 
@@ -860,7 +862,14 @@ class ExcelUpdateCellRequest(BaseModel):
 class ExcelUpdateCellsRequest(BaseModel):
     sheet: str
     updates: List[ExcelUpdateCellRequest]
+    
+class WasteRequest(BaseModel):
+    waste_mode: str
+    mass_kg: float
 
+class AssemblyRequest(BaseModel):
+    Assembly_mode: str
+    Power: float
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
@@ -1135,7 +1144,6 @@ def list_profiles(username: str):
     bucket = all_profiles.get(username, {})
     return {"username": username, "profiles": list(bucket.keys())}
 
-
 @app.post("/calculate/material_emission")
 def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of the input the fastapi endpoint receives.
     if req.country not in country_list:
@@ -1260,7 +1268,6 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "allocated_emissions_per_material": allocated_emissions_per_material
     }
 
-
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
     return {
@@ -1358,7 +1365,40 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
-    
+@app.post("/calculate/waste")
+def calculate_waste(req: WasteRequest):
+
+    if req.waste_mode not in waste_lookup:
+        raise HTTPException(status_code=400, detail="Invalid waste mode")
+
+    ef = waste_lookup[req.waste_mode]  # kgCO2e per kg
+    emissions = req.mass_kg * ef
+
+    return {
+        "category": "Waste",
+        "waste_mode": req.waste_mode,
+        "mass_kg": req.mass_kg,
+        "ef_kgco2e_per_kg": float(ef),
+        "emissions_kgco2e": round(emissions, 4)
+    }
+
+@app.post("/calculate/assembly")
+def calculate_waste(req: AssemblyRequest):
+
+    if req.Assembly_mode not in Assembly_lookup:
+        raise HTTPException(status_code=400, detail="Invalid assembly mode")
+
+    ef = Assembly_lookup[req.Assembly_mode]  # kgCO2e per kg
+    emissions = req.Power * ef
+
+    return {
+        "category": "Assembly",
+        "waste_mode": req.Assembly_mode,
+        "Power": req.Power,
+        "ef_kgco2e_per_kg": float(ef),
+        "emissions_kgco2e": round(emissions, 4)
+    }
+
 @app.post("/calculate/transport_table") #for tables
 def calculate_transport_table(req: TransportTableRequest):
     total = 0.0
