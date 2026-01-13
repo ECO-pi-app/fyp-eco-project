@@ -180,7 +180,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Production Transportation | ${emissions.fugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Production Transportation | ${emissions.productionTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -849,7 +849,7 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('upstream_transport', rows);
+                      .calculate('production_transport', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -890,11 +890,8 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
     final tableNotifier = ref.read(usageCycleTableProvider(productID).notifier);
 
     final usageCycleCategories = ref.watch(usageCycleCategoriesProvider);
-    final usageCycleElectronics = ref.watch(usageCycleElectronicsProvider);
-    final usageCycleEnergy = ref.watch(usageCycleEnergyProvider);
-    final usageCycleConsumables = ref.watch(usageCycleConsumablesProvider);
-    final usageCycleServices = ref.watch(usageCycleServicesProvider);
 
+    // Build rows for calculation
     List<RowFormat> rows = List.generate(
       tableState.usageCycleAllocationValues.length,
       (i) => RowFormat(
@@ -907,9 +904,9 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
         ],
       ),
     );
+
     return Column(
       children: [
-        // ---------------- Table ----------------
         Align(
           alignment: Alignment.centerLeft,
           child: Container(
@@ -925,6 +922,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ---------------- Category Column ----------------
                     buildColumn(
                       title: 'Category',
                       values: tableState.categories,
@@ -933,14 +931,34 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                           tableNotifier.updateCell(row: row, column: 'Category', value: value),
                     ),
                     const SizedBox(width: 10),
-                    buildColumn(
+
+                    // ---------------- Product Column ----------------
+                    buildDynamicColumn(
                       title: 'Product',
                       values: tableState.productTypes,
-                      items: usageCycleElectronics,
+                      itemsPerRow: List.generate(tableState.categories.length, (i) {
+                        final selectedCategory = tableState.categories[i] ?? '';
+
+                        // Watch the correct provider depending on the category
+                        switch (selectedCategory) {
+                          case 'Electronics':
+                            return ref.watch(usageCycleElectronicsProvider);
+                          case 'Energy':
+                            return ref.watch(usageCycleEnergyProvider);
+                          case 'Consumables':
+                            return ref.watch(usageCycleConsumablesProvider);
+                          case 'Services':
+                            return ref.watch(usageCycleServicesProvider);
+                          default:
+                            return <String>[];
+                        }
+                      }),
                       onChanged: (row, value) =>
-                          tableNotifier.updateCell(row: row, column: 'Product', value: value),
+                          tableNotifier.updateCell(row: row, column: 'Product Type', value: value),
                     ),
                     const SizedBox(width: 10),
+
+                    // ---------------- Usage Frequency Column ----------------
                     buildColumn(
                       title: 'Usage Frequency',
                       values: tableState.usageFrequencies,
@@ -948,27 +966,30 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                       onChanged: (row, value) =>
                           tableNotifier.updateCell(row: row, column: 'Usage Frequency', value: value),
                     ),
-                    const SizedBox(width: 10),
                   ],
                 ),
-              ),  
+              ),
             ),
           ),
         ),
-        // ---------------- Calculate Button ----------------
+
+        // ---------------- Calculate Button & Row Controls ----------------
         Row(
           children: [
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             SizedBox(
               width: 200,
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('usage_cycle', rows);
+                  await ref
+                      .read(emissionCalculatorProvider(productID).notifier)
+                      .calculate('usage_cycle', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6)),
                 ),
                 child: const Labelsinbuttons(
                   title: 'Calculate Emissions',
@@ -977,7 +998,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Row(
               children: [
                 IconButton(
@@ -993,9 +1014,10 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
           ],
         ),
       ],
-    ); // Placeholder
+    );
   }
 }
+
 
 class EndofLifeAttributesMenu extends ConsumerWidget {
   final String productID;

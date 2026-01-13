@@ -97,6 +97,10 @@ String getPercentageTitle(double value, double total) {
           title: 'Fugitive',
           radius: pieChartSize/2,
         ),
+      PieChartSectionData(
+        color: Apptheme.piechart5,
+        value: emissions.productionTransport
+      )
       ],
       //--Sort by: Scope Categories--
       [

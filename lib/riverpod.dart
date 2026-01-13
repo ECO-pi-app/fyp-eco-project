@@ -414,7 +414,16 @@ final assemblyprocesses = Provider<List<String>>((ref) {
   );
 });
 
-
+final usageCategoriesProvider = Provider.family<List<String>, String>((ref, category) {
+  switch (category) {
+    case 'Electronics': return ref.watch(usageCycleElectronicsProvider);
+    case 'Energy' : return ref.watch(usageCycleEnergyProvider);
+    case 'Consumables' : return ref.watch(usageCycleConsumablesProvider);
+    case 'Services' : return ref.watch(usageCycleServicesProvider);
+    default:
+      return [];
+  }
+});
 
 final classOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
   switch (vehicle) {
@@ -513,6 +522,7 @@ final convertedEmissionsProvider =
   final transportAlloc = ref.watch(transportAllocationSumProvider(productId));
   final machiningAlloc = ref.watch(machiningAllocationSumProvider(productId));
   final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(productId));
+  final productionTransportAlloc = ref.watch(productionTransportTableAllocationSumProvider(productId));
   final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(productId));
   final endOfLifeAlloc = ref.watch(endOfLifeAllocationSumProvider(productId));
 
@@ -524,7 +534,7 @@ final convertedEmissionsProvider =
     transport: base.transport * (transportAlloc / 100) * factor,
     machining: base.machining * (machiningAlloc / 100) * factor,
     fugitive: base.fugitive * (fugitiveAlloc / 100) * factor,
-    productionTransport: base.productionTransport * (fugitiveAlloc/100) * factor,
+    productionTransport: base.productionTransport * (productionTransportAlloc/100) * factor,
     usageCycle: base.usageCycle * (usageCycleAlloc / 100) * factor,
     endofLife: base.endofLife * (endOfLifeAlloc / 100) * factor,
   );
@@ -638,6 +648,13 @@ Future<void> calculate(String featureType, List<RowFormat> rows) async {
     String endpoint = defaultEndpoint;
 
     if (featureType == 'upstream_transport') {
+      final vehicle = row.selections[0]; 
+
+      endpoint = transportEndpoints[vehicle] ??
+          defaultEndpoint; 
+    }
+
+        if (featureType == 'production_transport') {
       final vehicle = row.selections[0]; 
 
       endpoint = transportEndpoints[vehicle] ??
@@ -1323,6 +1340,101 @@ final machiningAllocationSumProvider = Provider.family<double, String>((ref, pro
       .fold(0.0, (a, b) => a + b);
 });
 
+// ------------------ WASTE ----------------------------
+class WastesState {
+  final List<String?> wasteType;
+  final List<String?> mass;
+  final List<String?> wasteAllocationValues; 
+
+  WastesState({
+    required this.wasteType,
+    required this.mass,
+    required this.wasteAllocationValues,
+  });
+
+  WastesState copyWith({
+    List<String?>? machines,
+    List<String?>? mass,
+    List<String?>? machiningAllocationValues,
+  }) {
+    return WastesState(
+      wasteType: machines ?? this.wasteType,
+      mass: mass ?? this.mass,
+      wasteAllocationValues: machiningAllocationValues ?? this.wasteAllocationValues,
+    );
+  }
+}
+
+class WastesNotifier extends StateNotifier<WastesState> {
+  WastesNotifier()
+      : super(
+          WastesState(
+            wasteType: [''],
+            mass: [''],
+            wasteAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      machines: [...state.wasteType, ''],
+      mass: [...state.mass, ''],
+      machiningAllocationValues: [...state.wasteAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.wasteType.length > 1) {
+      state = state.copyWith(
+        machines: state.wasteType.sublist(0, state.wasteType.length - 1),
+        mass: state.mass.sublist(0, state.mass.length - 1),
+        machiningAllocationValues: state.wasteAllocationValues.sublist(0, state.wasteAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column,
+    required String? value,
+  }) {
+    final machines = [...state.wasteType];
+    final times = [...state.mass];
+    final machiningAllocationValues = [...state.wasteAllocationValues];
+
+    switch (column) {
+      case 'Machine':
+        machines[row] = value;
+        break;
+      case 'Time':
+      case 'Time of operation (hr)':
+        times[row] = value;
+        break;
+      case 'Allocation Value':
+        machiningAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      machines: machines,
+      mass: times,
+      machiningAllocationValues: machiningAllocationValues,
+    );
+  }
+}
+
+final wastesProvider =
+    StateNotifierProvider.family<WastesNotifier, WastesState, String>(
+  (ref, productID) => WastesNotifier(),
+);
+
+final wastesAllocationSumProvider = Provider.family<double, String>((ref, productID) {
+  final table = ref.watch(wastesProvider(productID));
+
+  return table.wasteAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
 // ---------------- FUGITIVE STATE ----------------
 
 class FugitiveLeaksTableState {
@@ -1545,7 +1657,7 @@ final productionTransportTableProvider =
         (ref, productID) => ProductionTransportTableNotifier());
 
 final productionTransportTableAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(upstreamTransportTableProvider(productID));
+  final table = ref.watch(productionTransportTableProvider(productID));
   return table.transportAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b);
@@ -1629,7 +1741,7 @@ class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
         productTypes[row] = value;
         break;
       case 'Usage Frequency':
-        usageCycleAllocationValues[row] = value;
+        usageFrequencies[row] = value;
         break;
     }
 

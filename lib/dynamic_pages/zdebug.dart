@@ -25,7 +25,7 @@ class DebugPage extends ConsumerWidget {
     final leaksNotifier = ref.read(fugitiveLeaksTableProvider(productID).notifier);
 
     final productionTransportState = ref.watch(productionTransportTableProvider(productID));
-    final ProductionTransportNotifier = ref.watch(productionTransportTableProvider(productID).notifier);
+    final productionTransportNotifier = ref.watch(productionTransportTableProvider(productID).notifier);
 
     final usageCycleState = ref.watch(usageCycleTableProvider(productID));
     final usageCycleNotifier = ref.read(usageCycleTableProvider(productID).notifier);
@@ -78,7 +78,7 @@ class DebugPage extends ConsumerWidget {
             color: Apptheme.textclrdark,
           ),
           const SizedBox(height: 10),
-          _buildProductionTransportTable(productionTransportState, ProductionTransportNotifier),
+          _buildProductionTransportTable(productionTransportState, productionTransportNotifier),
           const SizedBox(height: 30),
 
           //
