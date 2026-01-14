@@ -402,7 +402,9 @@ class MaterialAttributesMenu extends ConsumerWidget {
     final countries = ref.watch(countriesProvider);
 
     final product = ref.watch(activeProductProvider);
+    print('Active product: $product');
     final part = ref.watch(activePartProvider);
+    print('Active part: $part');
 
     if (product == null || part == null) {
       return const Text('Select a part');

@@ -1,129 +1,121 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/dynamic_pages/main_home.dart';
+import 'package:test_app/riverpod.dart';
+
 /// ===============================================================
 /// 1️⃣ ACTIVE SELECTION CONTEXT
 /// ===============================================================
 
-/// Currently selected product (set from Home / Inkwell)
 final activeProductProvider = StateProvider<String?>((ref) => null);
-
-/// Currently selected timeline (inside a product)
 final activeTimelineProvider = StateProvider<String?>((ref) => null);
 
-
-/// ===============================================================
-/// 2️⃣ RESET TIMELINE WHEN PRODUCT CHANGES
-/// ===============================================================
-/// Call: ref.watch(productTimelineResetProvider); ONCE inside Home
-
+/// Reset timeline when product changes
 final productTimelineResetProvider = Provider<void>((ref) {
   ref.listen<String?>(
     activeProductProvider,
-    (_, __) {
-      ref.read(activeTimelineProvider.notifier).state = null;
-    },
+    (_, __) => ref.read(activeTimelineProvider.notifier).state = null,
   );
 });
 
-
 /// ===============================================================
-/// 3️⃣ TIMELINE STATE (PER PRODUCT)
+/// 2️⃣ TIMELINE STATE (PER PRODUCT)
 /// ===============================================================
 
 class TimelineState {
-  final List<String> timelines;
-
-  const TimelineState({this.timelines = const []});
-
-  TimelineState copyWith({List<String>? timelines}) {
-    return TimelineState(
-      timelines: timelines ?? this.timelines,
-    );
-  }
+  final List<String> timelines; // only names
+  TimelineState({this.timelines = const []});
+  TimelineState copyWith({List<String>? timelines}) =>
+      TimelineState(timelines: timelines ?? this.timelines);
 }
 
 class TimelineNotifier extends StateNotifier<TimelineState> {
-  TimelineNotifier() : super(const TimelineState());
+  TimelineNotifier() : super(TimelineState());
 
   void addTimeline(String timeline) {
-    if (state.timelines.contains(timeline)) return;
-    state = state.copyWith(timelines: [...state.timelines, timeline]);
+    if (!state.timelines.contains(timeline)) {
+      state = state.copyWith(timelines: [...state.timelines, timeline]);
+    }
   }
 
-  void clear() {
-    state = const TimelineState();
-  }
+  void clear() => state = TimelineState();
 }
 
-/// 🔑 Keyed by product
 final timelineProvider =
     StateNotifierProvider.family<TimelineNotifier, TimelineState, String>(
   (ref, product) => TimelineNotifier(),
 );
 
+/// ===============================================================
+/// 3️⃣ TIMELINE DURATION (START/END)
+/// ===============================================================
+
+class TimelineDurationNotifier
+    extends StateNotifier<Map<String, Map<String, String>>> {
+  TimelineDurationNotifier() : super({});
+
+  void setDuration(String timelineName, String start, String end) {
+    state = {...state, timelineName: {"start": start, "end": end}};
+  }
+
+  void clear() => state = {};
+}
+
+final timelineDurationProvider = StateNotifierProvider.family<
+    TimelineDurationNotifier,
+    Map<String, Map<String, String>>,
+    String>(
+  (ref, product) => TimelineDurationNotifier(),
+);
 
 /// ===============================================================
-/// 4️⃣ LINE CHART STATE (PER PRODUCT)
+/// 4️⃣ BAR CHART STATE (per product)
 /// ===============================================================
 
-class LineChartState {
-  final List<String> dates;
+class BarChartState {
+  final List<String> timelineNames;
   final List<double> values;
 
-  const LineChartState({
-    this.dates = const [],
-    this.values = const [],
-  });
+  BarChartState({this.timelineNames = const [], this.values = const []});
 
-  LineChartState copyWith({
-    List<String>? dates,
-    List<double>? values,
-  }) {
-    return LineChartState(
-      dates: dates ?? this.dates,
+  BarChartState copyWith({List<String>? timelineNames, List<double>? values}) {
+    return BarChartState(
+      timelineNames: timelineNames ?? this.timelineNames,
       values: values ?? this.values,
     );
   }
 }
 
-class LineChartNotifier extends StateNotifier<LineChartState> {
-  LineChartNotifier() : super(const LineChartState());
+class BarChartNotifier extends StateNotifier<BarChartState> {
+  BarChartNotifier() : super(BarChartState());
 
-  void addDate(String date, double value) {
+  void addTimelineValue(String name, double value) {
     state = state.copyWith(
-      dates: [...state.dates, date],
+      timelineNames: [...state.timelineNames, name],
       values: [...state.values, value],
     );
   }
 
-  void clear() {
-    state = const LineChartState();
-  }
+  void clear() => state = BarChartState();
 }
 
-/// 🔑 Keyed by product
-final lineChartProvider =
-    StateNotifierProvider.family<LineChartNotifier, LineChartState, String>(
-  (ref, product) => LineChartNotifier(),
+final barChartProvider =
+    StateNotifierProvider.family<BarChartNotifier, BarChartState, String>(
+  (ref, product) => BarChartNotifier(),
 );
 
+/// ===============================================================
+/// 5️⃣ PARTS STATE (VALUES DERIVED FROM EMISSIONS)
+/// ===============================================================
 
-/// ===============================================================
-/// 5️⃣ PARTS / PIE CHART STATE (PER PRODUCT + TIMELINE)
-/// ===============================================================
+typedef PieKey = ({String product, String timeline});
 
 class PieChartState {
   final List<String> parts;
   final List<double> values;
 
-  const PieChartState({
-    this.parts = const [],
-    this.values = const [],
-  });
+  const PieChartState({this.parts = const [], this.values = const []});
 
-  PieChartState copyWith({
-    List<String>? parts,
-    List<double>? values,
-  }) {
+  PieChartState copyWith({List<String>? parts, List<double>? values}) {
     return PieChartState(
       parts: parts ?? this.parts,
       values: values ?? this.values,
@@ -141,13 +133,8 @@ class PieChartNotifier extends StateNotifier<PieChartState> {
     );
   }
 
-  void clear() {
-    state = const PieChartState();
-  }
+  void clear() => state = const PieChartState();
 }
-
-/// Composite key: Product + Timeline
-typedef PieKey = ({String product, String timeline});
 
 final pieChartProvider =
     StateNotifierProvider.family<PieChartNotifier, PieChartState, PieKey>(
@@ -157,29 +144,65 @@ final pieChartProvider =
 final partsProvider = Provider<List<String>>((ref) {
   final product = ref.watch(activeProductProvider);
   final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return [];
 
-  if (product == null || timeline == null) {
-    return [];
-  }
-
-  final pieState = ref.watch(
-    pieChartProvider((product: product, timeline: timeline)),
-  );
-
+  final pieState =
+      ref.watch(pieChartProvider((product: product, timeline: timeline)));
   return pieState.parts;
 });
 
 
+final emissionResultsProvider = Provider.family<EmissionResults, PieKey>(
+  (ref, key) {
+    // Replace with your calculation logic
+    return EmissionResults(
+      material: 5,
+      transport: 3,
+      machining: 2,
+      fugitive: 1,
+      productionTransport: 1,
+      waste: 0,
+      usageCycle: 0,
+      endofLife: 0,
+    );
+  },
+);
+
+/// Pie chart values now automatically derived from emissions
+final pieValuesProvider = Provider.family<List<double>, PieKey>((ref, key) {
+  final emission = ref.watch(emissionResultsProvider(key));
+  return [
+    emission.material,
+    emission.transport,
+    emission.machining,
+    emission.fugitive,
+    emission.productionTransport,
+    emission.waste,
+    emission.usageCycle,
+    emission.endofLife,
+  ];
+});
+
+final activePartProvider = StateNotifierProvider<ActivePartNotifier, String?>(
+  (ref) {
+    final notifier = ActivePartNotifier(ref);
+    return notifier;
+  },
+);
+
+
+
+
 /// ===============================================================
-/// 6️⃣ DEBUG PROVIDER (OPTIONAL BUT RECOMMENDED)
+/// 6️⃣ DEBUG
 /// ===============================================================
 
 final debugSelectionProvider = Provider<String>((ref) {
   final product = ref.watch(activeProductProvider);
   final timeline = ref.watch(activeTimelineProvider);
-
   return 'ACTIVE → product: $product | timeline: $timeline';
 });
+
 
 
 class CompoundPart {
@@ -254,6 +277,3 @@ final higherCompoundPartsProvider = StateNotifierProvider.family<
   (ref, key) => HigherCompoundPartsNotifier(),
 );
 
-
-
-final activePartProvider = StateProvider<String?>((ref) => null);
