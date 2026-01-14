@@ -107,18 +107,6 @@ List<Map<String, String?>> formattedRows(TableState tableState) {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double columnwidthmin = 180;
-        final double parentwidth = constraints.maxWidth;
-        final int columnno = widget.columnTitles.length;
-    
-        double paddingcompensate = ((widget.padding*2) * columnno);
-    
-        double calculatedwidth = (parentwidth - paddingcompensate)/columnno;
-    
-        double columnwidth = calculatedwidth < columnwidthmin
-        ? columnwidthmin
-        : calculatedwidth;
-    
     
         return 
         Column(

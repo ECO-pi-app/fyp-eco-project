@@ -4,7 +4,6 @@ import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
 import 'dart:ui';
-import 'package:test_app/governing_screens/welcomepage.dart';
 import 'package:test_app/sub_navigator.dart';
 
 void showSettingsPopup(BuildContext context) {

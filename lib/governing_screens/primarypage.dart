@@ -48,8 +48,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 void initState() {
   super.initState();
 
-  String defaultProductID = widget.productID ;
-
   pages = [
     KeyedSubtree(
       key: ValueKey('home'),

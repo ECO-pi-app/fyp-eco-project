@@ -50,9 +50,6 @@ class DebugPage extends ConsumerWidget {
     final usageCycleState = ref.watch(usageCycleTableProvider(key));
     final usageCycleNotifier = ref.read(usageCycleTableProvider(key).notifier);
 
-    /// ---------------- END OF LIFE ----------------
-    final endOfLifeState = ref.watch(endOfLifeTableProvider(key));
-    final endOfLifeNotifier = ref.read(endOfLifeTableProvider(key).notifier);
 
 
     return PrimaryPages(
