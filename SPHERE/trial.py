@@ -1174,9 +1174,9 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
     # --- validate country ---
     if req.country not in country_list:
         raise HTTPException(status_code=400, detail="Country not found in Data Sheet")
-    cidx = country_list.index(req.country)
+    cidx = country_list.index(req.country)  # (not used, but ok)
 
-    # --- validate material + get regular EF from Excel ---
+    # --- validate material ---
     materials = {
         "Steel": steel_list,
         "Aluminum": aluminium_list,
@@ -1193,13 +1193,27 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
 
     if total_purchased <= 0:
         raise HTTPException(status_code=400, detail="total_material_purchased_kg must be > 0")
-
     if recycled_inhouse_mass < 0:
         raise HTTPException(status_code=400, detail="mass_of_material_recycled_kg cannot be negative")
+    if recycled_inhouse_mass > total_purchased:
+        raise HTTPException(
+            status_code=400,
+            detail="mass_of_material_recycled_kg cannot exceed total_material_purchased_kg"
+        )
 
-    # --- custom factors (optional) ---
-    recycled_ef = float(req.custom_ef_of_material) 
+    # --- custom factors (required or optional?) ---
+    if req.custom_ef_of_material is None:
+        raise HTTPException(status_code=400, detail="custom_ef_of_material is required")
+    if req.custom_internal_ef is None:
+        raise HTTPException(status_code=400, detail="custom_internal_ef is required")
+
+    recycled_ef = float(req.custom_ef_of_material)
     internal_ef = float(req.custom_internal_ef)
+
+    if recycled_ef < 0:
+        raise HTTPException(status_code=400, detail="custom_ef_of_material cannot be negative")
+    if internal_ef < 0:
+        raise HTTPException(status_code=400, detail="custom_internal_ef cannot be negative")
 
     # recycled materials emissions = custom_ef_material × total_mass
     recycled_materials_emissions = recycled_ef * total_purchased
@@ -1207,7 +1221,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
     # in-house recycling emissions = custom_internal_ef × mass_recycled
     in_house_recycling_emissions = internal_ef * recycled_inhouse_mass
 
-    # total emissions = recycled materials emissions + normal material emissions
+    # total emissions
     total_material_emissions = recycled_materials_emissions + in_house_recycling_emissions
 
     return {
@@ -1225,6 +1239,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
 
         "total_material_emissions": total_material_emissions,
     }
+
 
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
