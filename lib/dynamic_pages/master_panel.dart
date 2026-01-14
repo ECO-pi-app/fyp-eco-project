@@ -4,6 +4,7 @@ import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:test_app/riverpod.dart';
+import 'package:test_app/riverpod_profileswitch.dart';
 
 
 
@@ -40,17 +41,67 @@ String getPercentageTitle(double value, double total) {
   @override
   Widget build(BuildContext context) {
 
-    final emissions = ref.watch(convertedEmissionsProvider(widget.profileName));
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    double totalMaterial = 0;
+    double totalTransport = 0;
+    double totalMachining = 0;
+    double totalFugitive = 0;
+    double totalProductionTransport = 0;
+    double totalWaste = 0;
+    double totalUsageCycle = 0;
+    double totalEndOfLife = 0;
+
+    if (product != null && part != null) {
+      final key = (product: product, part: part);
+
+      // Get each table individually
+      final materialTable = ref.watch(materialTableProvider(key));
+      final transportTable = ref.watch(upstreamTransportTableProvider(key));
+      final machiningTable = ref.watch(machiningTableProvider(key));
+      final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
+      final productionTransportTable = ref.watch(productionTransportTableProvider(key));
+      final wasteTable = ref.watch(wastesProvider(key));
+      final usageCycleTable = ref.watch(usageCycleTableProvider(key));
+      final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
+
+      // Determine the number of rows (use the longest table as row count)
+      final rowCount = [
+        materialTable.materials.length,
+        transportTable.vehicles.length,
+        machiningTable.machines.length,
+        fugitiveTable.ghg.length,
+        productionTransportTable.vehicles.length,
+        wasteTable.wasteType.length,
+        usageCycleTable.categories.length,
+        endOfLifeTable.endOfLifeOptions.length,
+      ].reduce((a, b) => a > b ? a : b);
+
+      // Loop through each row and sum the converted emissions
+      for (int i = 0; i < rowCount; i++) {
+        final rowEmissions = ref.watch(convertedEmissionsProvider((widget.profileName, i)));
+
+        totalMaterial += rowEmissions.material;
+        totalTransport += rowEmissions.transport;
+        totalMachining += rowEmissions.machining;
+        totalFugitive += rowEmissions.fugitive;
+        totalProductionTransport += rowEmissions.productionTransport;
+        totalWaste += rowEmissions.waste;
+        totalUsageCycle += rowEmissions.usageCycle;
+        totalEndOfLife += rowEmissions.endofLife;
+      }
+    }
     
 
     final List<Map<String, double>> toggleTotals = [
       // LCA Categories
       {
-        'Material': emissions.material,
-        'Upstream Transport': emissions.transport,
-        'Machining': emissions.machining,
-        'Fugitive': emissions.fugitive,
-        'Production Transport': emissions.productionTransport,
+        'Material': totalMaterial,
+        'Upstream Transport': totalTransport,
+        'Machining': totalMachining,
+        'Fugitive': totalFugitive,
+        'Production Transport': totalProductionTransport,
       },
       // Scope Categories
       {
@@ -60,9 +111,9 @@ String getPercentageTitle(double value, double total) {
       },
       // Boundary
       {
-        'Upstream': emissions.material + emissions.transport,
-        'Production': emissions.machining+ emissions.fugitive,
-        'Downstream': emissions.usageCycle+ emissions.endofLife,
+        'Upstream': totalMaterial + totalTransport,
+        'Production': totalMachining+ totalFugitive + totalProductionTransport + totalWaste,
+        'Downstream': totalUsageCycle+ totalEndOfLife,
       },
     ];
 
@@ -75,32 +126,32 @@ String getPercentageTitle(double value, double total) {
       [
         PieChartSectionData(
           color: Apptheme.piechart1,
-          value: emissions.material,
+          value: totalMaterial,
           title: 'Material Acqusition',
           radius: pieChartSize/2,
         ),
         PieChartSectionData(
           color: Apptheme.piechart2,
-          value: emissions.transport,
+          value: totalTransport,
           title: 'Upstream Transport',
           radius: pieChartSize/2,
         ),
         PieChartSectionData(
           color: Apptheme.piechart3,
-          value: emissions.machining,
+          value: totalMachining,
           title: 'Machining',
           radius: pieChartSize/2,
         ),
 
       PieChartSectionData(
           color: Apptheme.piechart4,
-          value: emissions.fugitive,
+          value: totalFugitive,
           title: 'Fugitive',
           radius: pieChartSize/2,
         ),
       PieChartSectionData(
         color: Apptheme.piechart5,
-        value: emissions.productionTransport,
+        value: totalProductionTransport,
         title: 'Production Transport',
         radius: pieChartSize/2,
       )
@@ -130,20 +181,20 @@ String getPercentageTitle(double value, double total) {
       [
         PieChartSectionData(
           color: Apptheme.piechart1,
-          value: emissions.material + emissions.transport,
+          value: totalMaterial + totalTransport,
           title: 'Upstream',
           radius: pieChartSize/2,
         ),
         PieChartSectionData(
           color: Apptheme.piechart2,
-          value: emissions.machining + emissions.fugitive,
+          value: totalMachining+ totalFugitive + totalProductionTransport + totalWaste,
           title: 'Production',
           radius: pieChartSize/2,
         ),
 
         PieChartSectionData(
           color: Apptheme.piechart3,
-          value: emissions.usageCycle + emissions.endofLife,
+          value: totalUsageCycle+ totalEndOfLife,
           title: 'Downstream',
           radius: pieChartSize/2,
         ),

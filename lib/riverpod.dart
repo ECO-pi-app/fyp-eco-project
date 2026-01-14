@@ -477,6 +477,12 @@ class RowFormat {
   });
 }
 
+// ---------------- EMISSION RESULTS ----------------
+
+/// =======================================================
+/// EMISSION RESULT MODEL
+/// =======================================================
+
 class EmissionResults {
   final double material;
   final double transport;
@@ -498,9 +504,7 @@ class EmissionResults {
     this.endofLife = 0,
   });
 
-  factory EmissionResults.empty() {
-    return const EmissionResults();
-  }
+  factory EmissionResults.empty() => const EmissionResults();
 
   EmissionResults copyWith({
     double? material,
@@ -524,69 +528,153 @@ class EmissionResults {
       endofLife: endofLife ?? this.endofLife,
     );
   }
-    double get total => material + transport + machining + fugitive + productionTransport + waste + usageCycle + endofLife;
+
+  double get total =>
+      material +
+      transport +
+      machining +
+      fugitive +
+      productionTransport +
+      waste +
+      usageCycle +
+      endofLife;
 }
 
+/// =======================================================
+/// CALCULATOR STATE
+/// =======================================================
+
+class EmissionCalculatorState {
+  final List<EmissionResults> rows;
+  final EmissionResults totals;
+
+  const EmissionCalculatorState({
+    this.rows = const [],
+    this.totals = const EmissionResults(),
+  });
+
+  EmissionCalculatorState copyWith({
+    List<EmissionResults>? rows,
+    EmissionResults? totals,
+  }) {
+    return EmissionCalculatorState(
+      rows: rows ?? this.rows,
+      totals: totals ?? this.totals,
+    );
+  }
+}
+
+/// =======================================================
+/// PROVIDERS
+/// =======================================================
+
 final emissionCalculatorProvider = StateNotifierProvider.family<
-    EmissionCalculator, EmissionResults, String>(
-  (ref, productId) => EmissionCalculator(),
-);
+    EmissionCalculator,
+    EmissionCalculatorState,
+    String>((ref, productId) {
+  return EmissionCalculator();
+});
+
+final emissionRowsProvider =
+    Provider.family<List<EmissionResults>, String>((ref, productId) {
+  return ref.watch(emissionCalculatorProvider(productId)).rows;
+});
+
+final emissionTotalsProvider =
+    Provider.family<EmissionResults, String>((ref, productId) {
+  return ref.watch(emissionCalculatorProvider(productId)).totals;
+});
+
+
+/// =======================================================
+/// CONVERTED (ALLOCATED) EMISSIONS PER ROW
+/// =======================================================
 
 final convertedEmissionsProvider =
-    Provider.family<EmissionResults, String>((ref, productId,) {
-  final base = ref.watch(emissionCalculatorProvider(productId));
+    Provider.family<EmissionResults, (String productId, int rowIndex)>(
+        (ref, args) {
+  final (productId, rowIndex) = args;
+
+  final rows = ref.watch(emissionRowsProvider(productId));
+  if (rowIndex >= rows.length) return EmissionResults.empty();
+
+  final base = rows[rowIndex];
   final factor = ref.watch(unitConversionProvider);
 
-  // per-product material allocation
   final product = ref.watch(activeProductProvider);
   final part = ref.watch(activePartProvider);
-
-  if (product == null || part == null) {
-    return EmissionResults.empty();
-  }
+  if (product == null || part == null) return EmissionResults.empty();
 
   final key = (product: product, part: part);
 
-  final materialAlloc = ref.watch(materialAllocationSumProvider(key));
+  final allocations = {
+    'material':
+        ref.watch(materialTableProvider(key)).materialAllocationValues,
+    'transport':
+        ref.watch(upstreamTransportTableProvider(key))
+            .transportAllocationValues,
+    'machining':
+        ref.watch(machiningTableProvider(key))
+            .machiningAllocationValues,
+    'fugitive':
+        ref.watch(fugitiveLeaksTableProvider(key))
+            .fugitiveAllocationValues,
+    'productionTransport':
+        ref.watch(productionTransportTableProvider(key))
+            .transportAllocationValues,
+    'waste':
+        ref.watch(wastesProvider(key)).wasteAllocationValues,
+    'usageCycle':
+        ref.watch(usageCycleTableProvider(key))
+            .usageCycleAllocationValues,
+    'endofLife':
+        ref.watch(endOfLifeTableProvider(key))
+            .endOfLifeAllocationValues,
+  };
 
-  final transportAlloc = ref.watch(transportAllocationSumProvider(key));
-  final machiningAlloc = ref.watch(machiningAllocationSumProvider(key));
-  final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(key));
-  final productionTransportAlloc = ref.watch(productionTransportTableAllocationSumProvider(key));
-  final wasteAlloc = ref.watch(wastesAllocationSumProvider(key));
-  final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(key));
-  final endOfLifeAlloc = ref.watch(endOfLifeAllocationSumProvider(key));
-
-  
-
+  double alloc(String k) {
+    final list = allocations[k]!;
+    final raw =
+        list.length > rowIndex ? list[rowIndex] ?? '0' : '0';
+    final parsed = double.tryParse(raw) ?? 0;
+    debugPrint('Row $rowIndex [$k] allocation = $parsed%');
+    return parsed / 100;
+  }
 
   return EmissionResults(
-    material: base.material * (materialAlloc / 100) * factor,
-    transport: base.transport * (transportAlloc / 100) * factor,
-    machining: base.machining * (machiningAlloc / 100) * factor,
-    fugitive: base.fugitive * (fugitiveAlloc / 100) * factor,
-    productionTransport: base.productionTransport * (productionTransportAlloc/100) * factor,
-    waste: base.waste * (wasteAlloc/100) * factor,
-    usageCycle: base.usageCycle * (usageCycleAlloc / 100) * factor,
-    endofLife: base.endofLife * (endOfLifeAlloc / 100) * factor,
+    material: base.material * alloc('material') * factor,
+    transport: base.transport * alloc('transport') * factor,
+    machining: base.machining * alloc('machining') * factor,
+    fugitive: base.fugitive * alloc('fugitive') * factor,
+    productionTransport:
+        base.productionTransport *
+            alloc('productionTransport') *
+            factor,
+    waste: base.waste * alloc('waste') * factor,
+    usageCycle: base.usageCycle * alloc('usageCycle') * factor,
+    endofLife: base.endofLife * alloc('endofLife') * factor,
   );
 });
 
 
+/// =======================================================
+/// EMISSION CALCULATOR (API → ROWS → TOTALS)
+/// =======================================================
 
-// ------------------- CALCULATOR -------------------
-class EmissionCalculator extends StateNotifier<EmissionResults> {
-  EmissionCalculator() : super(const EmissionResults());
+class EmissionCalculator
+    extends StateNotifier<EmissionCalculatorState> {
+  EmissionCalculator() : super(const EmissionCalculatorState());
 
-    final Map<String, Map<String, dynamic>> _config = {
+  final Map<String, Map<String, dynamic>> _config = {
     'material': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/material_emission_recycled',
+      'endpoint':
+          'http://127.0.0.1:8000/calculate/material_emission_recycled',
       'apiKeys': {
         "Country": "country",
         "Material": "material",
         "Mass (kg)": "total_material_purchased_kg",
-        "Custom Emission Factor" : "custom_ef_of_material_kgco2e_per_kg",
-        "Internal Emission Factor" : "in_house_recycling_emissions",
+        "Custom Emission Factor": "custom_ef_of_material",
+        "Internal Emission Factor": "custom_internal_ef",
       }
     },
     'upstream_transport': {
@@ -595,11 +683,12 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
         "Distance (km)": "distance_km",
-        "Mass (kg)": "mass_kg", 
+        "Mass (kg)": "mass_kg",
       }
     },
     'machining': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/machine_power_emission',
+      'endpoint':
+          'http://127.0.0.1:8000/calculate/machine_power_emission',
       'apiKeys': {
         "Machine": "machine_model",
         "Country": "country",
@@ -607,151 +696,136 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
       }
     },
     'fugitive': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/fugitive_emissions',
+      'endpoint':
+          'http://127.0.0.1:8000/calculate/fugitive_emissions',
       'apiKeys': {
         "GHG": "ghg_name",
         "Total Charge (kg)": "total_charged_amount_kg",
         "Remaining Charge (kg)": "current_charge_amount_kg",
       }
     },
-    'production_transport' : {
-      'endpoint' : 'http://127.0.0.1:8000/calculate/type_here',
+    'production_transport': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/van',
       'apiKeys': {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
         "Distance (km)": "distance_km",
-        "Mass (kg)": "mass_kg", 
+        "Mass (kg)": "mass_kg",
       }
     },
-    'waste' : {
-      'endpoint' : 'http://127.0.0.1:8000/calculate/waste',
+    'waste': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/waste',
       'apiKeys': {
         "Waste Material": "waste_mode",
-        "Mass (kg)": "mass_kg", 
+        "Mass (kg)": "mass_kg",
       }
     },
-    'usage_cycle': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/usage_cycle',
-      'apiKeys': {
-        "Usage Frequency": "[]",
-        "Product Type": "[]",
-        "Category": "[]",
-      }
-    },
-    'end_of_life': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/end_of_life',
-      'apiKeys': {
-        "End of Life": "[]",
-        "Product Mass (kg)": "[]",
-        "Percentage of Mass (%)": "[]",
-      }
-    }
   };
 
-Future<void> calculate(String featureType, List<RowFormat> rows) async {
-  double subtotal = 0;
-
-  final config = _config[featureType];
-  if (config == null) {
-    throw Exception("Feature type not configured: $featureType");
-  }
-  
-  final defaultEndpoint = config['endpoint'] as String;
-  final apiKeyMap = config['apiKeys'] as Map<String, String>;
-
-  final Map<String, String> transportEndpoints = {
+  final Map<String, String> _transportEndpoints = {
     'Van': 'http://127.0.0.1:8000/calculate/van',
     'HGV (Diesel)': 'http://127.0.0.1:8000/calculate/hgv',
-    'HGV Refrigerated (Diesel)': 'http://127.0.0.1:8000/calculate/hgv_r',
-    'Freight Flights': 'http://127.0.0.1:8000/calculate/freight_flight',
+    'HGV Refrigerated (Diesel)':
+        'http://127.0.0.1:8000/calculate/hgv_r',
+    'Freight Flights':
+        'http://127.0.0.1:8000/calculate/freight_flight',
     'Rail': 'http://127.0.0.1:8000/calculate/rail_sheet',
-    'Sea Tanker': 'http://127.0.0.1:8000/calculate/sea_tanker',
-    'Cargo Ship': 'http://127.0.0.1:8000/calculate/cargo_ship',
+    'Sea Tanker':
+        'http://127.0.0.1:8000/calculate/sea_tanker',
+    'Cargo Ship':
+        'http://127.0.0.1:8000/calculate/cargo_ship',
   };
 
-  for (var row in rows) {
-    final payload = <String, dynamic>{};
+  Future<void> calculate(
+    String featureType,
+    List<RowFormat> rows,
+  ) async {
+    final config = _config[featureType];
+    if (config == null) return;
 
-    for (int i = 0; i < row.columnTitles.length; i++) {
-      final columnName = row.columnTitles[i];
-      final apiKey = apiKeyMap[columnName];
-      final rawValue = row.selections[i];
+    final endpointDefault = config['endpoint'] as String;
+    final apiKeys = config['apiKeys'] as Map<String, String>;
 
-      if (apiKey != null) {
+    final List<EmissionResults> resultRows = [];
+
+    for (final row in rows) {
+      final payload = <String, dynamic>{};
+
+      for (int i = 0; i < row.columnTitles.length; i++) {
+        final apiKey = apiKeys[row.columnTitles[i]];
+        if (apiKey == null) continue;
+
         payload[apiKey] = row.isTextFieldColumn[i]
-            ? double.tryParse(rawValue ?? '0') ?? 0
-            : rawValue ?? '';
-      } else {
-        print('Column "$columnName" has no mapping in apiKeyMap!');
+            ? double.tryParse(row.selections[i] ?? '0') ?? 0
+            : row.selections[i] ?? '';
       }
+
+      String endpoint = endpointDefault;
+      if (featureType.contains('transport')) {
+        endpoint =
+            _transportEndpoints[row.selections.first] ??
+                endpointDefault;
+      }
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(payload),
+      );
+
+      if (response.statusCode != 200) {
+        resultRows.add(const EmissionResults());
+        continue;
+      }
+
+      final json = jsonDecode(response.body);
+      final value =
+          (json["total_material_emissions"] ??
+                  json["total_transport_type_emission"] ??
+                  json["emissions_kgco2e"] ??
+                  json["emissions"] ??
+                  0)
+              .toDouble();
+
+      resultRows.add(
+        featureType == 'material'
+            ? EmissionResults(material: value)
+            : featureType == 'upstream_transport'
+                ? EmissionResults(transport: value)
+                : featureType == 'machining'
+                    ? EmissionResults(machining: value)
+                    : featureType == 'fugitive'
+                        ? EmissionResults(fugitive: value)
+                        : featureType ==
+                                'production_transport'
+                            ? EmissionResults(
+                                productionTransport: value)
+                            : featureType == 'waste'
+                                ? EmissionResults(waste: value)
+                                : const EmissionResults(),
+      );
     }
 
-    String endpoint = defaultEndpoint;
-
-    if (featureType == 'upstream_transport') {
-      final vehicle = row.selections[0]; 
-
-      endpoint = transportEndpoints[vehicle] ??
-          defaultEndpoint; 
-    }
-
-        if (featureType == 'production_transport') {
-      final vehicle = row.selections[0]; 
-
-      endpoint = transportEndpoints[vehicle] ??
-          defaultEndpoint; 
-    }
-
-    print("POST to $endpoint");
-    print("Payload: $payload");
-
-    final response = await http.post(
-      Uri.parse(endpoint),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(payload),
+    final totals = resultRows.fold(
+      const EmissionResults(),
+      (a, b) => a.copyWith(
+        material: a.material + b.material,
+        transport: a.transport + b.transport,
+        machining: a.machining + b.machining,
+        fugitive: a.fugitive + b.fugitive,
+        productionTransport:
+            a.productionTransport + b.productionTransport,
+        waste: a.waste + b.waste,
+      ),
     );
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-
-      subtotal += (json["materialacq_emission"] ?? 0).toDouble();
-      subtotal += (json["total_material_emissions"] ?? 0).toDouble();
-      subtotal += (json["total_transport_type_emission"] ?? 0).toDouble();
-      subtotal += (json["emissions_kgco2e"] ?? 0).toDouble();
-      subtotal += (json["emissions"] ?? 0).toDouble();
-      subtotal += (json["emissions_kgco2e"] ?? 0).toDouble();
-    } else {
-      print("API error ${response.statusCode}: ${response.body}");
-    }
-  }
-
-  switch (featureType) {
-    case 'material':
-      state = state.copyWith(material: subtotal);
-      break;
-    case 'upstream_transport':
-      state = state.copyWith(transport: subtotal);
-      break;
-    case 'machining':
-      state = state.copyWith(machining: subtotal);
-      break;
-    case 'fugitive':
-      state = state.copyWith(fugitive: subtotal);
-      break;
-    case 'production_transport':
-      state = state.copyWith(productionTransport: subtotal);
-      break;
-    case 'waste' :
-      state = state.copyWith(waste: subtotal);
-      break;
-    case 'usage_cycle':
-      state = state.copyWith(usageCycle: subtotal);
-      break;
-    default:
-      throw Exception("Invalid feature type: $featureType");
+    state = EmissionCalculatorState(
+      rows: resultRows,
+      totals: totals,
+    );
   }
 }
-}
+
 
 
 
@@ -798,247 +872,6 @@ class TableNotifier extends StateNotifier<TableState> {
 final tableControllerProvider =
     StateNotifierProvider.family<TableNotifier, TableState, int>(
         (ref, columns) => TableNotifier(columns));
-
-
-
-
-// ------------------- PROJECT LIST FETCH -------------------
-class Product {
-  final String name;
-
-  Product({required this.name});
-
-  factory Product.fromJson(dynamic value) {
-    return Product(name: value.toString());
-  }
-}
-
-Future<List<Product>> fetchProducts(String username) async {
-  print("Fetching products for username: $username");
-
-  final url = Uri.parse('http://127.0.0.1:8000/profiles?username=$username');
-
-  final response = await http.get(
-    url,
-    headers: {"Content-Type": "application/json"},
-  );
-
-  print("Fetch status code: ${response.statusCode}");
-  print("Fetch response body: ${response.body}");
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> map = jsonDecode(response.body);
-    final List<dynamic> rawList = map["profiles"];
-    final products = rawList.map((item) => Product.fromJson(item)).toList();
-    print("Fetched products: ${products.map((p) => p.name).toList()}");
-    return products;
-  } else if (response.statusCode == 401) {
-    print("Unauthorized — username may be invalid or token expired");
-    throw Exception("Unauthorized – please log in again");
-  } else {
-    print("Failed to load products with status: ${response.statusCode}");
-    throw Exception('Failed to load products: ${response.statusCode}');
-  }
-}
-
-// ---------------- PRODUCTS PROVIDER ----------------
-final productsProvider = FutureProvider<List<Product>>((ref) async {
-  final username = await ref.watch(usernameProvider.future);
-  print("Username loaded from provider for products fetch: $username");
-
-  if (username == null) {
-    print("No username saved — cannot fetch products");
-    throw Exception("No username saved — user is not logged in");
-  }
-
-  return fetchProducts(username);
-});
-
-// ---------------- PROFILE SAVE ----------------
-class ProfileSaveRequest {
-  final String profileName;
-  final String description;
-  final Map<String, dynamic> data;
-  final String username;
-
-  ProfileSaveRequest({
-    required this.profileName,
-    required this.description,
-    required this.data,
-    required this.username,
-  });
-}
-
-final saveProfileProvider =
-    FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
-  final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/profiles/save'),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({
-      "profile_name": req.profileName,
-      "description": req.description,
-      "data": req.data,
-      "username": req.username,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    final json = jsonDecode(response.body);
-    ref.invalidate(productsProvider);
-    return json["saved_profile"]; // whatever your backend returns
-  } else {
-    throw Exception("Failed to save profile: ${response.body}");
-  }
-
-});
-
-// ---------------- SIGN UP REQUEST ----------------
-class SignUpParameters {
-  final String profileName;
-  final String password;
-
-  SignUpParameters({
-    required this.profileName,
-    required this.password,
-  });
-}
-
-final signUpProvider =
-    FutureProvider.family<String, SignUpParameters>((ref, req) async {
-  final payload = jsonEncode({
-    "username": req.profileName,
-    "password": req.password,
-  });
-
-  print("Sign up payload: $payload");
-
-  final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/auth/signup'),
-    headers: {"Content-Type": "application/json"},
-    body: payload,
-  );
-
-  if (response.statusCode == 200) {
-    final json = jsonDecode(response.body);
-    // refresh products or profiles UI if needed
-    ref.invalidate(productsProvider);
-    return json["username"];
-  } else {
-    throw Exception("Failed to sign up: ${response.body}");
-  }
-});
-
-
-
-
-// ------------------- POST (THE REQUEST) LOG IN AUTHENTICATION -------------------
-class LoginParameters {
-  final String profileName;
-  final String password;
-
-  LoginParameters({
-    required this.profileName,
-    required this.password,
-  });
-}
-
-// ---------------- LOGIN PROVIDER ----------------
-final logInProvider =
-    FutureProvider.family<void, LoginParameters>((ref, req) async {
-  final payload = jsonEncode({
-    "username": req.profileName,
-    "password": req.password,
-  });
-
-  print("Login payload: $payload");
-
-  final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/auth/login'),
-    headers: {"Content-Type": "application/json"},
-    body: payload,
-  );
-
-  print("Login status code: ${response.statusCode}");
-  print("Login response body: ${response.body}");
-
-  if (response.statusCode != 200) {
-    throw Exception("Login failed: ${response.body}");
-  }
-
-  // Save username in secure storage
-  await secureStorage.write(
-    key: "username",
-    value: req.profileName,
-  );
-  print("Saved username to secure storage: ${req.profileName}");
-
-  // Read back immediately for debug
-  final savedUsername = await secureStorage.read(key: "username");
-  print("Verified username read from storage: $savedUsername");
-
-  // Invalidate providers so UI can refresh
-  ref.invalidate(usernameProvider);
-  ref.invalidate(productsProvider);
-});
-
-// ---------------- USERNAME PROVIDER ----------------
-final usernameProvider = FutureProvider<String?>((ref) async {
-  final username = await secureStorage.read(key: "username");
-  print("Loaded username from storage in provider: $username");
-  return username;
-});
-
-// ------------------- DELETE PROJECTS -------------------
-class ProfileService {
-  final String baseUrl;
-
-  ProfileService(this.baseUrl);
-
-  /// Deletes a profile. Returns true if success, throws exception if failure.
-Future<bool> deleteProfile(String username, String profileName) async {
-  final url = Uri.parse('$baseUrl/profiles/delete/$username/$profileName');
-  final response = await http.delete(url);
-
-  if (response.statusCode == 200) return true;
-  if (response.statusCode == 404) throw Exception("Profile not found");
-  throw Exception("Failed: ${response.statusCode} ${response.body}");
-}
-
-}
-
-final profileServiceProvider = Provider<ProfileService>((ref) {
-  return ProfileService("http://127.0.0.1:8000");
-});
-
-// ---------------- DELETE PROFILE NOTIFIER ----------------
-final deleteProfileProvider =
-    AsyncNotifierProvider<DeleteProfileNotifier, void>(
-  () => DeleteProfileNotifier(),
-);
-
-class DeleteProfileNotifier extends AsyncNotifier<void> {
-  @override
-  Future<void> build() async {
-    // nothing to build initially
-  }
-
-  Future<void> delete(String profileName, WidgetRef ref) async {
-    state = const AsyncLoading();
-
-    try {
-      final service = ref.read(profileServiceProvider);
-      final username = await ref.watch(usernameProvider.future);
-      await service.deleteProfile(username!, profileName);
-
-      // invalidate products or profiles if you want UI to refresh
-      ref.invalidate(productsProvider);
-
-      state = const AsyncData(null);
-    } catch (e, st) {
-      state = AsyncError(e, st);
-    }
-  }
-}
 
 // --------------- MATERIAL STATE -----------------
 class MaterialTableState {

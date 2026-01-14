@@ -9,6 +9,7 @@ import 'package:test_app/dynamic_pages/main_home.dart';
 import 'package:test_app/dynamic_pages/main_productanlys.dart';
 import 'package:test_app/dynamic_pages/main_sustainabilitynews.dart';
 import 'package:test_app/dynamic_pages/zdebug.dart';
+import 'package:test_app/riverpod_account.dart';
 import 'package:test_app/scope_pages/scope3_category1.dart';
 import 'package:test_app/scope_pages/scope3_category2.dart';
 import 'package:test_app/scope_pages/scope3_category3.dart';

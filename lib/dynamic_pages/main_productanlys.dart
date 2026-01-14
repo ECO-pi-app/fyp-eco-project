@@ -28,7 +28,59 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
   @override
   Widget build(BuildContext context) {
-    final emissions = ref.watch(convertedEmissionsProvider(widget.productID));
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    double totalMaterial = 0;
+    double totalTransport = 0;
+    double totalMachining = 0;
+    double totalFugitive = 0;
+    double totalProductionTransport = 0;
+    double totalWaste = 0;
+    double totalUsageCycle = 0;
+    double totalEndOfLife = 0;
+
+    if (product != null && part != null) {
+      final key = (product: product, part: part);
+
+      // Get each table individually
+      final materialTable = ref.watch(materialTableProvider(key));
+      final transportTable = ref.watch(upstreamTransportTableProvider(key));
+      final machiningTable = ref.watch(machiningTableProvider(key));
+      final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
+      final productionTransportTable = ref.watch(productionTransportTableProvider(key));
+      final wasteTable = ref.watch(wastesProvider(key));
+      final usageCycleTable = ref.watch(usageCycleTableProvider(key));
+      final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
+
+      // Determine the number of rows (use the longest table as row count)
+      final rowCount = [
+        materialTable.materials.length,
+        transportTable.vehicles.length,
+        machiningTable.machines.length,
+        fugitiveTable.ghg.length,
+        productionTransportTable.vehicles.length,
+        wasteTable.wasteType.length,
+        usageCycleTable.categories.length,
+        endOfLifeTable.endOfLifeOptions.length,
+      ].reduce((a, b) => a > b ? a : b);
+
+      // Loop through each row and sum the converted emissions
+      for (int i = 0; i < rowCount; i++) {
+        final rowEmissions = ref.watch(convertedEmissionsProvider((widget.productID, i)));
+
+        totalMaterial += rowEmissions.material;
+        totalTransport += rowEmissions.transport;
+        totalMachining += rowEmissions.machining;
+        totalFugitive += rowEmissions.fugitive;
+        totalProductionTransport += rowEmissions.productionTransport;
+        totalWaste += rowEmissions.waste;
+        totalUsageCycle += rowEmissions.usageCycle;
+        totalEndOfLife += rowEmissions.endofLife;
+      }
+    }
+
+
 
     // ------------------- Page 1 Widgets (Upstream) -------------------
     final List<Widget> widgetofpage1 = [
@@ -43,7 +95,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Material Input | ${emissions.material.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -83,7 +135,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Upstream Transportation | ${emissions.transport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Upstream Transportation | ${totalTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -112,7 +164,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Machining | ${emissions.machining.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Machining | ${totalMachining.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -139,7 +191,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Fugitive leaks | ${emissions.fugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Fugitive leaks |  ${totalFugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -158,7 +210,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Production Transportation | ${emissions.productionTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Production Transportation | ${totalProductionTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -177,7 +229,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Waste | ${emissions.waste.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Waste |  ${totalWaste.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
@@ -198,7 +250,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Usage Cycle | ${emissions.usageCycle.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Usage Cycle | ${totalUsageCycle.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
           Padding(
@@ -217,7 +269,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'End of Life | ${emissions.endofLife.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'End of Life |  ${totalEndOfLife.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
           Padding(

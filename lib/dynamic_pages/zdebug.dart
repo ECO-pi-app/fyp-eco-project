@@ -172,7 +172,10 @@ Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
             _staticCell(s.internalEF[i]),
             _editableCell(
               text: s.materialAllocationValues[i],
-              onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
+              onChanged: (v) {
+                print('Updating row $i Allocation Value: $v');  // <-- debug print
+                n.updateCell(row: i, column: 'Allocation Value', value: v);
+              },
             ),
             _checkCell(),
           ],
@@ -472,7 +475,7 @@ Widget _editableCell({
   return Padding(
     padding: const EdgeInsets.only(top: 2),
     child: TextFormField(
-      initialValue: text ?? '100',
+      initialValue: text,
       keyboardType: TextInputType.number,
       style: const TextStyle(fontSize: 15, color: Apptheme.textclrdark),
       decoration: const InputDecoration(
