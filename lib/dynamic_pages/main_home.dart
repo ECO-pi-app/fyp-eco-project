@@ -225,10 +225,21 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                 scrollDirection: Axis.horizontal,
                 itemCount: pieChart?.parts.length ?? 0,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, index) => Chip(
-                  label: Text("${pieChart!.parts[index]} = ${pieChart.values[index]}"),
-                ),
+                itemBuilder: (_, index) {
+                  final part = pieChart!.parts[index];
+                  final value = pieChart.values[index];
+                  final activePart = ref.watch(activePartProvider);
+
+                  return ChoiceChip(
+                    label: Text('$part = $value'),
+                    selected: activePart == part,
+                    onSelected: (_) {
+                      ref.read(activePartProvider.notifier).state = part;
+                    },
+                  );
+                },
               ),
+
             ),
             const SizedBox(height: 12),
             SizedBox(

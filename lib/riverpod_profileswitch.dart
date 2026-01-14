@@ -258,3 +258,7 @@ final higherCompoundPartsProvider = StateNotifierProvider.family<
     HigherCompoundPartsNotifier, HigherCompoundPartsState, CompoundKey>(
   (ref, key) => HigherCompoundPartsNotifier(),
 );
+
+
+
+final activePartProvider = StateProvider<String?>((ref) => null);

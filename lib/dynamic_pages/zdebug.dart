@@ -4,6 +4,7 @@ import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/riverpod.dart';
+import 'package:test_app/riverpod_profileswitch.dart';
 
 class DebugPage extends ConsumerWidget {
   final String productID;
@@ -12,23 +13,47 @@ class DebugPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // ---------- PROVIDERS ----------
-    final materialState = ref.watch(materialTableProvider(productID));
-    final materialNotifier = ref.read(materialTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
 
-    final upstreamTransportState = ref.watch(upstreamTransportTableProvider(productID));
-    final upstreamTransportNotifier = ref.read(upstreamTransportTableProvider(productID).notifier);
+    if (product == null || part == null) {
+      return const SizedBox(); // or handle empty state
+    }
 
-    final machiningState = ref.watch(machiningTableProvider(productID));
-    final machiningNotifier = ref.read(machiningTableProvider(productID).notifier);
+    final key = (product: product, part: part);
 
-    final leaksState = ref.watch(fugitiveLeaksTableProvider(productID));
-    final leaksNotifier = ref.read(fugitiveLeaksTableProvider(productID).notifier);
+    /// ---------------- MATERIAL ----------------
+    final materialState = ref.watch(materialTableProvider(key));
+    final materialNotifier = ref.read(materialTableProvider(key).notifier);
 
-    final productionTransportState = ref.watch(productionTransportTableProvider(productID));
-    final productionTransportNotifier = ref.watch(productionTransportTableProvider(productID).notifier);
+    /// ---------------- UPSTREAM TRANSPORT ----------------
+    final upstreamTransportState = ref.watch(upstreamTransportTableProvider(key));
+    final upstreamTransportNotifier = ref.read(upstreamTransportTableProvider(key).notifier);
 
-    final usageCycleState = ref.watch(usageCycleTableProvider(productID));
-    final usageCycleNotifier = ref.read(usageCycleTableProvider(productID).notifier);
+    /// ---------------- MACHINING ----------------
+    final machiningState = ref.watch(machiningTableProvider(key));
+    final machiningNotifier = ref.read(machiningTableProvider(key).notifier);
+
+    /// ---------------- FUGITIVE LEAKS ----------------
+    final leaksState = ref.watch(fugitiveLeaksTableProvider(key));
+    final leaksNotifier = ref.read(fugitiveLeaksTableProvider(key).notifier);
+
+    /// ---------------- PRODUCTION TRANSPORT ----------------
+    final productionTransportState = ref.watch(productionTransportTableProvider(key));
+    final productionTransportNotifier = ref.read(productionTransportTableProvider(key).notifier);
+
+    /// ---------------- WASTE ----------------
+    final wasteTransportState = ref.watch(wastesProvider(key));
+    final wasteTransportNotifier = ref.read(wastesProvider(key).notifier);
+
+    /// ---------------- USAGE CYCLE ----------------
+    final usageCycleState = ref.watch(usageCycleTableProvider(key));
+    final usageCycleNotifier = ref.read(usageCycleTableProvider(key).notifier);
+
+    /// ---------------- END OF LIFE ----------------
+    final endOfLifeState = ref.watch(endOfLifeTableProvider(key));
+    final endOfLifeNotifier = ref.read(endOfLifeTableProvider(key).notifier);
+
 
     return PrimaryPages(
       childofmainpage: ListView(
@@ -81,7 +106,14 @@ class DebugPage extends ConsumerWidget {
           _buildProductionTransportTable(productionTransportState, productionTransportNotifier),
           const SizedBox(height: 30),
 
-          //
+          // -------------------- WASTE --------------------------
+          Labels(
+            title: "Manufacturing Wastes",
+            color: Apptheme.textclrdark,
+          ),
+          const SizedBox(height: 10),
+          _buildWasteTable(wasteTransportState, wasteTransportNotifier),
+          const SizedBox(height: 30),
 
           // -------------------- USAGE CYCLE --------------------
           Labels(
@@ -316,6 +348,47 @@ Widget _buildProductionTransportTable(ProductionTransportTableState s, Productio
             _staticCell(s.masses[i]),
             _editableCell(
               text: s.transportAllocationValues[i],
+              onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
+            ),
+            _checkCell(),
+          ],
+        ),
+    ],
+  );
+}
+
+// ---------------------WASTE ---------------------------------
+Widget _buildWasteTable(WastesTableState s, WastesTableNotifier n) {
+  final rowCount = s.wasteType.length;
+
+  return Table(
+    defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+    columnWidths: const {
+      0: FixedColumnWidth(200),
+      1: FixedColumnWidth(120),
+      4: FlexColumnWidth(),
+      5: FixedColumnWidth(70),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(
+          color: Apptheme.widgettertiaryclr,
+        ),
+        children: const [
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Waste Material", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass (kg)", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
+        ],
+      ),
+
+      for (int i = 0; i < rowCount; i++)
+        TableRow(
+          children: [
+            _staticCell(s.wasteType[i]),
+            _staticCell(s.mass[i]),
+            _editableCell(
+              text: s.wasteAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
             _checkCell(),

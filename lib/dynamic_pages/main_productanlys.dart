@@ -9,6 +9,7 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/widgets.dar
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
 import 'package:test_app/riverpod.dart';
+import 'package:test_app/riverpod_profileswitch.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
   final String productID;
@@ -24,29 +25,6 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
   double fugitiveemissions = 0;
   double machiningemissions = 0;
   bool showThreePageTabs = true;
-
-  final Map<String, String> apiKeymaterials = {
-    "Country": "country",
-    "Material": "material",
-    "Mass (kg)": "mass_kg",
-  };
-
-  final Map<String, String> apiKeytransport = {
-    "Class": "transport_type",
-    "Distance": "distance_km",
-  };
-
-  final Map<String, String> apiKeyfugitive = {
-    "GHG": "ghg_name",
-    "Total Charge": "total_charged_amount_kg",
-    "Remaining Charge": "current_charge_amount_kg",
-  };
-
-  final Map<String, String> apiKeymachining = {
-    "Machine": "machine_model",
-    "Country": "country",
-    "Time of operation": "time_operated_hr",
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +170,26 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
           ),
         ],
       ),
-      ProductionTransportAttributesMenu(productID: widget.productID)
+      ProductionTransportAttributesMenu(productID: widget.productID),
+
+      //-Row 4: Waste --
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Waste | ${emissions.waste.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: InfoIconPopupDark(
+              text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
+            ),
+          ),
+        ],
+      ),
+      WasteMaterialAttributesMenu(productID: widget.productID)
     ];
 
     final List<Widget> widgetofpage3 = [
@@ -350,11 +347,22 @@ class MaterialAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(materialTableProvider(productID));
-    final tableNotifier = ref.read(materialTableProvider(productID).notifier);
 
     final materials = ref.watch(materialsProvider);
     final countries = ref.watch(countriesProvider);
+
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const Text('Select a part');
+    }
+
+    final key = (product: product, part: part);
+    final tableState = ref.watch(materialTableProvider(key));
+
+    final tableNotifier = ref.read(materialTableProvider(key).notifier);
+
 
     List<RowFormat> rows = List.generate(
       tableState.materials.length,
@@ -470,10 +478,20 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(upstreamTransportTableProvider(productID));
-    final tableNotifier = ref.read(upstreamTransportTableProvider(productID).notifier);
-
     final vehicles = ref.watch(transportTypesProvider);
+
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(upstreamTransportTableProvider(key));
+    final tableNotifier = ref.read(upstreamTransportTableProvider(key).notifier);
+
 
     List<RowFormat> rows = List.generate(
       tableState.vehicles.length,
@@ -575,14 +593,25 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
   }
 }
 
+
+
 class MachiningAttributesMenu extends ConsumerWidget {
   final String productID;
   const MachiningAttributesMenu({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(machiningTableProvider(productID));
-    final tableNotifier = ref.read(machiningTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(machiningTableProvider(key));
+    final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
     final machines = ref.watch(mazakTypesProvider);
     final countries = ref.watch(countriesProvider);
@@ -678,8 +707,17 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(fugitiveLeaksTableProvider(productID));
-    final tableNotifier = ref.read(fugitiveLeaksTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(fugitiveLeaksTableProvider(key));
+    final tableNotifier = ref.read(fugitiveLeaksTableProvider(key).notifier);
 
     final ghgList = ref.watch(ghgProvider);
 
@@ -774,8 +812,17 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(productionTransportTableProvider(productID));
-    final tableNotifier = ref.read(productionTransportTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(productionTransportTableProvider(key));
+    final tableNotifier = ref.read(productionTransportTableProvider(key).notifier);
 
     final vehicles = ref.watch(transportTypesProvider);
 
@@ -879,6 +926,101 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
   }
 }
 
+class WasteMaterialAttributesMenu extends ConsumerWidget {
+  final String productID;
+  const WasteMaterialAttributesMenu({super.key, required this.productID});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(wastesProvider(key));
+    final tableNotifier = ref.read(wastesProvider(key).notifier);
+
+    final wasteMaterials = ref.watch(wasteMaterialProvider);
+
+    List<RowFormat> rows = List.generate(
+      tableState.wasteType.length,
+      (i) => RowFormat(
+        columnTitles: ['Waste Material', 'Mass (kg)'],
+        isTextFieldColumn: [false, true],
+        selections: [
+          tableState.wasteType[i],
+          tableState.mass[i],
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumn(
+                  title: 'Waste Material',
+                  values: tableState.wasteType,
+                items: wasteMaterials,
+                onChanged: (row, value) =>
+                    tableNotifier.updateCell(row: row, column: 'Waste Material', value: value),
+              ),
+              const SizedBox(width: 10),
+              buildColumn(
+                title: 'Mass (kg)',
+                values: tableState.mass,
+                isTextField: true,
+                onChanged: (row, value) =>
+                    tableNotifier.updateCell(row: row, column: 'Mass (kg)', value: value),
+              ),
+            ],
+          ),
+          ),
+        ),
+        Row(
+          children: [
+            SizedBox(width: 20),
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('waste', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: tableNotifier.addRow,
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: tableNotifier.removeRow,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 class UsageCycleAttributesMenu extends ConsumerWidget {
   final String productID;
@@ -886,8 +1028,17 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(usageCycleTableProvider(productID));
-    final tableNotifier = ref.read(usageCycleTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(usageCycleTableProvider(key));
+    final tableNotifier = ref.read(usageCycleTableProvider(key).notifier);
 
     final usageCycleCategories = ref.watch(usageCycleCategoriesProvider);
 
@@ -1018,15 +1169,23 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
   }
 }
 
-
 class EndofLifeAttributesMenu extends ConsumerWidget {
   final String productID;
   const EndofLifeAttributesMenu({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tableState = ref.watch(endOfLifeTableProvider(productID));
-    final tableNotifier = ref.read(endOfLifeTableProvider(productID).notifier);
+    final product = ref.watch(activeProductProvider);
+    final part = ref.watch(activePartProvider);
+
+    if (product == null || part == null) {
+      return const SizedBox(); // handle empty state
+    }
+
+    final key = (product: product, part: part);
+
+    final tableState = ref.watch(endOfLifeTableProvider(key));
+    final tableNotifier = ref.read(endOfLifeTableProvider(key).notifier);
 
     final endOfLifeMethods = ref.watch(endOfLifeActivitiesProvider);
 

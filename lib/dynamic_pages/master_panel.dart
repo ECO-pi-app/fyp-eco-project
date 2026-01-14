@@ -47,9 +47,10 @@ String getPercentageTitle(double value, double total) {
       // LCA Categories
       {
         'Material': emissions.material,
-        'Transport': emissions.transport,
+        'Upstream Transport': emissions.transport,
         'Machining': emissions.machining,
         'Fugitive': emissions.fugitive,
+        'Production Transport': emissions.productionTransport,
       },
       // Scope Categories
       {
@@ -99,7 +100,9 @@ String getPercentageTitle(double value, double total) {
         ),
       PieChartSectionData(
         color: Apptheme.piechart5,
-        value: emissions.productionTransport
+        value: emissions.productionTransport,
+        title: 'Production Transport',
+        radius: pieChartSize/2,
       )
       ],
       //--Sort by: Scope Categories--

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:test_app/riverpod_profileswitch.dart';
 
 
 
@@ -44,6 +45,7 @@ class MetaOptions {
   final List<String> usageCycleServices;
   final List<String> endOfLifeActivities;
   final List<String> assemblyProcesses;
+  final List<String> waste;
 
   MetaOptions({
     required this.countries,
@@ -77,6 +79,7 @@ class MetaOptions {
     required this.usageCycleServices,
     required this.endOfLifeActivities,
     required this.assemblyProcesses,
+    required this.waste,
   });
 
   factory MetaOptions.fromJson(Map<String, dynamic> json) {
@@ -111,7 +114,8 @@ class MetaOptions {
       usageCycleConsumables: List<String>.from(json['Usage_consumables'] ?? []),
       usageCycleServices: List<String>.from(json['Usage_services'] ?? []),
       endOfLifeActivities: List<String>.from(json['End_of_Life_Activities'] ?? [],),
-      assemblyProcesses: List<String>.from(json['typ_here'] ?? [],)
+      assemblyProcesses: List<String>.from(json['type_here'] ?? [],),
+      waste: List<String>.from(json['Waste_mode'] ?? [],),
     );
   }
 }
@@ -414,6 +418,16 @@ final assemblyprocesses = Provider<List<String>>((ref) {
   );
 });
 
+final wasteMaterialProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.waste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+
 final usageCategoriesProvider = Provider.family<List<String>, String>((ref, category) {
   switch (category) {
     case 'Electronics': return ref.watch(usageCycleElectronicsProvider);
@@ -469,6 +483,7 @@ class EmissionResults {
   final double machining;
   final double fugitive;
   final double productionTransport;
+  final double waste;
   final double usageCycle;
   final double endofLife;
 
@@ -478,17 +493,22 @@ class EmissionResults {
     this.machining = 0,
     this.fugitive = 0,
     this.productionTransport = 0,
+    this.waste = 0,
     this.usageCycle = 0,
     this.endofLife = 0,
   });
 
-  // Returns a new instance with updated values
+  factory EmissionResults.empty() {
+    return const EmissionResults();
+  }
+
   EmissionResults copyWith({
     double? material,
     double? transport,
     double? machining,
     double? fugitive,
-    double? production_transport,
+    double? productionTransport,
+    double? waste,
     double? usageCycle,
     double? endofLife,
   }) {
@@ -497,14 +517,14 @@ class EmissionResults {
       transport: transport ?? this.transport,
       machining: machining ?? this.machining,
       fugitive: fugitive ?? this.fugitive,
-      productionTransport: production_transport ?? this.productionTransport,
+      productionTransport:
+          productionTransport ?? this.productionTransport,
+      waste: waste ?? this.waste,
       usageCycle: usageCycle ?? this.usageCycle,
       endofLife: endofLife ?? this.endofLife,
     );
   }
-
-  // Total of all emissions
-  double get total => material + transport + machining + fugitive + productionTransport + usageCycle + endofLife;
+    double get total => material + transport + machining + fugitive + productionTransport + waste + usageCycle + endofLife;
 }
 
 final emissionCalculatorProvider = StateNotifierProvider.family<
@@ -513,18 +533,29 @@ final emissionCalculatorProvider = StateNotifierProvider.family<
 );
 
 final convertedEmissionsProvider =
-    Provider.family<EmissionResults, String>((ref, productId) {
+    Provider.family<EmissionResults, String>((ref, productId,) {
   final base = ref.watch(emissionCalculatorProvider(productId));
   final factor = ref.watch(unitConversionProvider);
 
   // per-product material allocation
-  final materialAlloc = ref.watch(materialAllocationSumProvider(productId));
-  final transportAlloc = ref.watch(transportAllocationSumProvider(productId));
-  final machiningAlloc = ref.watch(machiningAllocationSumProvider(productId));
-  final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(productId));
-  final productionTransportAlloc = ref.watch(productionTransportTableAllocationSumProvider(productId));
-  final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(productId));
-  final endOfLifeAlloc = ref.watch(endOfLifeAllocationSumProvider(productId));
+  final product = ref.watch(activeProductProvider);
+  final part = ref.watch(activePartProvider);
+
+  if (product == null || part == null) {
+    return EmissionResults.empty();
+  }
+
+  final key = (product: product, part: part);
+
+  final materialAlloc = ref.watch(materialAllocationSumProvider(key));
+
+  final transportAlloc = ref.watch(transportAllocationSumProvider(key));
+  final machiningAlloc = ref.watch(machiningAllocationSumProvider(key));
+  final fugitiveAlloc = ref.watch(fugitiveAllocationSumProvider(key));
+  final productionTransportAlloc = ref.watch(productionTransportTableAllocationSumProvider(key));
+  final wasteAlloc = ref.watch(wastesAllocationSumProvider(key));
+  final usageCycleAlloc = ref.watch(usageCycleAllocationSumProvider(key));
+  final endOfLifeAlloc = ref.watch(endOfLifeAllocationSumProvider(key));
 
   
 
@@ -535,6 +566,7 @@ final convertedEmissionsProvider =
     machining: base.machining * (machiningAlloc / 100) * factor,
     fugitive: base.fugitive * (fugitiveAlloc / 100) * factor,
     productionTransport: base.productionTransport * (productionTransportAlloc/100) * factor,
+    waste: base.waste * (wasteAlloc/100) * factor,
     usageCycle: base.usageCycle * (usageCycleAlloc / 100) * factor,
     endofLife: base.endofLife * (endOfLifeAlloc / 100) * factor,
   );
@@ -548,7 +580,7 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
 
     final Map<String, Map<String, dynamic>> _config = {
     'material': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/material_emission',
+      'endpoint': 'http://127.0.0.1:8000/calculate/material_emission_advanced',
       'apiKeys': {
         "Country": "country",
         "Material": "material",
@@ -586,6 +618,13 @@ class EmissionCalculator extends StateNotifier<EmissionResults> {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
         "Distance (km)": "distance_km",
+        "Mass (kg)": "mass_kg", 
+      }
+    },
+    'waste' : {
+      'endpoint' : 'http://127.0.0.1:8000/calculate/waste',
+      'apiKeys': {
+        "Waste Material": "waste_mode",
         "Mass (kg)": "mass_kg", 
       }
     },
@@ -674,9 +713,11 @@ Future<void> calculate(String featureType, List<RowFormat> rows) async {
       final json = jsonDecode(response.body);
 
       subtotal += (json["materialacq_emission"] ?? 0).toDouble();
+      subtotal += (json["total_material_emissions"] ?? 0).toDouble();
       subtotal += (json["total_transport_type_emission"] ?? 0).toDouble();
       subtotal += (json["emissions_kgco2e"] ?? 0).toDouble();
       subtotal += (json["emissions"] ?? 0).toDouble();
+      subtotal += (json["emissions_kgco2e"] ?? 0).toDouble();
     } else {
       print("API error ${response.statusCode}: ${response.body}");
     }
@@ -696,7 +737,10 @@ Future<void> calculate(String featureType, List<RowFormat> rows) async {
       state = state.copyWith(fugitive: subtotal);
       break;
     case 'production_transport':
-      state = state.copyWith(production_transport: subtotal);
+      state = state.copyWith(productionTransport: subtotal);
+      break;
+    case 'waste' :
+      state = state.copyWith(waste: subtotal);
       break;
     case 'usage_cycle':
       state = state.copyWith(usageCycle: subtotal);
@@ -994,15 +1038,6 @@ class DeleteProfileNotifier extends AsyncNotifier<void> {
   }
 }
 
-double _toDouble(String? value) {
-  if (value == null) return 0.0;
-  return double.tryParse(value) ?? 0.0;
-}
-
-
-
-
-
 // --------------- MATERIAL STATE -----------------
 class MaterialTableState {
   final List<String?> materials;
@@ -1096,23 +1131,6 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
     );
   }
 }
-
-final materialTableProvider = StateNotifierProvider.family<
-    MaterialTableNotifier,
-    MaterialTableState,
-    String>((ref, productID) {
-  return MaterialTableNotifier();
-});
-
-
-final materialAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(materialTableProvider(productID));
-  return table.materialAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
-
-
 
 // --------------- UPSTREAM TRANSPORT STATE -----------------
 class UpstreamTransportTableState {
@@ -1220,17 +1238,6 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
   }
 }
 
-final upstreamTransportTableProvider =
-    StateNotifierProvider.family<UpstreamTransportTableNotifier, UpstreamTransportTableState, String>(
-        (ref, productID) => UpstreamTransportTableNotifier());
-
-final transportAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(upstreamTransportTableProvider(productID));
-  return table.transportAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
-
 // ---------------- MACHINING STATE ----------------
 
 class MachiningTableState {
@@ -1327,48 +1334,35 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
   }
 }
 
-final machiningTableProvider =
-    StateNotifierProvider.family<MachiningTableNotifier, MachiningTableState, String>(
-  (ref, productID) => MachiningTableNotifier(),
-);
-
-final machiningAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(machiningTableProvider(productID));
-
-  return table.machiningAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
-
 // ------------------ WASTE ----------------------------
-class WastesState {
+class WastesTableState {
   final List<String?> wasteType;
   final List<String?> mass;
   final List<String?> wasteAllocationValues; 
 
-  WastesState({
+  WastesTableState({
     required this.wasteType,
     required this.mass,
     required this.wasteAllocationValues,
   });
 
-  WastesState copyWith({
-    List<String?>? machines,
+  WastesTableState copyWith({
+    List<String?>? wasteType,
     List<String?>? mass,
-    List<String?>? machiningAllocationValues,
+    List<String?>? wasteAllocationValues,
   }) {
-    return WastesState(
-      wasteType: machines ?? this.wasteType,
+    return WastesTableState(
+      wasteType: wasteType ?? this.wasteType,
       mass: mass ?? this.mass,
-      wasteAllocationValues: machiningAllocationValues ?? this.wasteAllocationValues,
+      wasteAllocationValues: wasteAllocationValues ?? this.wasteAllocationValues,
     );
   }
 }
 
-class WastesNotifier extends StateNotifier<WastesState> {
-  WastesNotifier()
+class WastesTableNotifier extends StateNotifier<WastesTableState> {
+  WastesTableNotifier()
       : super(
-          WastesState(
+          WastesTableState(
             wasteType: [''],
             mass: [''],
             wasteAllocationValues: [''],
@@ -1377,18 +1371,18 @@ class WastesNotifier extends StateNotifier<WastesState> {
 
   void addRow() {
     state = state.copyWith(
-      machines: [...state.wasteType, ''],
+      wasteType: [...state.wasteType, ''],
       mass: [...state.mass, ''],
-      machiningAllocationValues: [...state.wasteAllocationValues, ''],
+      wasteAllocationValues: [...state.wasteAllocationValues, ''],
     );
   }
 
   void removeRow() {
     if (state.wasteType.length > 1) {
       state = state.copyWith(
-        machines: state.wasteType.sublist(0, state.wasteType.length - 1),
+        wasteType: state.wasteType.sublist(0, state.wasteType.length - 1),
         mass: state.mass.sublist(0, state.mass.length - 1),
-        machiningAllocationValues: state.wasteAllocationValues.sublist(0, state.wasteAllocationValues.length - 1),
+        wasteAllocationValues: state.wasteAllocationValues.sublist(0, state.wasteAllocationValues.length - 1),
       );
     }
   }
@@ -1398,43 +1392,30 @@ class WastesNotifier extends StateNotifier<WastesState> {
     required String column,
     required String? value,
   }) {
-    final machines = [...state.wasteType];
-    final times = [...state.mass];
-    final machiningAllocationValues = [...state.wasteAllocationValues];
+    final wasteType = [...state.wasteType];
+    final mass = [...state.mass];
+    final wasteAllocationValues = [...state.wasteAllocationValues];
 
     switch (column) {
-      case 'Machine':
-        machines[row] = value;
+      case 'Waste Material':
+        wasteType[row] = value;
         break;
-      case 'Time':
-      case 'Time of operation (hr)':
-        times[row] = value;
+      case 'Mass (kg)':
+        mass[row] = value;
         break;
       case 'Allocation Value':
-        machiningAllocationValues[row] = value;
+        wasteAllocationValues[row] = value;
         break;
     }
 
     state = state.copyWith(
-      machines: machines,
-      mass: times,
-      machiningAllocationValues: machiningAllocationValues,
+      wasteType: wasteType,
+      mass: mass,
+      wasteAllocationValues: wasteAllocationValues,
     );
   }
 }
 
-final wastesProvider =
-    StateNotifierProvider.family<WastesNotifier, WastesState, String>(
-  (ref, productID) => WastesNotifier(),
-);
-
-final wastesAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(wastesProvider(productID));
-
-  return table.wasteAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
 // ---------------- FUGITIVE STATE ----------------
 
 class FugitiveLeaksTableState {
@@ -1532,19 +1513,6 @@ class FugitiveLeaksTableNotifier
     );
   }
 }
-
-final fugitiveLeaksTableProvider =
-    StateNotifierProvider.family<FugitiveLeaksTableNotifier, FugitiveLeaksTableState, String>(
-  (ref, productID) => FugitiveLeaksTableNotifier(),
-);
-
-final fugitiveAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(fugitiveLeaksTableProvider(productID));
-
-  return table.fugitiveAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
 
 // -----------------PRODUCTION TRANSPORT--------
 class ProductionTransportTableState {
@@ -1652,18 +1620,6 @@ class ProductionTransportTableNotifier extends StateNotifier<ProductionTransport
   }
 }
 
-final productionTransportTableProvider =
-    StateNotifierProvider.family<ProductionTransportTableNotifier, ProductionTransportTableState, String>(
-        (ref, productID) => ProductionTransportTableNotifier());
-
-final productionTransportTableAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(productionTransportTableProvider(productID));
-  return table.transportAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b);
-});
-
-
 // ---------------- USAGE CYCLE ----------------
 
 class UsageCycleState {
@@ -1753,19 +1709,6 @@ class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
     );
   }
 }
-
-final usageCycleTableProvider =
-    StateNotifierProvider.family<UsageCycleNotifier, UsageCycleState, String>(
-  (ref, productID) => UsageCycleNotifier(),
-);
-
-final usageCycleAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(usageCycleTableProvider(productID));
-
-  return table.usageCycleAllocationValues
-      .map(_toDouble)
-      .fold(0.0, (a, b) => a + b); 
-});
 
 // ---------------- END OF LIFE STATE ----------------
 class EndOfLifeTableState {
@@ -1861,19 +1804,130 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
   }
 }
 
-final endOfLifeTableProvider =
-    StateNotifierProvider.family<EndOfLifeTableNotifier, EndOfLifeTableState, String>(
-  (ref, productID) => EndOfLifeTableNotifier(),
+// ----------------------PROVIDERS-----------------
+typedef TableKey = ({String product, String part});
+
+double _toDouble(String? value) => double.tryParse(value ?? '0') ?? 0.0;
+
+
+/// ---------------- MATERIAL ----------------
+final materialTableProvider = StateNotifierProvider.family<
+    MaterialTableNotifier,
+    MaterialTableState,
+    TableKey>((ref, key) {
+  return MaterialTableNotifier();
+});
+
+final materialAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(materialTableProvider(key));
+  return table.materialAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
+
+
+/// ---------------- UPSTREAM TRANSPORT ----------------
+final upstreamTransportTableProvider =
+    StateNotifierProvider.family<UpstreamTransportTableNotifier, UpstreamTransportTableState, TableKey>(
+        (ref, key) => UpstreamTransportTableNotifier());
+
+final transportAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(upstreamTransportTableProvider(key));
+  return table.transportAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
+
+
+/// ---------------- MACHINING ----------------
+final machiningTableProvider =
+    StateNotifierProvider.family<MachiningTableNotifier, MachiningTableState, TableKey>(
+  (ref, key) => MachiningTableNotifier(),
 );
 
-final endOfLifeAllocationSumProvider = Provider.family<double, String>((ref, productID) {
-  final table = ref.watch(endOfLifeTableProvider(productID));
+final machiningAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(machiningTableProvider(key));
+  return table.machiningAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
 
-  return table.endOfLifeAllocationValues
+
+/// ---------------- WASTE ----------------
+final wastesProvider =
+    StateNotifierProvider.family<WastesTableNotifier, WastesTableState, TableKey>(
+  (ref, key) => WastesTableNotifier(),
+);
+
+final wastesAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(wastesProvider(key));
+  return table.wasteAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
+
+
+/// ---------------- FUGITIVE LEAKS ----------------
+final fugitiveLeaksTableProvider =
+    StateNotifierProvider.family<FugitiveLeaksTableNotifier, FugitiveLeaksTableState, TableKey>(
+  (ref, key) => FugitiveLeaksTableNotifier(),
+);
+
+final fugitiveAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(fugitiveLeaksTableProvider(key));
+  return table.fugitiveAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
+
+
+/// ---------------- PRODUCTION TRANSPORT ----------------
+final productionTransportTableProvider =
+    StateNotifierProvider.family<ProductionTransportTableNotifier, ProductionTransportTableState, TableKey>(
+        (ref, key) => ProductionTransportTableNotifier());
+
+final productionTransportTableAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(productionTransportTableProvider(key));
+  return table.transportAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
+
+
+/// ---------------- USAGE CYCLE ----------------
+final usageCycleTableProvider =
+    StateNotifierProvider.family<UsageCycleNotifier, UsageCycleState, TableKey>(
+  (ref, key) => UsageCycleNotifier(),
+);
+
+final usageCycleAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(usageCycleTableProvider(key));
+  return table.usageCycleAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b); 
 });
 
+
+/// ---------------- END OF LIFE ----------------
+final endOfLifeTableProvider =
+    StateNotifierProvider.family<EndOfLifeTableNotifier, EndOfLifeTableState, TableKey>(
+  (ref, key) => EndOfLifeTableNotifier(),
+);
+
+final endOfLifeAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(endOfLifeTableProvider(key));
+  return table.endOfLifeAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b); 
+});
 
 // ------------------- UNIT CONVERSION -------------------
 
