@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
-import 'package:test_app/river_controls.dart';
-import 'package:test_app/riverpod_account.dart';
+import 'package:test_app/app_logic/river_controls.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/sub_navigator.dart';
-import 'package:test_app/riverpod.dart';
+import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 
 class Welcomepage extends ConsumerStatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/dynamic_pages/main_home.dart';
-import 'package:test_app/riverpod.dart';
+import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 /// ===============================================================
 /// 1️⃣ ACTIVE SELECTION CONTEXT
@@ -207,9 +207,18 @@ final debugSelectionProvider = Provider<String>((ref) {
 
 class CompoundPart {
   final String name;
-  final List<String> components; // names of basic parts
-  CompoundPart({required this.name, required this.components});
+  final List<String> components;
+  final String? assemblyProcess; // NEW
+  final String? timeTaken;       // optional, but you already collect it
+
+  CompoundPart({
+    required this.name,
+    required this.components,
+    this.assemblyProcess,
+    this.timeTaken,
+  });
 }
+
 
 class CompoundPartsState {
   final List<CompoundPart> compounds;

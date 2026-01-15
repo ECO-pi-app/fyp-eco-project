@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/dynamic_pages/riverpod_statemanagement.dart';
-import 'package:test_app/riverpod_profileswitch.dart';
+import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'dart:math';
 
@@ -17,11 +17,13 @@ class DynamicAllocation extends ConsumerStatefulWidget {
 class _DynamicAllocationState extends ConsumerState<DynamicAllocation> {
   final Set<String> selectedBasicParts = {};
 
+  final ScrollController _partsScrollController = ScrollController();
+
+
 Future<void> _showAddAssemblyDialog() async {
   if (selectedBasicParts.isEmpty) return;
 
   final nameController = TextEditingController();
-  final processController = TextEditingController();
   final scrollController = ScrollController();
 
   final product = ref.read(activeProductProvider);
@@ -37,21 +39,6 @@ Future<void> _showAddAssemblyDialog() async {
           final assemblyList = ref.watch(assemblyProcessesProvider);
           final selectedProcess = ref.watch(selectedAssemblyProcessProvider);
           final timeTaken = ref.watch(assemblyTimeProvider);
-          final assemblyName = ref.watch(assemblyNameProvider);
-          final searchQuery = ref.watch(assemblySearchQueryProvider);
-          final isDropdownVisible = ref.watch(isDropdownVisibleProvider);
-
-          // Only update controller text if different to avoid cursor reset
-          if (processController.text != (selectedProcess ?? '')) {
-            processController.text = selectedProcess ?? '';
-            processController.selection = TextSelection.fromPosition(
-              TextPosition(offset: processController.text.length),
-            );
-          }
-
-          final filteredList = assemblyList
-              .where((p) => p.toLowerCase().contains(searchQuery.toLowerCase()))
-              .toList();
 
           return AlertDialog(
             title: const Text("Add Assembly Process"),
@@ -73,84 +60,53 @@ Future<void> _showAddAssemblyDialog() async {
                     ),
                     const SizedBox(height: 10),
 
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Search + dropdown
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextField(
-                                controller: processController,
-                                decoration: const InputDecoration(
-                                  labelText: "Select Process",
-                                  border: OutlineInputBorder(),
-                                  suffixIcon: Icon(Icons.arrow_drop_down),
-                                ),
-                                onTap: () => ref
-                                    .read(isDropdownVisibleProvider.notifier)
-                                    .state = true,
-                                onChanged: (value) {
-                                  ref
-                                      .read(assemblySearchQueryProvider.notifier)
-                                      .state = value;
-                                  ref
-                                      .read(isDropdownVisibleProvider.notifier)
-                                      .state = true;
-                                },
-                              ),
-                              const SizedBox(height: 5),
-
-                              if (isDropdownVisible && filteredList.isNotEmpty)
-                                ConstrainedBox(
-                                  constraints: const BoxConstraints(maxHeight: 200),
-                                  child: Scrollbar(
-                                    controller: scrollController,
-                                    thumbVisibility: true,
-                                    child: ListView.builder(
-                                      controller: scrollController,
-                                      shrinkWrap: true,
-                                      itemCount: filteredList.length,
-                                      itemBuilder: (_, index) {
-                                        final process = filteredList[index];
-                                        return ListTile(
-                                          title: Text(process),
-                                          onTap: () {
-                                            ref
-                                                .read(selectedAssemblyProcessProvider.notifier)
-                                                .state = process;
-                                            processController.text = process;
-                                            ref
-                                                .read(isDropdownVisibleProvider.notifier)
-                                                .state = false;
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                    // Select Process (static list)
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Select Process:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      child: Scrollbar(
+                        controller: scrollController,
+                        thumbVisibility: true,
+                        child: ListView.builder(
+                          controller: scrollController,
+                          shrinkWrap: true,
+                          itemCount: assemblyList.length,
+                          itemBuilder: (_, index) {
+                            final process = assemblyList[index];
+                            final isSelected = selectedProcess == process;
+                            return ListTile(
+                              title: Text(process),
+                              tileColor: isSelected
+                                  ? Colors.blue.withOpacity(0.2)
+                                  : null,
+                              onTap: () {
+                                ref
+                                    .read(selectedAssemblyProcessProvider.notifier)
+                                    .state = process;
+                              },
+                            );
+                          },
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
-                        const SizedBox(width: 10),
-
-                        // Time input
-                        Expanded(
-                          flex: 1,
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              hintText: 'Time taken',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) =>
-                                ref.read(assemblyTimeProvider.notifier).state = value,
-                          ),
-                        ),
-                      ],
+                    // Time input
+                    TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Time taken',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) =>
+                          ref.read(assemblyTimeProvider.notifier).state = value,
                     ),
                   ],
                 ),
@@ -165,8 +121,8 @@ Future<void> _showAddAssemblyDialog() async {
               ElevatedButton(
                 onPressed: () {
                   if (nameController.text.isEmpty ||
-                      timeTaken.isEmpty ||
-                      processController.text.isEmpty) return;
+                      selectedProcess == null ||
+                      timeTaken.isEmpty) return;
 
                   Navigator.of(dialogContext, rootNavigator: true).pop(true);
                 },
@@ -185,10 +141,7 @@ Future<void> _showAddAssemblyDialog() async {
   final timeTakenValue = ref.read(assemblyTimeProvider);
   final assemblyNameValue = ref.read(assemblyNameProvider);
 
-  print(
-      "Assembly Name: $assemblyNameValue, Process: $selectedProcessValue, Time: $timeTakenValue");
-
-  // Add the compound part to the provider keyed by product + timeline
+  // Add the compound part
   ref
       .read(
         compoundPartsProvider((product: product, timeline: timeline)).notifier,
@@ -199,12 +152,7 @@ Future<void> _showAddAssemblyDialog() async {
   ref.read(selectedAssemblyProcessProvider.notifier).state = null;
   ref.read(assemblyTimeProvider.notifier).state = '';
   ref.read(assemblyNameProvider.notifier).state = '';
-  ref.read(assemblySearchQueryProvider.notifier).state = '';
-  ref.read(isDropdownVisibleProvider.notifier).state = false;
 }
-
-
-
 
 Future<void> _showAddHigherCompoundDialog() async {
   final product = ref.read(activeProductProvider);
@@ -286,6 +234,15 @@ Future<void> _showAddHigherCompoundDialog() async {
       .addHigherCompound(result, selected.toList());
 }
 
+String _partsSearchQuery = '';
+
+@override
+void dispose() {
+  _partsScrollController.dispose();
+  super.dispose();
+}
+
+
   @override
   Widget build(BuildContext context) {
     final basicParts = ref.watch(partsProvider);
@@ -294,16 +251,16 @@ Future<void> _showAddHigherCompoundDialog() async {
     final timeline = ref.watch(activeTimelineProvider);
 
     final compoundParts = (product != null && timeline != null)
-        ? ref.watch(
-            compoundPartsProvider((product: product, timeline: timeline)),
-          ).compounds
+        ? ref.watch(compoundPartsProvider((product: product, timeline: timeline))).compounds
         : <CompoundPart>[];
 
     final higherCompounds = (product != null && timeline != null)
-        ? ref.watch(
-            higherCompoundPartsProvider((product: product, timeline: timeline)),
-          ).compounds
+        ? ref.watch(higherCompoundPartsProvider((product: product, timeline: timeline))).compounds
         : <HigherCompoundPart>[];
+
+    final filteredParts = basicParts
+        .where((part) => part.toLowerCase().contains(_partsSearchQuery))
+        .toList();
 
     return PrimaryPages(
       childofmainpage: Padding(
@@ -311,77 +268,95 @@ Future<void> _showAddHigherCompoundDialog() async {
         child: ListView(
           children: [
             // ----------------- BASIC PARTS -----------------
-            const Labels(
-              title: "Basic Parts",
-              color: Apptheme.textclrdark,
-            ),
+            const Labels(title: "Basic Parts", color: Apptheme.textclrdark),
+            const SizedBox(height: 5),
 
-            SizedBox(
-              height: 80,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: basicParts.length,
-                itemBuilder: (_, index) {
-                  final part = basicParts[index];
-                  final selected = selectedBasicParts.contains(part);
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      backgroundColor: Apptheme.widgettertiaryclr,
-                      selectedColor: Apptheme.widgetsecondaryclr,
-                      label: Container(
-                        height: 25,
-                        color: Apptheme.transparentcheat,
-                        child: Textsinsidewidgetsdrysafe(
-                          words: part,
-                          color: Apptheme.textclrdark,
-                          toppadding: 0,
-                        ),
-                      ),
-                      selected: selected,
-                      onSelected: (v) {
-                        setState(() {
-                          v
-                              ? selectedBasicParts.add(part)
-                              : selectedBasicParts.remove(part);
-                        });
-                      },
-                    ),
-                  );
-                },
+            // Search box
+            TextField(
+              decoration: const InputDecoration(
+                labelText: "Search Parts",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
               ),
+              onChanged: (value) {
+                setState(() {
+                  _partsSearchQuery = value.toLowerCase();
+                });
+              },
             ),
-
             const SizedBox(height: 8),
 
+            // Parts list (scrollable horizontal)
+SizedBox(
+  height: 80,
+  child: Scrollbar(
+    controller: _partsScrollController,
+    thumbVisibility: true,
+    child: ListView(
+      controller: _partsScrollController,
+      scrollDirection: Axis.horizontal,
+      children: filteredParts.map((part) {
+        final selected = selectedBasicParts.contains(part);
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: FilterChip(
+            backgroundColor: Apptheme.widgettertiaryclr,
+            selectedColor: Apptheme.widgetsecondaryclr,
+            label: Container(
+              height: 25,
+              color: Apptheme.transparentcheat,
+              child: Textsinsidewidgetsdrysafe(
+                words: part,
+                color: Apptheme.textclrdark,
+                toppadding: 0,
+              ),
+            ),
+            selected: selected,
+            onSelected: (v) {
+              setState(() {
+                v
+                    ? selectedBasicParts.add(part)
+                    : selectedBasicParts.remove(part);
+              });
+            },
+          ),
+        );
+      }).toList(),
+    ),
+  ),
+),
+            const SizedBox(height: 8),
+
+            // Button to add assembly
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Apptheme.widgettertiaryclr,
                 foregroundColor: Apptheme.widgetclrdark,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(5),
+                  borderRadius: BorderRadius.circular(5),
                 ),
               ),
               onPressed: _showAddAssemblyDialog,
-              child: SizedBox(
+              child: const SizedBox(
                 width: 180,
-                child: const Textsinsidewidgets(
+                child: Textsinsidewidgets(
                   words: "Create Compound Part",
                   color: Apptheme.textclrdark,
                   toppadding: 0,
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
 
             // ----------------- COMPOUND PARTS -----------------
-            const Labels(
-              title: "Compound Parts",
-              color: Apptheme.textclrdark,
-            ),
-
+            const Labels(title: "Compound Parts", color: Apptheme.textclrdark),
+            const SizedBox(height: 5),
+            if (compoundParts.isEmpty)
+              const Textsinsidewidgetsdrysafe(
+                words: "No compound parts created yet",
+                color: Apptheme.textclrdark,
+                toppadding: 0,
+              ),
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -397,7 +372,8 @@ Future<void> _showAddHigherCompoundDialog() async {
                     toppadding: 0,
                   ),
                   subtitle: Textsinsidewidgetsdrysafe(
-                    words: c.components.join(", "),
+                    words:
+                        "Components: ${c.components.join(", ")} | Process: ${c.assemblyProcess ?? 'N/A'}",
                     color: Apptheme.textclrdark,
                     fontsize: 13,
                     toppadding: 5,
@@ -405,7 +381,6 @@ Future<void> _showAddHigherCompoundDialog() async {
                 );
               },
             ),
-
             const SizedBox(height: 8),
 
             ElevatedButton(
@@ -413,28 +388,24 @@ Future<void> _showAddHigherCompoundDialog() async {
                 backgroundColor: Apptheme.widgettertiaryclr,
                 foregroundColor: Apptheme.widgetclrdark,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(5),
+                  borderRadius: BorderRadius.circular(5),
                 ),
               ),
               onPressed: _showAddHigherCompoundDialog,
-              child: SizedBox(
+              child: const SizedBox(
                 width: 225,
-                child: const Textsinsidewidgetsdrysafe(
+                child: Textsinsidewidgets(
                   words: "Add Higher-Level Compound",
                   color: Apptheme.textclrdark,
                   toppadding: 0,
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
 
             // ----------------- HIGHER LEVEL -----------------
             if (higherCompounds.isNotEmpty) ...[
-              const Labels(
-                title: "Higher-Level Compounds",
-                color: Apptheme.textclrdark,
-              ),
+              const Labels(title: "Higher-Level Compounds", color: Apptheme.textclrdark),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -449,7 +420,7 @@ Future<void> _showAddHigherCompoundDialog() async {
                       toppadding: 0,
                     ),
                     subtitle: Textsinsidewidgetsdrysafe(
-                      words: c.components.join(", "),
+                      words: "Components: ${c.components.join(", ")}",
                       color: Apptheme.textclrdark,
                       fontsize: 13,
                     ),
@@ -463,3 +434,4 @@ Future<void> _showAddHigherCompoundDialog() async {
     );
   }
 }
+

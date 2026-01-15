@@ -6,8 +6,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
-import 'package:test_app/riverpod.dart';
-import 'package:test_app/riverpod_profileswitch.dart';
+import 'package:test_app/app_logic/riverpod_calculation.dart';
+import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 
 /// ---------------- ACTIVE PART PROVIDER ----------------
 class ActivePartNotifier extends StateNotifier<String?> {
@@ -185,13 +185,13 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
         ? ref.watch(pieChartProvider((product: product, timeline: activeTimeline))).parts
         : [];
 
-    final values = List.generate(parts.length, (i) {
+    final results = List.generate(parts.length, (i) {
       final partName = parts[i];
       return product != null
           ? ref.watch(convertedEmissionsTotalProvider((product, partName)))
-          : 0.0;
-      
+          : null;
     });
+
 
     debugPrint('Active part: $activePart, All parts: $parts');
 
@@ -315,6 +315,70 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Expanded(
+  flex: 2,
+  child: parts.isEmpty
+      ? Center(child: Text("No parts to display", style: TextStyle(color: Apptheme.textclrdark)))
+      : BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: results.isEmpty
+                ? 1
+                : results.map((r) => (r!.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
+            titlesData: FlTitlesData(
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (value, meta) {
+                                  final idx = value.toInt();
+                                  if (idx < 0 || idx >= parts.length) {
+                                    return const SizedBox();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      parts[idx],
+                                      style: const TextStyle(fontSize: 9),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+            barGroups: List.generate(parts.length, (i) {
+              final r = results[i]!;
+              final materialTotal = r.materialNormal + r.material;
+              return BarChartGroupData(
+                x: i,
+                barRods: [
+                  BarChartRodData(
+                    toY: materialTotal,
+                    width: 14,
+                    color: Apptheme.piechart2,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ],
+              );
+            }),
+          ),
+        ),
+),
+
+
+
                     // ---------------- Pie Chart ----------------
                     Expanded(
                       flex: 2,
@@ -346,7 +410,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                               final color = colors[i % colors.length]; // cycle if more parts than colors
 
                               return PieChartSectionData(
-                                value: (values[i] as EmissionResults).total, // <--- use .total
+                                value: (results[i] as EmissionResults).total, // <--- use .total
                                 title: parts[i] as String,
                                 color: color,
                                 radius: 120,
@@ -375,7 +439,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: List.generate(parts.length, (index) {
                             final part = parts[index];
-                            final result = values[index] as EmissionResults; // <-- use index
+                            final result = results[index] as EmissionResults; // <-- use index
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: ChoiceChip(

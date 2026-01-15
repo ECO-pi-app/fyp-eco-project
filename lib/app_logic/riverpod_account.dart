@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:test_app/river_controls.dart';
+import 'package:test_app/app_logic/river_controls.dart';
 import 'dart:convert';
-import 'package:test_app/riverpod.dart';
+import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 // ------------------- PROJECT LIST FETCH -------------------
 class Product {

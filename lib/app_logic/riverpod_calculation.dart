@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:test_app/river_controls.dart';
-import 'package:test_app/riverpod_profileswitch.dart';
-import 'package:test_app/riverpod_states.dart';
+import 'package:test_app/app_logic/river_controls.dart';
+import 'package:test_app/app_logic/riverpod_profileswitch.dart';
+import 'package:test_app/app_logic/riverpod_states.dart';
 
 /// ------------------- CALCULATION INPUT -------------------
 class RowFormat {

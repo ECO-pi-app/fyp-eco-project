@@ -4,10 +4,10 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/dynamic_pages/main_productanlys.dart';
-import 'package:test_app/river_controls.dart';
-import 'package:test_app/riverpod.dart';
-import 'package:test_app/riverpod_account.dart';
-import 'package:test_app/riverpod_fetch.dart';
+import 'package:test_app/app_logic/river_controls.dart';
+import 'package:test_app/app_logic/riverpod_calculation.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
+import 'package:test_app/app_logic/riverpod_fetch.dart';
 
 //----------------------------------SETTINGS POPUP PAGES----------------------------------------------
 void showAdvancedMaterials(BuildContext context) {
