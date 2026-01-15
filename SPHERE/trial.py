@@ -1332,11 +1332,9 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
     total_material_emissions = recycled_materials_emissions
 
     return {
-        "country": req.country,
         "material": req.material,
 
         "total_material_purchased_kg": total_purchased,
-        "mass_of_material_recycled_kg": recycled_inhouse_mass,
 
         "custom_ef_of_material_kgco2e_per_kg": recycled_ef,
         "custom_internal_ef_kgco2e_per_kg": internal_ef,
