@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -160,10 +162,13 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
 
     if (partName == null || partName.trim().isEmpty) return;
 
-    final value = ref.watch(partTotalAllocatedEmissionsProvider((product, partName)));
+    final emissionResult = ref.watch(convertedEmissionsTotalProvider((product, partName)));
+    final totalValue = emissionResult.total;
 
-    ref.read(pieChartProvider((product: product, timeline: timeline)).notifier).addPart(partName, value);
+    ref.read(pieChartProvider((product: product, timeline: timeline)).notifier)
+        .addPart(partName, totalValue);
     ref.read(activePartProvider.notifier).setPart(partName);
+
   }
 
   @override
@@ -183,7 +188,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
     final values = List.generate(parts.length, (i) {
       final partName = parts[i];
       return product != null
-          ? ref.watch(partTotalAllocatedEmissionsProvider((product, partName)))
+          ? ref.watch(convertedEmissionsTotalProvider((product, partName)))
           : 0.0;
       
     });
@@ -341,8 +346,8 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                               final color = colors[i % colors.length]; // cycle if more parts than colors
 
                               return PieChartSectionData(
-                                value: values[i],
-                                title: parts[i],
+                                value: (values[i] as EmissionResults).total, // <--- use .total
+                                title: parts[i] as String,
                                 color: color,
                                 radius: 120,
                                 titleStyle: const TextStyle(
@@ -351,6 +356,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                                   color: Colors.white,
                                 ),
                               );
+
                             },
                           ),
                           sectionsSpace: 2, // space between slices
@@ -369,16 +375,18 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: List.generate(parts.length, (index) {
                             final part = parts[index];
-                            final value = values[index];
+                            final result = values[index] as EmissionResults; // <-- use index
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: ChoiceChip(
                                 selectedColor: Apptheme.widgetsecondaryclr,
                                 backgroundColor: Apptheme.widgettertiaryclr,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
                                 showCheckmark: false,
                                 label: Textsinsidewidgetsdrysafe(
-                                  words: "$part = ${value.toStringAsFixed(2)}",
+                                  words: "$part = ${result.total.toStringAsFixed(2)}",
                                   color: Apptheme.textclrdark,
                                   toppadding: 0,
                                 ),
@@ -388,6 +396,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                                 },
                               ),
                             );
+
                           }),
                         ),
                       ),

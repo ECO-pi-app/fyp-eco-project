@@ -6,7 +6,9 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.d
 import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
+import 'package:test_app/river_controls.dart';
 import 'package:test_app/riverpod.dart';
+import 'package:test_app/riverpod_fetch.dart';
 import 'package:test_app/riverpod_profileswitch.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
@@ -68,7 +70,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
       // Loop through each row and sum the converted emissions
       for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionsPerPartProvider((widget.productID,part)));
+        final rowEmissions = ref.watch(convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i)));
         totalNormalMaterial += rowEmissions.materialNormal;
         totalMaterial += rowEmissions.material;
         totalTransport += rowEmissions.transport;

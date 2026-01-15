@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:test_app/river_controls.dart';
 import 'package:test_app/riverpod.dart';
 import 'package:test_app/riverpod_profileswitch.dart';
 
@@ -86,7 +87,7 @@ String getPercentageTitle(double value, double total) {
 
       // Loop through each row and sum the converted emissions
       for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionsPerPartProvider((widget.profileName,part)));
+        final rowEmissions = ref.watch(convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i)));
 
         totalNormalMaterial += rowEmissions.materialNormal;
         totalMaterial += rowEmissions.material;
