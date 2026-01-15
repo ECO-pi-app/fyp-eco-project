@@ -355,8 +355,22 @@ End_of_Life_ef_cells          = sheet23["B2":"B5"]
 Assembly_modes_cells  = sheet24["A2":"A999"]
 Assembly_ef_cells     = sheet24["B2":"B999"]
 
-Waste_mode_cells    = sheet25["A2":"A999"]
-Waste_ef_cells      = sheet25["B2":"B999"]
+Waste_type_cells    = sheet25["A2":"A8"]
+MSW_cells           = sheet25["A12":"A14"]
+MSW_ef_cells           = sheet25["B12":"B14"]
+Industrial_and_Process_Waste_cells  = sheet25["A17":"A20"]
+Industrial_and_Process_Waste_ef_cells  = sheet25["B17":"B20"]
+Construction_and_Demolition_Waste_cells = sheet25["A23":"A26"]
+Construction_and_Demolition_Waste_ef_cells = sheet25["B23":"B26"]
+Hazardous_Waste_cells   = sheet25["A29":"A32"]
+Hazardous_Waste_ef_cells   = sheet25["B29":"B32"]
+Organic_Waste_cells     = sheet25["A35":"A37"]
+Organic_Waste_ef_cells     = sheet25["B35":"B37"]
+Material_specific_waste_cells = sheet25["A40":"A42"]
+Material_specific_waste_ef_cells = sheet25["B40":"B42"]
+Energy_Related_Waste_cells    = sheet25["A45":"A47"]
+Energy_Related_Waste_ef_cells    = sheet25["B45":"B47"]
+
 # turn into lists
 country_list      = extract_selection_list(country_cells)
 distance_list     = extract_list(distance_cells)
@@ -478,8 +492,21 @@ End_of_Life_ef         = extract_selection_list(End_of_Life_ef_cells)
 Assembly_modes  = extract_selection_list(Assembly_modes_cells)
 Assembly_ef     = extract_selection_list(Assembly_ef_cells)
 
-Waste_mode  = extract_selection_list(Waste_mode_cells)
-Waste_ef    = extract_selection_list(Waste_ef_cells)
+Waste_type  = extract_selection_list(Waste_type_cells)
+MSW = extract_selection_list(MSW_cells)
+MSW_ef = extract_selection_list(MSW_ef_cells)
+Industrial_and_Process_Waste = extract_selection_list(Industrial_and_Process_Waste_cells)
+Industrial_and_Process_Waste_ef = extract_selection_list(Industrial_and_Process_Waste_ef_cells)
+Construction_and_Demolition_Waste = extract_selection_list(Construction_and_Demolition_Waste_cells)
+Construction_and_Demolition_Waste_ef = extract_selection_list(Construction_and_Demolition_Waste_ef_cells)
+Hazardous_Waste = extract_selection_list(Hazardous_Waste_cells)
+Hazardous_Waste_ef = extract_selection_list(Hazardous_Waste_ef_cells)
+Organic_Waste = extract_selection_list(Organic_Waste_cells)
+Organic_Waste_ef = extract_selection_list(Organic_Waste_ef_cells)
+Material_specific_waste = extract_selection_list(Material_specific_waste_cells)
+Material_specific_waste_ef = extract_selection_list(Material_specific_waste_ef_cells)
+Energy_Related_Waste = extract_selection_list(Energy_Related_Waste_cells)
+Energy_Related_Waste_ef = extract_selection_list(Energy_Related_Waste_ef_cells)
 # --- LOOKUP DICTIONARIES FOR FAST CALCULATION ---
 van_lookup = dict(zip(van_mode_list, van_emission_list))
 hgv_lookup = dict(zip(HGV_mode_list, HGV_emission_list))
@@ -488,8 +515,39 @@ freight_flight_lookup = dict(zip(Freight_Flight_mode_list, Freight_Flight_emissi
 rail_lookup           = dict(zip(Rail_mode_list, Rail_emission_list))
 sea_tanker_lookup     =dict(zip(Sea_Tanker_mode_list,Sea_Tanker_emission_list))
 cargo_ship_lookup     =dict(zip(Cargo_ship_mode_list,Cargo_ship_emission_list))
-waste_lookup = dict(zip(Waste_mode,Waste_ef))
+
 Assembly_lookup = dict(zip(Assembly_modes,Assembly_ef))
+#Waste configuration
+waste_lookup = {
+    "MSW": {
+        "types": extract_selection_list(MSW_cells),
+        "ef": extract_selection_list(MSW_ef_cells),
+    },
+    "Industrial and Process Waste": {
+        "types": extract_selection_list(Industrial_and_Process_Waste_cells),
+        "ef": extract_selection_list(Industrial_and_Process_Waste_ef_cells),
+    },
+    "Construction and Demolition Waste": {
+        "types": extract_selection_list(Construction_and_Demolition_Waste_cells),
+        "ef": extract_selection_list(Construction_and_Demolition_Waste_ef_cells),
+    },
+    "Hazardous Waste": {
+        "types": extract_selection_list(Hazardous_Waste_cells),
+        "ef": extract_selection_list(Hazardous_Waste_ef_cells),
+    },
+    "Organic Waste": {
+        "types": extract_selection_list(Organic_Waste_cells),
+        "ef": extract_selection_list(Organic_Waste_ef_cells),
+    },
+    "Material-specific Waste": {
+        "types": extract_selection_list(Material_specific_waste_cells),
+        "ef": extract_selection_list(Material_specific_waste_ef_cells),
+    },
+    "Energy-related Waste": {
+        "types": extract_selection_list(Energy_Related_Waste_cells),
+        "ef": extract_selection_list(Energy_Related_Waste_ef_cells),
+    },
+}
 
 # ---- Transport configuration for all modes ----
 
@@ -866,6 +924,23 @@ class WasteRequest(BaseModel):
 class AssemblyRequest(BaseModel):
     Assembly_mode: str
     Power: float
+
+from pydantic import BaseModel
+
+class RecyclingEmissionRequest(BaseModel):
+    country: str
+    metal_type: str                  # selected recycling type
+    recycled_weight_kg: float        # recycled mass in kg
+
+class WasteTotalsRequest(BaseModel):
+    MSW_mass_kg: float = 0.0
+    Industrial_and_Process_Waste_mass_kg: float = 0.0
+    Construction_and_Demolition_Waste_mass_kg: float = 0.0
+    Hazardous_Waste_mass_kg: float = 0.0
+    Organic_Waste_mass_kg: float = 0.0
+    Material_specific_waste_mass_kg: float = 0.0
+    Energy_Related_Waste_mass_kg: float = 0.0
+
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="SPHERE Backend API (Flutter)")
@@ -998,8 +1073,59 @@ def get_options():
         "Machine_brands": Machine_brands,
         "Assembly_modes": Assembly_modes,
         "Assembly_ef"   : Assembly_ef,
-        "Waste_mode"    : Waste_mode,
-        "Waste_ef"      : Waste_ef
+        "Waste_type"    : Waste_type,
+        "MSW"           : MSW,
+        "MSW_ef"        : MSW_ef,
+        "Industrial_and_Process_Waste": Industrial_and_Process_Waste,
+        "Construction_and_Demolition_Waste": Construction_and_Demolition_Waste,
+        "Construction_and_Demolition_Waste_ef": Construction_and_Demolition_Waste_ef,
+        "Hazardous_Waste": Hazardous_Waste,
+        "Hazardous_Waste_ef": Hazardous_Waste_ef,
+        "Organic_Waste": Organic_Waste,
+        "Organic_Waste_ef": Organic_Waste_ef,
+        "Material_specific_waste": Material_specific_waste,
+        "Material_specific_waste_ef": Material_specific_waste_ef,
+        "Energy_Related_Waste": Energy_Related_Waste,
+        "Energy_Related_Waste_ef": Energy_Related_Waste_ef,
+    }
+
+@app.post("/calculate/recycling")
+def calculate_recycling_emission(req: RecyclingEmissionRequest):
+
+    # --- validate country ---
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail="Country not found")
+
+    country_index = country_list.index(req.country)
+    manufacturing_electricity = float(electricity_list[country_index])
+
+    # --- validate recycling type ---
+    normalized_types = [t.strip().lower() for t in metal_recyling_types_list]
+    selected = req.metal_type.strip().lower()
+
+    if selected not in normalized_types:
+        raise HTTPException(status_code=400, detail="Recycling type not supported")
+
+    idx = normalized_types.index(selected)
+    metal_emission = metal_recyling_emission_list[idx]
+
+    if metal_emission == "N/A":
+        raise HTTPException(status_code=400, detail="Emission factor not available")
+
+    metal_emission = float(metal_emission)
+
+    recycled_weight = float(req.recycled_weight_kg)
+
+    recycled_emission = (manufacturing_electricity / 0.3) * metal_emission * recycled_weight
+
+    return {
+        "category": "Recycling",
+        "country": req.country,
+        "metal_type": req.metal_type,
+        "recycled_weight_kg": recycled_weight,
+        "electricity_grid_intensity": manufacturing_electricity,
+        "recycling_emission_factor": metal_emission,
+        "recycled_emission_kgco2e": round(recycled_emission, 2)
     }
 
 @app.get("/meta/transport/config")
@@ -1133,7 +1259,6 @@ def get_profile(profile_name: str, username: str):
 
     return bucket[profile_name]
 
-
 @app.get("/profiles")
 def list_profiles(username: str):
     all_profiles = load_profiles()
@@ -1240,7 +1365,6 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "total_material_emissions": total_material_emissions,
     }
 
-
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
     return {
@@ -1344,7 +1468,7 @@ def calculate_waste(req: WasteRequest):
     if req.waste_mode not in waste_lookup:
         raise HTTPException(status_code=400, detail="Invalid waste mode")
 
-    ef = waste_lookup[req.waste_mode]  # kgCO2e per kg
+    ef = waste_lookup[req.waste_mode]
     emissions = req.mass_kg * ef
 
     return {
@@ -1641,7 +1765,6 @@ def rename_profile(req: ProfileRenameRequest):
 
     return {"status": "renamed","username": req.username,"old_name": req.old_name,"new_name": req.new_name}
 
-
 @app.post("/auth/signup")
 def signup(req: UserSignupRequest):
     wb, ws = load_users_sheet()
@@ -1655,7 +1778,6 @@ def signup(req: UserSignupRequest):
     wb.save(USERS_FILE)
 
     return {"status": "ok", "username": req.username}
-
 
 @app.post("/auth/login")
 def login_user(req: UserLoginRequest):
@@ -1706,3 +1828,49 @@ def excel_update_cells(req: ExcelUpdateCellsRequest):
         _atomic_save_workbook(wb, EXCEL_PATH)
 
     return {"status": "ok", "count": len(req.updates)}
+
+@app.post("/calculate/waste/category_totals")
+def calculate_waste_category_totals(req: WasteTotalsRequest):
+
+    def avg(lst):
+        vals = [float(x) for x in lst if x is not None and str(x).strip() != ""]
+        if not vals:
+            raise HTTPException(status_code=500, detail="EF list is empty for a category")
+        return sum(vals) / len(vals)
+
+    msw_ef_avg = avg(MSW_ef)
+    ind_ef_avg = avg(Industrial_and_Process_Waste_ef)
+    cd_ef_avg  = avg(Construction_and_Demolition_Waste_ef)
+    haz_ef_avg = avg(Hazardous_Waste_ef)
+    org_ef_avg = avg(Organic_Waste_ef)
+    mat_ef_avg = avg(Material_specific_waste_ef)
+    en_ef_avg  = avg(Energy_Related_Waste_ef)
+
+    MSW_emission = float(req.MSW_mass_kg) * msw_ef_avg
+    Industrial_and_Process_Waste_emission = float(req.Industrial_and_Process_Waste_mass_kg) * ind_ef_avg
+    Construction_and_Demolition_Waste_emission = float(req.Construction_and_Demolition_Waste_mass_kg) * cd_ef_avg
+    Hazardous_Waste_emission = float(req.Hazardous_Waste_mass_kg) * haz_ef_avg
+    Organic_Waste_emission = float(req.Organic_Waste_mass_kg) * org_ef_avg
+    Material_specific_waste_emission = float(req.Material_specific_waste_mass_kg) * mat_ef_avg
+    Energy_Related_Waste_emission = float(req.Energy_Related_Waste_mass_kg) * en_ef_avg
+
+    total = (
+        MSW_emission
+        + Industrial_and_Process_Waste_emission
+        + Construction_and_Demolition_Waste_emission
+        + Hazardous_Waste_emission
+        + Organic_Waste_emission
+        + Material_specific_waste_emission
+        + Energy_Related_Waste_emission
+    )
+
+    return {
+        "MSW_emission_kgco2e": round(MSW_emission, 4),
+        "Industrial_and_Process_Waste_emission_kgco2e": round(Industrial_and_Process_Waste_emission, 4),
+        "Construction_and_Demolition_Waste_emission_kgco2e": round(Construction_and_Demolition_Waste_emission, 4),
+        "Hazardous_Waste_emission_kgco2e": round(Hazardous_Waste_emission, 4),
+        "Organic_Waste_emission_kgco2e": round(Organic_Waste_emission, 4),
+        "Material_specific_waste_emission_kgco2e": round(Material_specific_waste_emission, 4),
+        "Energy_Related_Waste_emission_kgco2e": round(Energy_Related_Waste_emission, 4),
+        "total_waste_emission_kgco2e": round(total, 4),
+        }
