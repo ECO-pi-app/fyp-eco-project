@@ -277,3 +277,6 @@ final higherCompoundPartsProvider = StateNotifierProvider.family<
   (ref, key) => HigherCompoundPartsNotifier(),
 );
 
+
+
+

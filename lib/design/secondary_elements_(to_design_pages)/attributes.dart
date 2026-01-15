@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
+import 'package:test_app/riverpod_profileswitch.dart';
 
 
 class AttributesMenu extends ConsumerStatefulWidget {
@@ -94,6 +95,7 @@ List<Map<String, String?>> formattedRows(TableState tableState) {
     final tableNotifier = ref.read(tableControllerProvider(columns).notifier);
 
     final numRows = tableState.selections.isNotEmpty ? tableState.selections[0].length : 0;
+    final part = ref.watch(activePartProvider);
 
   
     List<RowFormat> rows = List.generate(
@@ -378,7 +380,7 @@ List<Map<String, String?>> formattedRows(TableState tableState) {
                       onTap:  () async {
                   await ref
                       .read(emissionCalculatorProvider(widget.productID).notifier)
-                      .calculate(widget.type, rows);
+                      .calculate(part!, widget.type, rows);
                 },
                      
                       

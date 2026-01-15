@@ -4,10 +4,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
+import 'package:test_app/riverpod.dart';
 import 'package:test_app/riverpod_profileswitch.dart';
 
 /// ---------------- ACTIVE PART PROVIDER ----------------
-
 class ActivePartNotifier extends StateNotifier<String?> {
   final Ref ref;
   ActivePartNotifier(this.ref) : super(null) {
@@ -121,12 +121,8 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
     final start = result["start"]!;
     final end = result["end"]!;
 
-    print('Adding timeline: $timelineName ($start → $end) for product: $product');
-
     ref.read(timelineProvider(product).notifier).addTimeline(timelineName);
     ref.read(activeTimelineProvider.notifier).state = timelineName;
-    print('Active timeline set to: $timelineName');
-
     ref.read(timelineDurationProvider(product).notifier).state = {
       ...ref.read(timelineDurationProvider(product).notifier).state,
       timelineName: {"start": start, "end": end},
@@ -137,7 +133,6 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
   Future<void> _addPart() async {
     final product = ref.read(activeProductProvider);
     final timeline = ref.read(activeTimelineProvider);
-
     if (product == null || timeline == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a timeline first")),
@@ -165,13 +160,10 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
 
     if (partName == null || partName.trim().isEmpty) return;
 
-    final emissions = ref.read(emissionResultsProvider((product: product, timeline: timeline)));
-    final value = emissions.total;
+    final value = ref.watch(partTotalAllocatedEmissionsProvider((product, partName)));
 
     ref.read(pieChartProvider((product: product, timeline: timeline)).notifier).addPart(partName, value);
     ref.read(activePartProvider.notifier).setPart(partName);
-
-    print('Added part: $partName with value $value');
   }
 
   @override
@@ -188,11 +180,16 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
         ? ref.watch(pieChartProvider((product: product, timeline: activeTimeline))).parts
         : [];
 
-    final values = (product != null && activeTimeline != null)
-        ? ref.watch(pieChartProvider((product: product, timeline: activeTimeline))).values
-        : [];
+    final values = List.generate(parts.length, (i) {
+      final partName = parts[i];
+      return product != null
+          ? ref.watch(partTotalAllocatedEmissionsProvider((product, partName)))
+          : 0.0;
+      
+    });
 
-    print('Build: product=$product, timeline=$activeTimeline, part=$activePart');
+    debugPrint('Active part: $activePart, All parts: $parts');
+
 
     return PrimaryPages(
       backgroundcolor: Apptheme.widgetclrlight,
@@ -262,17 +259,30 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                             final end = timelineValues[t]?["end"] ?? "";
 
                             return ChoiceChip(
+                              selectedColor: Apptheme.widgetsecondaryclr,
+                              backgroundColor: Apptheme.widgettertiaryclr,
+                              showCheckmark: false,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                               label: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(t),
-                                  if (start.isNotEmpty || end.isNotEmpty) Text("$start → $end", style: const TextStyle(fontSize: 10)),
+                                  Textsinsidewidgetsdrysafe(
+                                    words: t, 
+                                    color: Apptheme.textclrdark,
+                                    toppadding: 0,
+                                  ),
+                                  if (start.isNotEmpty || end.isNotEmpty) 
+                                  Textsinsidewidgetsdrysafe(
+                                    words: "$start → $end", 
+                                    color: Apptheme.textclrdark, 
+                                    fontsize: 10,
+                                    toppadding: 1,
+                                  ),
                                 ],
                               ),
                               selected: activeTimeline == t,
                               onSelected: (_) {
                                 ref.read(activeTimelineProvider.notifier).state = t;
-                                print('Timeline selected: $t');
                               },
                             );
                           },
@@ -296,41 +306,97 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
               ),
               const SizedBox(height: 8),
               SizedBox(
-                height: 60,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: parts.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (_, index) {
-                    final part = parts[index];
-                    final value = values[index];
-                    return ChoiceChip(
-                      label: Text("$part = $value"),
-                      selected: activePart == part,
-                      onSelected: (_) {
-                        ref.read(activePartProvider.notifier).setPart(part);
-                        print('Part selected: $part');
-                      },
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 180,
-                child: PieChart(
-                  PieChartData(
-                    sections: List.generate(
-                      parts.length,
-                      (i) => PieChartSectionData(
-                        value: values[i],
-                        title: parts[i],
+                height: 300,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ---------------- Pie Chart ----------------
+                    Expanded(
+                      flex: 2,
+                      child: PieChart(
+                        PieChartData(
+                          sections: List.generate(
+                            parts.length,
+                            (i) {
+                              // Define a color palette
+                              const colors = [
+                                Apptheme.piechart1,
+                                Apptheme.piechart2,
+                                Apptheme.piechart3,
+                                Apptheme.piechart4,
+                                Apptheme.piechart5,
+                                Apptheme.piechart6,
+                                Apptheme.piechart7,
+                                Apptheme.piechart8,
+                                Apptheme.piechart9,
+                                Apptheme.piechart10,
+                                Apptheme.piechart11,
+                                Apptheme.piechart12,
+                                Apptheme.piechart13,
+                                Apptheme.piechart14,
+                                Apptheme.piechart15,
+                                Apptheme.piechart16,
+                                Apptheme.piechart17,
+                              ];
+                              final color = colors[i % colors.length]; // cycle if more parts than colors
+
+                              return PieChartSectionData(
+                                value: values[i],
+                                title: parts[i],
+                                color: color,
+                                radius: 120,
+                                titleStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
+                          ),
+                          sectionsSpace: 2, // space between slices
+                          centerSpaceRadius: 0, // no hole in the center
+                        ),
                       ),
                     ),
-                  ),
+
+                    const SizedBox(width: 16),
+
+                    // ---------------- Parts List ----------------
+                    Expanded(
+                      flex: 1,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(parts.length, (index) {
+                            final part = parts[index];
+                            final value = values[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ChoiceChip(
+                                selectedColor: Apptheme.widgetsecondaryclr,
+                                backgroundColor: Apptheme.widgettertiaryclr,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
+                                showCheckmark: false,
+                                label: Textsinsidewidgetsdrysafe(
+                                  words: "$part = ${value.toStringAsFixed(2)}",
+                                  color: Apptheme.textclrdark,
+                                  toppadding: 0,
+                                ),
+                                selected: activePart == part,
+                                onSelected: (_) {
+                                  ref.read(activePartProvider.notifier).setPart(part);
+                                },
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
+
           ],
         ),
       ),

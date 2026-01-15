@@ -464,7 +464,8 @@ final brandOptionsProvider = Provider.family<List<String>, String>((ref, vehicle
   }
 });
 
-// ------------------- CALCULATION AND RESULT  -------------------
+
+/// ------------------- CALCULATION INPUT -------------------
 class RowFormat {
   final List<String> columnTitles;
   final List<bool> isTextFieldColumn;
@@ -477,12 +478,7 @@ class RowFormat {
   });
 }
 
-// ---------------- EMISSION RESULTS ----------------
-
-/// =======================================================
-/// EMISSION RESULT MODEL
-/// =======================================================
-
+/// ---------------- EMISSION RESULTS ----------------
 class EmissionResults {
   final double material;
   final double transport;
@@ -515,152 +511,177 @@ class EmissionResults {
     double? waste,
     double? usageCycle,
     double? endofLife,
-  }) {
+  }) =>
+      EmissionResults(
+        material: material ?? this.material,
+        transport: transport ?? this.transport,
+        machining: machining ?? this.machining,
+        fugitive: fugitive ?? this.fugitive,
+        productionTransport: productionTransport ?? this.productionTransport,
+        waste: waste ?? this.waste,
+        usageCycle: usageCycle ?? this.usageCycle,
+        endofLife: endofLife ?? this.endofLife,
+      );
+
+  EmissionResults operator +(EmissionResults other) {
     return EmissionResults(
-      material: material ?? this.material,
-      transport: transport ?? this.transport,
-      machining: machining ?? this.machining,
-      fugitive: fugitive ?? this.fugitive,
-      productionTransport:
-          productionTransport ?? this.productionTransport,
-      waste: waste ?? this.waste,
-      usageCycle: usageCycle ?? this.usageCycle,
-      endofLife: endofLife ?? this.endofLife,
+      material: (material) + (other.material),
+      transport: (transport) + (other.transport),
+      machining: (machining) + (other.machining),
+      fugitive: (fugitive) + (other.fugitive),
+      productionTransport: (productionTransport) + (other.productionTransport),
+      waste: (waste) + (other.waste),
+      usageCycle: (usageCycle) + (other.usageCycle),
+      endofLife: (endofLife) + (other.endofLife),
     );
   }
 
+
   double get total =>
-      material +
-      transport +
-      machining +
-      fugitive +
-      productionTransport +
-      waste +
-      usageCycle +
-      endofLife;
+      (material ?? 0) +
+      (transport ?? 0) +
+      (machining ?? 0) +
+      (fugitive ?? 0) +
+      (productionTransport ?? 0) +
+      (waste ?? 0) +
+      (usageCycle ?? 0) +
+      (endofLife ?? 0);
 }
 
-/// =======================================================
-/// CALCULATOR STATE
-/// =======================================================
 
+/// ---------------- CALCULATOR STATE ----------------
 class EmissionCalculatorState {
-  final List<EmissionResults> rows;
-  final EmissionResults totals;
+  final Map<String, List<EmissionResults>> rowsByPart;
+  final Map<String, EmissionResults> totalsByPart;
 
   const EmissionCalculatorState({
-    this.rows = const [],
-    this.totals = const EmissionResults(),
+    this.rowsByPart = const {},
+    this.totalsByPart = const {},
   });
 
   EmissionCalculatorState copyWith({
-    List<EmissionResults>? rows,
-    EmissionResults? totals,
+    Map<String, List<EmissionResults>>? rowsByPart,
+    Map<String, EmissionResults>? totalsByPart,
   }) {
     return EmissionCalculatorState(
-      rows: rows ?? this.rows,
-      totals: totals ?? this.totals,
+      rowsByPart: rowsByPart ?? this.rowsByPart,
+      totalsByPart: totalsByPart ?? this.totalsByPart,
     );
   }
 }
 
-/// =======================================================
-/// PROVIDERS
-/// =======================================================
-
-final emissionCalculatorProvider = StateNotifierProvider.family<
-    EmissionCalculator,
-    EmissionCalculatorState,
-    String>((ref, productId) {
-  return EmissionCalculator();
-});
+/// ---------------- PROVIDERS ----------------
+final emissionCalculatorProvider =
+    StateNotifierProvider.family<
+        EmissionCalculator,
+        EmissionCalculatorState,
+        String>(
+  (ref, productId) => EmissionCalculator(),
+);
 
 final emissionRowsProvider =
-    Provider.family<List<EmissionResults>, String>((ref, productId) {
-  return ref.watch(emissionCalculatorProvider(productId)).rows;
-});
+    Provider.family<List<EmissionResults>, (String, String)>(
+  (ref, args) {
+    final (productId, partId) = args;
+    return ref
+            .watch(emissionCalculatorProvider(productId))
+            .rowsByPart[partId] ??
+        [];
+  },
+);
 
 final emissionTotalsProvider =
-    Provider.family<EmissionResults, String>((ref, productId) {
-  return ref.watch(emissionCalculatorProvider(productId)).totals;
-});
+    Provider.family<EmissionResults, (String, String)>(
+  (ref, args) {
+    final (productId, partId) = args;
+    return ref
+            .watch(emissionCalculatorProvider(productId))
+            .totalsByPart[partId] ??
+        EmissionResults.empty();
+  },
+);
 
+/// ---------------- CONVERTED EMISSIONS PER PART ----------------
+/// NOTE: assumes your existing allocation + unit providers already exist
+final convertedEmissionsPerPartProvider =
+    Provider.family<EmissionResults, (String, String)>(
+  (ref, args) {
+    final (productId, partId) = args;
 
-/// =======================================================
-/// CONVERTED (ALLOCATED) EMISSIONS PER ROW
-/// =======================================================
+    final rows =
+        ref.watch(emissionRowsProvider((productId, partId)));
+    final factor = ref.watch(unitConversionProvider);
+    final key = (product: productId, part: partId);
 
-final convertedEmissionsProvider =
-    Provider.family<EmissionResults, (String productId, int rowIndex)>(
-        (ref, args) {
-  final (productId, rowIndex) = args;
+    if (rows.isEmpty) return EmissionResults.empty();
 
-  final rows = ref.watch(emissionRowsProvider(productId));
-  if (rowIndex >= rows.length) return EmissionResults.empty();
+    List<String> safe(List<String?>? list) =>
+        list?.map((e) => e ?? '0').toList() ?? [];
 
-  final base = rows[rowIndex];
-  final factor = ref.watch(unitConversionProvider);
+    final allocations = {
+      'material': safe(ref
+          .watch(materialTableProvider(key))
+          .materialAllocationValues),
+      'transport': safe(ref
+          .watch(upstreamTransportTableProvider(key))
+          .transportAllocationValues),
+      'machining': safe(ref
+          .watch(machiningTableProvider(key))
+          .machiningAllocationValues),
+      'fugitive': safe(ref
+          .watch(fugitiveLeaksTableProvider(key))
+          .fugitiveAllocationValues),
+      'productionTransport': safe(ref
+          .watch(productionTransportTableProvider(key))
+          .transportAllocationValues),
+      'waste': safe(
+          ref.watch(wastesProvider(key)).wasteAllocationValues),
+      'usageCycle': safe(ref
+          .watch(usageCycleTableProvider(key))
+          .usageCycleAllocationValues),
+      'endofLife': safe(ref
+          .watch(endOfLifeTableProvider(key))
+          .endOfLifeAllocationValues),
+    };
 
-  final product = ref.watch(activeProductProvider);
-  final part = ref.watch(activePartProvider);
-  if (product == null || part == null) return EmissionResults.empty();
+    double alloc(String cat, int i) {
+      final list = allocations[cat]!;
+      if (i >= list.length) return 0;
+      return (double.tryParse(list[i]) ?? 0) / 100;
+    }
 
-  final key = (product: product, part: part);
+    EmissionResults total = EmissionResults.empty();
 
-  final allocations = {
-    'material':
-        ref.watch(materialTableProvider(key)).materialAllocationValues,
-    'transport':
-        ref.watch(upstreamTransportTableProvider(key))
-            .transportAllocationValues,
-    'machining':
-        ref.watch(machiningTableProvider(key))
-            .machiningAllocationValues,
-    'fugitive':
-        ref.watch(fugitiveLeaksTableProvider(key))
-            .fugitiveAllocationValues,
-    'productionTransport':
-        ref.watch(productionTransportTableProvider(key))
-            .transportAllocationValues,
-    'waste':
-        ref.watch(wastesProvider(key)).wasteAllocationValues,
-    'usageCycle':
-        ref.watch(usageCycleTableProvider(key))
-            .usageCycleAllocationValues,
-    'endofLife':
-        ref.watch(endOfLifeTableProvider(key))
-            .endOfLifeAllocationValues,
-  };
+    for (int i = 0; i < rows.length; i++) {
+      final r = rows[i];
+      total += EmissionResults(
+        material: r.material * alloc('material', i) * factor,
+        transport: r.transport * alloc('transport', i) * factor,
+        machining: r.machining * alloc('machining', i) * factor,
+        fugitive: r.fugitive * alloc('fugitive', i) * factor,
+        productionTransport:
+            r.productionTransport *
+                alloc('productionTransport', i) *
+                factor,
+        waste: r.waste * alloc('waste', i) * factor,
+        usageCycle:
+            r.usageCycle * alloc('usageCycle', i) * factor,
+        endofLife:
+            r.endofLife * alloc('endofLife', i) * factor,
+      );
+    }
 
-  double alloc(String k) {
-    final list = allocations[k]!;
-    final raw =
-        list.length > rowIndex ? list[rowIndex] ?? '0' : '0';
-    final parsed = double.tryParse(raw) ?? 0;
-    debugPrint('Row $rowIndex [$k] allocation = $parsed%');
-    return parsed / 100;
-  }
+    return total;
+  },
+);
 
-  return EmissionResults(
-    material: base.material * alloc('material') * factor,
-    transport: base.transport * alloc('transport') * factor,
-    machining: base.machining * alloc('machining') * factor,
-    fugitive: base.fugitive * alloc('fugitive') * factor,
-    productionTransport:
-        base.productionTransport *
-            alloc('productionTransport') *
-            factor,
-    waste: base.waste * alloc('waste') * factor,
-    usageCycle: base.usageCycle * alloc('usageCycle') * factor,
-    endofLife: base.endofLife * alloc('endofLife') * factor,
-  );
-});
+final partTotalAllocatedEmissionsProvider =
+    Provider.family<double, (String, String)>(
+  (ref, args) =>
+      ref.watch(convertedEmissionsPerPartProvider(args)).total,
+);
 
-
-/// =======================================================
-/// EMISSION CALCULATOR (API → ROWS → TOTALS)
-/// =======================================================
-
+/// ---------------- EMISSION CALCULATOR ----------------
 class EmissionCalculator
     extends StateNotifier<EmissionCalculatorState> {
   EmissionCalculator() : super(const EmissionCalculatorState());
@@ -736,95 +757,119 @@ class EmissionCalculator
         'http://127.0.0.1:8000/calculate/cargo_ship',
   };
 
-  Future<void> calculate(
-    String featureType,
-    List<RowFormat> rows,
-  ) async {
-    final config = _config[featureType];
-    if (config == null) return;
+Future<void> calculate(
+  String partId,
+  String featureType,
+  List<RowFormat> rows,
+) async {
+  final config = _config[featureType];
+  if (config == null) return;
 
-    final endpointDefault = config['endpoint'] as String;
-    final apiKeys = config['apiKeys'] as Map<String, String>;
+  final endpointDefault = config['endpoint'] as String;
+  final apiKeys = config['apiKeys'] as Map<String, String>;
 
-    final List<EmissionResults> resultRows = [];
+  // Type-safe initialization
+  final List<EmissionResults> resultRows =
+      (state.rowsByPart[partId] ?? <EmissionResults>[]).cast<EmissionResults>();
 
-    for (final row in rows) {
-      final payload = <String, dynamic>{};
+  for (int i = 0; i < rows.length; i++) {
+    final row = rows[i];
+    final payload = <String, dynamic>{};
 
-      for (int i = 0; i < row.columnTitles.length; i++) {
-        final apiKey = apiKeys[row.columnTitles[i]];
-        if (apiKey == null) continue;
+    for (int col = 0; col < row.columnTitles.length; col++) {
+      final apiKey = apiKeys[row.columnTitles[col]];
+      if (apiKey == null) continue;
 
-        payload[apiKey] = row.isTextFieldColumn[i]
-            ? double.tryParse(row.selections[i] ?? '0') ?? 0
-            : row.selections[i] ?? '';
-      }
+      payload[apiKey] = row.isTextFieldColumn[col]
+          ? double.tryParse(row.selections[col] ?? '0') ?? 0
+          : row.selections[col] ?? '';
+    }
 
-      String endpoint = endpointDefault;
-      if (featureType.contains('transport')) {
-        endpoint =
-            _transportEndpoints[row.selections.first] ??
-                endpointDefault;
-      }
+    String endpoint = endpointDefault;
+    if (featureType.contains('transport')) {
+      endpoint = _transportEndpoints[row.selections.first] ?? endpointDefault;
+    }
 
+    double value = 0;
+    try {
       final response = await http.post(
         Uri.parse(endpoint),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(payload),
       );
 
-      if (response.statusCode != 200) {
-        resultRows.add(const EmissionResults());
-        continue;
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        value = (json["total_material_emissions"] ??
+                json["total_transport_type_emission"] ??
+                json["emissions_kgco2e"] ??
+                json["emissions"] ??
+                0)
+            .toDouble();
       }
-
-      final json = jsonDecode(response.body);
-      final value =
-          (json["total_material_emissions"] ??
-                  json["total_transport_type_emission"] ??
-                  json["emissions_kgco2e"] ??
-                  json["emissions"] ??
-                  0)
-              .toDouble();
-
-      resultRows.add(
-        featureType == 'material'
-            ? EmissionResults(material: value)
-            : featureType == 'upstream_transport'
-                ? EmissionResults(transport: value)
-                : featureType == 'machining'
-                    ? EmissionResults(machining: value)
-                    : featureType == 'fugitive'
-                        ? EmissionResults(fugitive: value)
-                        : featureType ==
-                                'production_transport'
-                            ? EmissionResults(
-                                productionTransport: value)
-                            : featureType == 'waste'
-                                ? EmissionResults(waste: value)
-                                : const EmissionResults(),
-      );
+    } catch (_) {
+      value = 0;
     }
 
-    final totals = resultRows.fold(
-      const EmissionResults(),
-      (a, b) => a.copyWith(
-        material: a.material + b.material,
-        transport: a.transport + b.transport,
-        machining: a.machining + b.machining,
-        fugitive: a.fugitive + b.fugitive,
-        productionTransport:
-            a.productionTransport + b.productionTransport,
-        waste: a.waste + b.waste,
-      ),
-    );
+    // Ensure we have a slot
+    while (i >= resultRows.length) {
+      resultRows.add(EmissionResults.empty());
+    }
 
-    state = EmissionCalculatorState(
-      rows: resultRows,
-      totals: totals,
+    final existing = resultRows[i];
+
+    resultRows[i] = existing.copyWith(
+      material: featureType == 'material' ? value : existing.material,
+      transport: featureType == 'upstream_transport' ? value : existing.transport,
+      machining: featureType == 'machining' ? value : existing.machining,
+      fugitive: featureType == 'fugitive' ? value : existing.fugitive,
+      productionTransport:
+          featureType == 'production_transport' ? value : existing.productionTransport,
+      waste: featureType == 'waste' ? value : existing.waste,
+      usageCycle: existing.usageCycle,
+      endofLife: existing.endofLife,
     );
   }
+
+  final totals = resultRows.fold(EmissionResults.empty(), (a, b) => a + b);
+
+  state = state.copyWith(
+    rowsByPart: {...state.rowsByPart, partId: resultRows},
+    totalsByPart: {...state.totalsByPart, partId: totals},
+  );
 }
+
+void addRow(String partId, EmissionResults row) {
+  final List<EmissionResults> rows =
+      (state.rowsByPart[partId] ?? <EmissionResults>[]).cast<EmissionResults>()
+        ..add(row);
+
+  final totals = rows.fold(EmissionResults.empty(), (a, b) => a + b);
+
+  state = state.copyWith(
+    rowsByPart: {...state.rowsByPart, partId: rows},
+    totalsByPart: {...state.totalsByPart, partId: totals},
+  );
+}
+
+void updateRow(String partId, int index, EmissionResults row) {
+  final List<EmissionResults> rows =
+      (state.rowsByPart[partId] ?? <EmissionResults>[]).cast<EmissionResults>();
+
+  if (index >= rows.length) return;
+
+  rows[index] = row;
+
+  final totals = rows.fold(EmissionResults.empty(), (a, b) => a + b);
+
+  state = state.copyWith(
+    rowsByPart: {...state.rowsByPart, partId: rows},
+    totalsByPart: {...state.totalsByPart, partId: totals},
+  );
+}
+
+
+    }
 
 
 

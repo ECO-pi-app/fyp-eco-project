@@ -65,7 +65,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
       // Loop through each row and sum the converted emissions
       for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionsProvider((widget.productID, i)));
+        final rowEmissions = ref.watch(convertedEmissionsPerPartProvider((widget.productID,part)));
 
         totalMaterial += rowEmissions.material;
         totalTransport += rowEmissions.transport;
@@ -508,7 +508,7 @@ class MaterialAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('material', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -642,7 +642,7 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('upstream_transport', rows);
+                      .calculate(part, 'upstream_transport', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -752,7 +752,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('machining', rows);
+                      .calculate(part, 'machining', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -861,7 +861,7 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('fugitive', rows);
+                      .calculate(part, 'fugitive', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -982,7 +982,7 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('production_transport', rows);
+                      .calculate(part, 'production_transport', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1081,7 +1081,7 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate('waste', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'waste', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1199,7 +1199,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('usage_cycle', rows);
+                      .calculate(part, 'usage_cycle', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1308,7 +1308,7 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
-                      .calculate('end_of_life', rows);
+                      .calculate(part, 'end_of_life', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,

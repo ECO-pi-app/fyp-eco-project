@@ -30,15 +30,7 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
 
     // --- Bookmarks / Categories (now as submenu) ---
     final bookmarks = [
-      _drawerTileLight("Scope 3 Category 1", () => widget.onSelectPage(6)),
-      _drawerTileLight("Scope 3 Category 2", () => widget.onSelectPage(7)),
-      _drawerTileLight("Scope 3 Category 3", () => widget.onSelectPage(8)),
-      _drawerTileLight("Scope 3 Category 4", () => widget.onSelectPage(9)),
-      _drawerTileLight("Scope 3 Category 5", () => widget.onSelectPage(10)),
-      _drawerTileLight("Scope 3 Category 9", () => widget.onSelectPage(11)),
-      _drawerTileLight("Scope 3 Category 10", () => widget.onSelectPage(12)),
-      _drawerTileLight("Scope 3 Category 11", () => widget.onSelectPage(13)),
-      _drawerTileLight("Scope 3 Category 12", () => widget.onSelectPage(14)),
+      _drawerTileLight("Climate", () => widget.onSelectPage(6)),
     ];
 
     return MouseRegion(
@@ -72,7 +64,7 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
                 // --- Parent Tile with Submenu (Scope & Categories) ---
                 _parentTile(
                   icon: Icons.factory,
-                  label: "Scope & Categories",
+                  label: "Data Reporting and Summary",
                   isOpen: _openSubmenu,
                   onTap: () => setState(() => _openSubmenu = !_openSubmenu),
                 ),

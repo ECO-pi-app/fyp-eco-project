@@ -80,7 +80,7 @@ String getPercentageTitle(double value, double total) {
 
       // Loop through each row and sum the converted emissions
       for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionsProvider((widget.profileName, i)));
+        final rowEmissions = ref.watch(convertedEmissionsPerPartProvider((widget.profileName,part)));
 
         totalMaterial += rowEmissions.material;
         totalTransport += rowEmissions.transport;

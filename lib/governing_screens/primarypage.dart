@@ -11,14 +11,6 @@ import 'package:test_app/dynamic_pages/main_sustainabilitynews.dart';
 import 'package:test_app/dynamic_pages/zdebug.dart';
 import 'package:test_app/riverpod_account.dart';
 import 'package:test_app/scope_pages/scope3_category1.dart';
-import 'package:test_app/scope_pages/scope3_category2.dart';
-import 'package:test_app/scope_pages/scope3_category3.dart';
-import 'package:test_app/scope_pages/scope3_category4.dart';
-import 'package:test_app/scope_pages/scope3_category5.dart';
-import 'package:test_app/scope_pages/scope3_category9.dart';
-import 'package:test_app/scope_pages/scope3_category10.dart';
-import 'package:test_app/scope_pages/scope3_category11.dart';
-import 'package:test_app/scope_pages/scope3_category12.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/riverpod.dart';
 
@@ -77,48 +69,9 @@ void initState() {
     //--BOOKMARKS---------------------------------------------------------------------
     KeyedSubtree(
       key: ValueKey('cat1'),
-      child: BookmarkCategoryOne(),
+      child: ProductDetailForm(productId: widget.profileName,),
     ),
 
-    KeyedSubtree(
-      key: ValueKey('cat2'),
-      child: BookmarkCategoryTwo(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat3'),
-      child: BookmarkCategoryThree( ),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat4'),
-      child: BookmarkCategoryFour(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat5'),
-      child: BookmarkCategoryFive(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat9'),
-      child: BookmarkCategoryNine(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat10'),
-      child: BookmarkCategoryTen(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat11'),
-      child: BookmarkCategoryEleven(),
-    ),
-
-    KeyedSubtree(
-      key: ValueKey('cat12'),
-      child: BookmarkCategoryTwelve(),
-    ),
   ];
 }
 
