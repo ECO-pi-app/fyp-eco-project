@@ -23,6 +23,9 @@ class DebugPage extends ConsumerWidget {
     final key = (product: product, part: part);
 
     /// ---------------- MATERIAL ----------------
+    final normalMaterialState = ref.watch(normalMaterialTableProvider(key));
+    final normalMaterialNotifier = ref.read(normalMaterialTableProvider(key).notifier);
+
     final materialState = ref.watch(materialTableProvider(key));
     final materialNotifier = ref.read(materialTableProvider(key).notifier);
 
@@ -50,6 +53,10 @@ class DebugPage extends ConsumerWidget {
     final usageCycleState = ref.watch(usageCycleTableProvider(key));
     final usageCycleNotifier = ref.read(usageCycleTableProvider(key).notifier);
 
+    /// ---------------- END OF LIFE ----------------
+    final endOfLifeState = ref.watch(endOfLifeTableProvider(key));
+    final endOfLifeNotifier = ref.read(endOfLifeTableProvider(key).notifier);
+
 
 
     return PrimaryPages(
@@ -61,6 +68,16 @@ class DebugPage extends ConsumerWidget {
           Labels(
             title:
                 "Material Acquisition",
+            color: Apptheme.textclrdark,
+          ),
+          const SizedBox(height: 10),
+          _buildNormalMaterialTable(normalMaterialState, normalMaterialNotifier),
+          const SizedBox(height: 30),
+
+          // -------------------- MATERIAL ACQUISITION --------------------
+          Labels(
+            title:
+                "Recycled Material Acquisition",
             color: Apptheme.textclrdark,
           ),
           const SizedBox(height: 10),
@@ -119,6 +136,14 @@ class DebugPage extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           _buildUsageCycleTable(usageCycleState, usageCycleNotifier),
+
+          // --------------------- END OF LIFE -------------------
+          Labels(
+            title: 'End of Life', 
+            color: Apptheme.textclrdark
+          ),
+          const SizedBox(height: 10,),
+          _endOfLifeCycleTable(endOfLifeState, endOfLifeNotifier)
         ],
       ),
     );
@@ -129,6 +154,53 @@ class DebugPage extends ConsumerWidget {
 
 
 // -------------------- MATERIAL TABLE --------------------
+Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n) {
+  final rowCount = s.normalMaterials.length;
+
+  return Table(
+    defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+    columnWidths: const {
+      0: FixedColumnWidth(200),
+      1: FixedColumnWidth(120),
+      2: FixedColumnWidth(120),
+      5: FlexColumnWidth(),
+      6: FixedColumnWidth(70),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(
+          color: Apptheme.widgettertiaryclr,
+        ),
+        children: const [
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Material", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Country", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass (kg)", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
+        ],
+      ),
+
+      for (int i = 0; i < rowCount; i++)
+        TableRow(
+          children: [
+            _staticCell(s.normalMaterials[i]),
+            _staticCell(s.countries[i]),
+            _staticCell(s.masses[i]),
+            _editableCell(
+              text: s.materialAllocationValues[i],
+              onChanged: (v) {
+                print('Updating row $i Allocation Value: $v');  // <-- debug print
+                n.updateCell(row: i, column: 'Allocation Value', value: v);
+              },
+            ),
+            _checkCell(),
+          ],
+        ),
+    ],
+  );
+}
+
+
 Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
   final rowCount = s.materials.length;
 
@@ -439,6 +511,46 @@ Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
             _staticCell(s.usageFrequencies[i]),
             _editableCell(
               text: s.usageCycleAllocationValues[i],
+              onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
+            ),
+            _checkCell(),
+          ],
+        ),
+    ],
+  );
+}
+
+Widget _endOfLifeCycleTable(EndOfLifeTableState s, EndOfLifeTableNotifier n) {
+  final rowCount = s.endOfLifeOptions.length;
+
+  return Table(
+    defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
+    columnWidths: const {
+      0: FixedColumnWidth(200),
+      1: FixedColumnWidth(120),
+      3: FlexColumnWidth(),
+      4: FixedColumnWidth(70),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(
+          color: Apptheme.widgettertiaryclr,
+        ),
+        children: const [
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Process", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
+        ],
+      ),
+
+      for (int i = 0; i < rowCount; i++)
+        TableRow(
+          children: [
+            _staticCell(s.endOfLifeOptions[i]),
+            _staticCell(s.endOfLifeTotalMass[i]),
+            _editableCell(
+              text: s.endOfLifeAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
             _checkCell(),

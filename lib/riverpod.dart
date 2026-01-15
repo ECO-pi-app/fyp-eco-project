@@ -480,6 +480,7 @@ class RowFormat {
 
 /// ---------------- EMISSION RESULTS ----------------
 class EmissionResults {
+  final double materialNormal;
   final double material;
   final double transport;
   final double machining;
@@ -490,6 +491,7 @@ class EmissionResults {
   final double endofLife;
 
   const EmissionResults({
+    this.materialNormal = 0,
     this.material = 0,
     this.transport = 0,
     this.machining = 0,
@@ -503,6 +505,7 @@ class EmissionResults {
   factory EmissionResults.empty() => const EmissionResults();
 
   EmissionResults copyWith({
+    double? materialNormal,
     double? material,
     double? transport,
     double? machining,
@@ -513,6 +516,7 @@ class EmissionResults {
     double? endofLife,
   }) =>
       EmissionResults(
+        materialNormal: materialNormal ?? this.materialNormal,
         material: material ?? this.material,
         transport: transport ?? this.transport,
         machining: machining ?? this.machining,
@@ -525,6 +529,7 @@ class EmissionResults {
 
   EmissionResults operator +(EmissionResults other) {
     return EmissionResults(
+      materialNormal: (materialNormal) + (other.materialNormal),
       material: (material) + (other.material),
       transport: (transport) + (other.transport),
       machining: (machining) + (other.machining),
@@ -538,6 +543,7 @@ class EmissionResults {
 
 
   double get total =>
+      (materialNormal ?? 0) +
       (material ?? 0) +
       (transport ?? 0) +
       (machining ?? 0) +
@@ -619,6 +625,9 @@ final convertedEmissionsPerPartProvider =
         list?.map((e) => e ?? '0').toList() ?? [];
 
     final allocations = {
+      'material_normal': safe(ref
+          .watch(normalMaterialTableProvider(key))
+          .materialAllocationValues),
       'material': safe(ref
           .watch(materialTableProvider(key))
           .materialAllocationValues),
@@ -689,6 +698,15 @@ class EmissionCalculator
   final Map<String, Map<String, dynamic>> _config = {
     'material': {
       'endpoint':
+          'http://127.0.0.1:8000/calculate/material',
+      'apiKeys': {
+        "Country": "country",
+        "Material": "material",
+        "Mass (kg)": "total_material_purchased_kg",
+      }
+    },
+    'material_custom': {
+      'endpoint':
           'http://127.0.0.1:8000/calculate/material_emission_recycled',
       'apiKeys': {
         "Country": "country",
@@ -739,6 +757,21 @@ class EmissionCalculator
       'apiKeys': {
         "Waste Material": "waste_mode",
         "Mass (kg)": "mass_kg",
+      }
+    },
+    'usage_cycle': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/usage_cycle',
+      'apiKeys': {
+        "Category": "category",
+        "Product" : "product",
+        "Usage Frequency": "mass_kg",
+      }
+    },
+    'end_of_life': {
+      'endpoint': 'http://127.0.0.1:8000/calculate/end_of_life',
+      'apiKeys': {
+        "End of Life Option": "waste_mode",
+        "Total Mass": "mass_kg",
       }
     },
   };
@@ -819,15 +852,15 @@ Future<void> calculate(
     final existing = resultRows[i];
 
     resultRows[i] = existing.copyWith(
-      material: featureType == 'material' ? value : existing.material,
+      materialNormal: featureType == 'material' ? value : existing.materialNormal,
+      material: featureType == 'material_custom' ? value : existing.material,
       transport: featureType == 'upstream_transport' ? value : existing.transport,
       machining: featureType == 'machining' ? value : existing.machining,
       fugitive: featureType == 'fugitive' ? value : existing.fugitive,
-      productionTransport:
-          featureType == 'production_transport' ? value : existing.productionTransport,
+      productionTransport: featureType == 'production_transport' ? value : existing.productionTransport,
       waste: featureType == 'waste' ? value : existing.waste,
-      usageCycle: existing.usageCycle,
-      endofLife: existing.endofLife,
+      usageCycle: featureType == 'usage_cycle' ? value :existing.usageCycle,
+      endofLife:featureType == 'end_of_life' ? value :existing.endofLife,
     );
   }
 
@@ -917,6 +950,101 @@ class TableNotifier extends StateNotifier<TableState> {
 final tableControllerProvider =
     StateNotifierProvider.family<TableNotifier, TableState, int>(
         (ref, columns) => TableNotifier(columns));
+
+// --------------- NORMAL MATERIAL STATE -----------------
+class NormalMaterialState {
+  final List<String?> normalMaterials;
+  final List<String?> countries;
+  final List<String?> masses;
+  final List<String?> materialAllocationValues; 
+
+  NormalMaterialState({
+    required this.normalMaterials,
+    required this.countries,
+    required this.masses,
+    required this.materialAllocationValues,
+  });
+
+  NormalMaterialState copyWith({
+    List<String?>? normalMaterials,
+    List<String?>? countries,
+    List<String?>? masses,
+    List<String?>? materialAllocationValues,
+  }) {
+    return NormalMaterialState(
+      normalMaterials: normalMaterials ?? this.normalMaterials,
+      countries: countries ?? this.countries,
+      masses: masses ?? this.masses,
+      materialAllocationValues: materialAllocationValues ?? this.materialAllocationValues,
+    );
+  }
+}
+
+class NormalMaterialNotifier extends StateNotifier<NormalMaterialState> {
+  NormalMaterialNotifier()
+      : super(
+          NormalMaterialState(
+            normalMaterials: [''],
+            countries: [''],
+            masses: [''],
+            materialAllocationValues: [''],
+          ),
+        );
+
+  void addRow() {
+    state = state.copyWith(
+      normalMaterials: [...state.normalMaterials, ''],
+      countries: [...state.countries, ''],
+      masses: [...state.masses, ''],
+      materialAllocationValues: [...state.materialAllocationValues, ''],
+    );
+  }
+
+  void removeRow() {
+    if (state.normalMaterials.length > 1) {
+      state = state.copyWith(
+        normalMaterials: state.normalMaterials.sublist(0, state.normalMaterials.length - 1),
+        countries: state.countries.sublist(0, state.countries.length - 1),
+        masses: state.masses.sublist(0, state.masses.length - 1),
+        materialAllocationValues: state.materialAllocationValues.sublist(0, state.materialAllocationValues.length - 1),
+      );
+    }
+  }
+
+  void updateCell({
+    required int row,
+    required String column, // 'Material', 'Country', 'Mass', 'Notes'
+    required String? value,
+  }) {
+    final normalMaterials = [...state.normalMaterials];
+    final countries = [...state.countries];
+    final masses = [...state.masses];
+    final materialAllocationValues = [...state.materialAllocationValues];
+
+    switch (column) {
+      case 'Material':
+        normalMaterials[row] = value;
+        break;
+      case 'Country':
+        countries[row] = value;
+        break;
+      case 'Mass':
+        masses[row] = value;
+        break;
+      case 'Allocation Value':
+        materialAllocationValues[row] = value;
+        break;
+    }
+
+    state = state.copyWith(
+      normalMaterials: normalMaterials,
+      countries: countries,
+      masses: masses,
+      materialAllocationValues: materialAllocationValues,
+    );
+  }
+}
+
 
 // --------------- MATERIAL STATE -----------------
 class MaterialTableState {
@@ -1596,7 +1724,7 @@ class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
       case 'Category':
         categories[row] = value;
         break;
-      case 'Product Type':
+      case 'Product':
         productTypes[row] = value;
         break;
       case 'Usage Frequency':
@@ -1617,13 +1745,11 @@ class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
 class EndOfLifeTableState {
   final List<String?> endOfLifeOptions;
   final List<String?> endOfLifeTotalMass;
-  final List<String?> endOfLifePercentage;
   final List<String?> endOfLifeAllocationValues;
 
   EndOfLifeTableState({
     required this.endOfLifeOptions,
     required this.endOfLifeTotalMass,
-    required this.endOfLifePercentage,
     required this.endOfLifeAllocationValues,
   });
 
@@ -1636,7 +1762,6 @@ class EndOfLifeTableState {
     return EndOfLifeTableState(
       endOfLifeOptions: endOfLifeOptions ?? this.endOfLifeOptions,
       endOfLifeTotalMass: endOfLifeTotalMass ?? this.endOfLifeTotalMass,
-      endOfLifePercentage: endOfLifePercentage ?? this.endOfLifePercentage,
       endOfLifeAllocationValues: endOfLifeAllocationValues ?? this.endOfLifeAllocationValues,
     );
   }
@@ -1648,7 +1773,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
           EndOfLifeTableState(
             endOfLifeOptions: [''],
             endOfLifeTotalMass: [''],
-            endOfLifePercentage: [''],
             endOfLifeAllocationValues: [''],
           ),
         );
@@ -1657,7 +1781,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
     state = state.copyWith(
       endOfLifeOptions: [...state.endOfLifeOptions, ''],
       endOfLifeTotalMass: [...state.endOfLifeTotalMass, ''],
-      endOfLifePercentage: [...state.endOfLifePercentage, ''],
       endOfLifeAllocationValues: [...state.endOfLifeAllocationValues, ''],
     );
   }
@@ -1667,7 +1790,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
       state = state.copyWith(
         endOfLifeOptions: state.endOfLifeOptions.sublist(0, state.endOfLifeOptions.length - 1),
         endOfLifeTotalMass: state.endOfLifeTotalMass.sublist(0, state.endOfLifeTotalMass.length - 1),
-        endOfLifePercentage: state.endOfLifePercentage.sublist(0, state.endOfLifePercentage.length - 1),
         endOfLifeAllocationValues: state.endOfLifeAllocationValues.sublist(0, state.endOfLifeAllocationValues.length - 1),
       );
     }
@@ -1680,7 +1802,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
   }) {
     final endOfLifeOptions = [...state.endOfLifeOptions];
     final endOfLifeTotalMass = [...state.endOfLifeTotalMass];
-    final endOfLifePercentage = [...state.endOfLifePercentage];
     final endOfLifeAllocationValues = [...state.endOfLifeAllocationValues]; 
 
     switch (column) {
@@ -1690,9 +1811,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
       case 'Total Mass':
         endOfLifeTotalMass[row] = value;
         break;
-      case 'Percentage':
-        endOfLifePercentage[row] = value;
-        break;
       case 'Allocation Value':
         endOfLifeAllocationValues[row] = value;
         break;
@@ -1701,7 +1819,6 @@ class EndOfLifeTableNotifier extends StateNotifier<EndOfLifeTableState> {
     state = state.copyWith(
       endOfLifeOptions: endOfLifeOptions,
       endOfLifeTotalMass: endOfLifeTotalMass,
-      endOfLifePercentage: endOfLifePercentage,
       endOfLifeAllocationValues: endOfLifeAllocationValues,
     );
   }
@@ -1712,6 +1829,21 @@ typedef TableKey = ({String product, String part});
 
 double _toDouble(String? value) => double.tryParse(value ?? '0') ?? 0.0;
 
+/// ---------------- NORMAL MATERIAL ----------------
+final normalMaterialTableProvider = StateNotifierProvider.family<
+    NormalMaterialNotifier,
+    NormalMaterialState,
+    TableKey>((ref, key) {
+  return NormalMaterialNotifier();
+});
+
+final normalMaterialAllocationSumProvider =
+    Provider.family<double, TableKey>((ref, key) {
+  final table = ref.watch(normalMaterialTableProvider(key));
+  return table.materialAllocationValues
+      .map(_toDouble)
+      .fold(0.0, (a, b) => a + b);
+});
 
 /// ---------------- MATERIAL ----------------
 final materialTableProvider = StateNotifierProvider.family<

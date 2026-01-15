@@ -29,6 +29,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
     final product = ref.watch(activeProductProvider);
     final part = ref.watch(activePartProvider);
 
+    double totalNormalMaterial = 0;
     double totalMaterial = 0;
     double totalTransport = 0;
     double totalMachining = 0;
@@ -91,29 +92,28 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Material Input | ${totalNormalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
 
-          Row(
-            children: [
-              SizedBox(
-                width: 35,
-                height: 20,
-                child: InkWell(
-                  onTap: () => showAdvancedMaterials(context),
-                  child: Icon(Icons.tune, 
-                    color: Apptheme.iconsdark,
-                    size: 17,
-                    ),
-                ),
-              ),
-              SizedBox(width: 10),
-              InfoIconPopupDark(
-                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
-              ),
-            ],
+          InfoIconPopupDark(
+            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+          ),
+        ],
+      ),
+      NormalMaterialAttributesMenu(productID: widget.productID),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+
+          InfoIconPopupDark(
+            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
           ),
         ],
       ),
@@ -387,6 +387,144 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 }
 
 // ------------------- Manual Material Attributes Menu -------------------
+class NormalMaterialAttributesMenu extends ConsumerWidget {
+  final String productID;
+
+  const NormalMaterialAttributesMenu({super.key, required this.productID});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final horizontalController = ScrollController();
+
+
+    final materials = ref.watch(materialsProvider);
+    final countries = ref.watch(countriesProvider);
+
+    final product = ref.watch(activeProductProvider);
+    print('Active product: $product');
+    final part = ref.watch(activePartProvider);
+    print('Active part: $part');
+
+    if (product == null || part == null) {
+      return const Text('Select a part');
+    }
+
+    final key = (product: product, part: part);
+    final tableState = ref.watch(normalMaterialTableProvider(key));
+
+    final tableNotifier = ref.read(normalMaterialTableProvider(key).notifier);
+
+
+    List<RowFormat> rows = List.generate(
+      tableState.normalMaterials.length,
+      (i) => RowFormat(
+        columnTitles: ['Material', 'Country', 'Mass (kg)'],
+        isTextFieldColumn: [false, false, true],
+        selections: [
+          tableState.normalMaterials[i],
+          tableState.countries[i],
+          tableState.masses[i],
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        // ---------------- Table ----------------
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Scrollbar(
+            controller: horizontalController,
+            thumbVisibility: true,
+            interactive: true,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: SingleChildScrollView(
+                controller: horizontalController,
+                scrollDirection: Axis.horizontal,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumn(
+                        title: 'Material',
+                        values: tableState.normalMaterials,
+                        items: materials,
+                        onChanged: (row, value) =>
+                            tableNotifier.updateCell(row: row, column: 'Material', value: value),
+                      ),
+                      const SizedBox(width: 10),
+                      buildColumn(
+                        title: 'Country',
+                        values: tableState.countries,
+                        items: countries,
+                        onChanged: (row, value) =>
+                            tableNotifier.updateCell(row: row, column: 'Country', value: value),
+                      ),
+                      const SizedBox(width: 10),
+                      buildColumn(
+                        title: 'Mass (kg)',
+                        values: tableState.masses,
+                        isTextField: true,
+                        onChanged: (row, value) =>
+                            tableNotifier.updateCell(row: row, column: 'Mass', value: value),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // ---------------- Calculate Button ----------------
+        Row(
+          children: [
+            SizedBox(width: 20),
+
+            SizedBox(
+              width: 200,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material', rows);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.widgettertiaryclr,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Labelsinbuttons(
+                  title: 'Calculate Emissions',
+                  color: Apptheme.textclrdark,
+                  fontsize: 15,
+                ),
+              ),
+            ),
+
+            SizedBox(width: 10),
+          
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: tableNotifier.addRow,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: tableNotifier.removeRow,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+
 class MaterialAttributesMenu extends ConsumerWidget {
   final String productID;
 
@@ -508,7 +646,7 @@ class MaterialAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material_custom', rows);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1173,7 +1311,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
                           }
                         }),
                         onChanged: (row, value) =>
-                            tableNotifier.updateCell(row: row, column: 'Product Type', value: value),
+                            tableNotifier.updateCell(row: row, column: 'Product', value: value),
                       ),
                       const SizedBox(width: 10),
                       buildColumn(
@@ -1241,12 +1379,11 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
     List<RowFormat> rows = List.generate(
       tableState.endOfLifeOptions.length,
       (i) => RowFormat(
-        columnTitles: ['End of Life Method', 'Product Mass', 'Percentage of Mass'],
-        isTextFieldColumn: [false, true, true],
+        columnTitles: ['End of Life Method', 'Product Mass'],
+        isTextFieldColumn: [false, true],
         selections: [
           tableState.endOfLifeOptions[i],
           tableState.endOfLifeTotalMass[i],
-          tableState.endOfLifePercentage[i],
         ],
       ),
     );
@@ -1274,7 +1411,7 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
                         values: tableState.endOfLifeOptions,
                         items: endOfLifeMethods,
                         onChanged: (row, value) =>
-                            tableNotifier.updateCell(row: row, column: 'End of Life Method', value: value),
+                            tableNotifier.updateCell(row: row, column: 'End of Life Option', value: value),
                       ),
                       const SizedBox(width: 10),
                       buildColumn(
@@ -1282,16 +1419,9 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
                         values: tableState.endOfLifeTotalMass,
                         isTextField: true,
                         onChanged: (row, value) =>
-                            tableNotifier.updateCell(row: row, column: 'Product Mass (kg)', value: value),
+                            tableNotifier.updateCell(row: row, column: 'Total Mass', value: value),
                       ),
-                      const SizedBox(width: 10),
-                      buildColumn(
-                        title: 'Percentage of Mass (%)',
-                        values: tableState.endOfLifePercentage,
-                        isTextField: true,
-                        onChanged: (row, value) =>
-                            tableNotifier.updateCell(row: row, column: 'Percentage of Mass (%)', value: value),
-                      ),
+
                     ],
                   ),
                 ),
