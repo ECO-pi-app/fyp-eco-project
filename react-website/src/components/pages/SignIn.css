@@ -9,18 +9,26 @@
   flex: 1;
   background: #fff;
   display: flex;
-  align-items: center;
+  align-items: flex-start;   
   justify-content: center;
+  padding: 120px 24px 48px; 
 }
 
 .signin-form-wrap {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
+  padding: 36px 32px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(6px);
 }
 
 .signin-form-wrap h1 {
-  font-size: 42px;
-  margin-bottom: 24px;
+  font-size: 44px;
+  margin-bottom: 18px;
+  letter-spacing: -0.5px;
 }
 
 /* FORM */
@@ -31,22 +39,44 @@
 }
 
 .signin-form input {
-  height: 48px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid #d6d6d6;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid #dcdcdc;
   font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.signin-form input:hover {
+  border-color: #bfc59b;     
+}
+
+
+.signin-form input:focus {
+  border-color: #6f7f0f;
+  box-shadow: 0 0 0 4px rgba(111, 127, 15, 0.18);
 }
 
 .signin-form button {
-  height: 52px;
+  height: 54px;
   border-radius: 999px;
   border: none;
   background: #6f7f0f;
   color: #fff;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease;
+  letter-spacing: 0.4px;
+}
+
+.signin-form button:hover {
+  filter: brightness(0.95);
+}
+
+.signin-form button:active {
+  transform: translateY(1px);
 }
 
 /* FOOTER */
@@ -57,22 +87,63 @@
   font-size: 14px;
 }
 
-/* CURVE */
-.signin-curve {
-  width: 120px;
-  background: #fff;
+.signin-footer a {
+  color: #4b4b4b;
+  text-decoration: none;
 }
 
-.signin-curve svg {
-  width: 100%;
-  height: 100%;
+.signin-footer a:hover {
+  text-decoration: underline;
+}
+
+/* CURVE (pure CSS, no SVG needed) */
+.signin-curve {
+  width: 120px;
+  position: relative;
+  background: transparent;
+}
+
+.signin-curve::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  clip-path: path(
+    "M120 0
+     C30 250, 30 750, 120 1000
+     L0 1000
+     L0 0
+     Z"
+  );
 }
 
 /* RIGHT IMAGE */
 .signin-right {
+  position: relative;
   flex: 1;
   background-size: cover;
   background-position: center;
+  filter: saturate(0.8) contrast(0.9) brightness(0.95);
+
+  /* curved bite on the left edge */
+  clip-path: path(
+    "M 0 0
+     L 100% 0
+     L 100% 100%
+     L 0 100%
+     C 12% 80%, 12% 20%, 0 0"
+  );
+}
+
+.signin-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to left,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.35)
+  );
 }
 
 /* MOBILE */
@@ -85,20 +156,16 @@
   .signin-left {
     flex: 1;
   }
+
+  .signin-form-wrap {
+    max-width: 520px;
+    padding: 32px 24px;
+  }
 }
 
-.signin-right {
-  flex: 1;
-  background-image: url("/images/Leaves.png");
-  background-size: cover;
-  background-position: center;
-
-  /* THIS is the magic */
-  clip-path: path(
-    "M 0 0 
-     L 100% 0 
-     L 100% 100% 
-     L 0 100% 
-     C 12% 80%, 12% 20%, 0 0"
-  );
+.signin-subtitle {
+  margin-top: -10px;
+  margin-bottom: 22px;
+  color: #6b6b6b;
+  font-size: 15px;
 }

@@ -5,12 +5,6 @@ import { Link, useHistory } from 'react-router-dom';
 /* 🔹 MOVE SEARCH INDEX OUTSIDE COMPONENT */
 const SEARCH_INDEX = [
   {
-    title: "Carbon Calculator",
-    route: "/calculator",
-    keywords:
-      "calculator calculate carbon co2 co2e emissions footprint materials transport distance mass energy electricity grid intensity machining power time",
-  },
-  {
     title: "Methodology",
     route: "/methodology",
     keywords:
@@ -50,10 +44,10 @@ function Navbar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
-  const handleClick = () => setClick((v) => !v); // ✅ mobile hamburger toggle
+  const handleClick = () => setClick((v) => !v); 
 
   const closeMobileMenu = () => {
-    setClick(false);            // ✅ close mobile menu
+    setClick(false);           
     setOpenTools(false);
     setOpenAbout(false);
   };
@@ -68,7 +62,7 @@ function Navbar() {
     return () => window.removeEventListener('resize', showButton);
   }, []);
 
-  // ✅ close dropdowns when clicking outside
+  // close dropdowns when clicking outside
   useEffect(() => {
     const onDocClick = () => {
       setOpenTools(false);
@@ -78,7 +72,7 @@ function Navbar() {
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
-  /* 🔍 VS-CODE STYLE SEARCH (NO AUTO NAVIGATE) */
+  /*  VS-CODE STYLE SEARCH (NO AUTO NAVIGATE) */
   useEffect(() => {
     const q = query.trim().toLowerCase();
 
@@ -142,12 +136,10 @@ function Navbar() {
             </div>
           </Link>
 
-          {/* ✅ hamburger now actually toggles click */}
           <div className="menu-icon" onClick={handleClick}>
             <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
           </div>
 
-          {/* ✅ click now controls nav-menu */}
           <ul className={click ? 'nav-menu active' : 'nav-menu'} onClick={(e) => e.stopPropagation()}>
             <li className="nav-item">
               <Link to="/" className="nav-links" onClick={closeMobileMenu}>Home</Link>
@@ -158,7 +150,6 @@ function Navbar() {
                 Tools <i className="fas fa-caret-down" />
               </button>
               <ul className={openTools ? 'dropdown-menu show' : 'dropdown-menu'} onClick={(e) => e.stopPropagation()}>
-                <li><Link to="/calculator" className="dropdown-link" onClick={closeMobileMenu}>Calculator</Link></li>
                 <li><Link to="/methodology" className="dropdown-link" onClick={closeMobileMenu}>Methodology</Link></li>
               </ul>
             </li>
@@ -182,8 +173,6 @@ function Navbar() {
               </button>
               <Link to="/contact" className="nav-outline-btn" onClick={closeMobileMenu}>Contact us</Link>
               <Link to="/sign-up" className="nav-primary-btn" onClick={closeMobileMenu}>Download</Link>
-
-              {/* ✅ changed to /sign-in (since you want a real sign-in page) */}
               <Link to="/sign-in" className="nav-signin" onClick={closeMobileMenu}>Sign in</Link>
             </div>
           )}

@@ -1,0 +1,145 @@
+.dash-page {
+  min-height: calc(100vh - 64px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 64px 18px;
+  background: #fafafa;
+}
+
+.dash-card {
+  width: 100%;
+  max-width: 980px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+.dash-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dash-title {
+  font-size: 36px;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.dash-subtitle {
+  margin: 8px 0 0;
+  color: #6b6b6b;
+  font-size: 15px;
+}
+
+.dash-username {
+  color: #2d2d2d;
+  font-weight: 800;
+}
+
+.dash-logout {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.dash-logout:hover {
+  filter: brightness(0.98);
+}
+
+.dash-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #2d2d2d;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-weight: 800;
+  background: #fff;
+}
+
+.dash-btn.primary {
+  background: #6f7f0f;
+  color: #fff;
+  border: none;
+}
+
+.dash-btn:hover {
+  filter: brightness(0.98);
+}
+
+.dash-section {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dash-h2 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.dash-muted {
+  color: #6b6b6b;
+  margin: 0;
+}
+
+.dash-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.dash-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.dash-item-name {
+  font-weight: 800;
+  color: #2d2d2d;
+}
+
+.dash-open {
+  text-decoration: none;
+  font-weight: 800;
+  color: #6f7f0f;
+}
+
+.dash-open:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .dash-card {
+    padding: 20px;
+  }
+  .dash-title {
+    font-size: 30px;
+  }
+}
