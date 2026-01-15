@@ -44,12 +44,14 @@ String getPercentageTitle(double value, double total) {
     final product = ref.watch(activeProductProvider);
     final part = ref.watch(activePartProvider);
 
+    double totalNormalMaterial = 0;
     double totalMaterial = 0;
     double totalTransport = 0;
     double totalMachining = 0;
     double totalFugitive = 0;
     double totalProductionTransport = 0;
     double totalWaste = 0;
+    double totalDownstreamTransport = 0;
     double totalUsageCycle = 0;
     double totalEndOfLife = 0;
 
@@ -62,6 +64,7 @@ String getPercentageTitle(double value, double total) {
       final machiningTable = ref.watch(machiningTableProvider(key));
       final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
       final productionTransportTable = ref.watch(productionTransportTableProvider(key));
+      final downsteamTransportTable = ref.watch(downstreamTransportTableProvider(key));
       final wasteTable = ref.watch(wastesProvider(key));
       final usageCycleTable = ref.watch(usageCycleTableProvider(key));
       final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
@@ -73,6 +76,7 @@ String getPercentageTitle(double value, double total) {
         machiningTable.machines.length,
         fugitiveTable.ghg.length,
         productionTransportTable.vehicles.length,
+        downsteamTransportTable.vehicles.length,
         wasteTable.wasteType.length,
         usageCycleTable.categories.length,
         endOfLifeTable.endOfLifeOptions.length,
@@ -87,21 +91,22 @@ String getPercentageTitle(double value, double total) {
         totalMachining += rowEmissions.machining;
         totalFugitive += rowEmissions.fugitive;
         totalProductionTransport += rowEmissions.productionTransport;
+        totalDownstreamTransport += rowEmissions.downstreamTransport;
         totalWaste += rowEmissions.waste;
         totalUsageCycle += rowEmissions.usageCycle;
         totalEndOfLife += rowEmissions.endofLife;
       }
     }
-    
 
     final List<Map<String, double>> toggleTotals = [
       // LCA Categories
       {
-        'Material': totalMaterial,
-        'Upstream Transport': totalTransport,
+        'Material': totalMaterial + totalNormalMaterial,
+        'Upstream Transport': totalTransport + totalDownstreamTransport + totalProductionTransport,
         'Machining': totalMachining,
         'Fugitive': totalFugitive,
-        'Production Transport': totalProductionTransport,
+        'Usage Cycle' : totalUsageCycle,
+        'End of Life' : totalEndOfLife,
       },
       // Scope Categories
       {
@@ -153,6 +158,18 @@ String getPercentageTitle(double value, double total) {
         color: Apptheme.piechart5,
         value: totalProductionTransport,
         title: 'Production Transport',
+        radius: pieChartSize/2,
+      ),
+      PieChartSectionData(
+          color: Apptheme.piechart4,
+          value: totalUsageCycle,
+          title: 'Usage Cycle',
+          radius: pieChartSize/2,
+        ),
+      PieChartSectionData(
+        color: Apptheme.piechart5,
+        value: totalEndOfLife,
+        title: 'End of Life',
         radius: pieChartSize/2,
       )
       ],
