@@ -896,11 +896,9 @@ class DistanceOnlyRequest(BaseModel):
 
 class MaterialEmissionAdvancedReq(BaseModel):
     material: str
-    country: str
 
     # masses (kg)
     total_material_purchased_kg: float   # total purchased for that material type
-    mass_of_material_recycled_kg: float = 0.0  # in-house recycled mass (optional)
 
     # optional overrides (if you don’t send them, backend uses Excel EF for regular,
     # and 0 for custom/recycled/internal unless you provide)
@@ -1296,11 +1294,6 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
 @app.post("/calculate/material_emission_recycled")
 def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
 
-    # --- validate country ---
-    if req.country not in country_list:
-        raise HTTPException(status_code=400, detail="Country not found in Data Sheet")
-    cidx = country_list.index(req.country)  # (not used, but ok)
-
     # --- validate material ---
     materials = {
         "Steel": steel_list,
@@ -1314,17 +1307,9 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
 
     # --- validate masses ---
     total_purchased = float(req.total_material_purchased_kg)
-    recycled_inhouse_mass = float(req.mass_of_material_recycled_kg or 0.0)
 
     if total_purchased <= 0:
         raise HTTPException(status_code=400, detail="total_material_purchased_kg must be > 0")
-    if recycled_inhouse_mass < 0:
-        raise HTTPException(status_code=400, detail="mass_of_material_recycled_kg cannot be negative")
-    if recycled_inhouse_mass > total_purchased:
-        raise HTTPException(
-            status_code=400,
-            detail="mass_of_material_recycled_kg cannot exceed total_material_purchased_kg"
-        )
 
     # --- custom factors (required or optional?) ---
     if req.custom_ef_of_material is None:
@@ -1343,11 +1328,8 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
     # recycled materials emissions = custom_ef_material × total_mass
     recycled_materials_emissions = recycled_ef * total_purchased
 
-    # in-house recycling emissions = custom_internal_ef × mass_recycled
-    in_house_recycling_emissions = internal_ef * recycled_inhouse_mass
-
     # total emissions
-    total_material_emissions = recycled_materials_emissions + in_house_recycling_emissions
+    total_material_emissions = recycled_materials_emissions
 
     return {
         "country": req.country,
@@ -1360,8 +1342,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "custom_internal_ef_kgco2e_per_kg": internal_ef,
 
         "recycled_materials_emissions": recycled_materials_emissions,
-        "in_house_recycling_emissions": in_house_recycling_emissions,
-
+        
         "total_material_emissions": total_material_emissions,
     }
 
