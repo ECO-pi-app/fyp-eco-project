@@ -903,6 +903,9 @@ class UsageCycleNotifier extends StateNotifier<UsageCycleState> {
       case 'Usage Frequency':
         usageFrequencies[row] = value;
         break;
+      case 'Allocation Value':
+        usageCycleAllocationValues[row] = value;
+        break;
     }
 
     state = state.copyWith(

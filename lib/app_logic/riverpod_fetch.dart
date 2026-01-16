@@ -546,12 +546,12 @@ final brandOptionsProvider = Provider.family<List<String>, String>((ref, vehicle
 final wasteTypeProvider = Provider.family<List<String>, String>((ref, wasteType) {
   switch (wasteType) {
     case 'Municipal Solid Waste (MSW)': return ref.watch(municipalSolidWasteProvider);
-    case 'Industrial&Process Waste': return ref.watch(industrialWasteProvider);
-    case 'Construction&Demolition Waste': return ref.watch(constructionWasteProvider);
+    case 'Industrial & Process Waste': return ref.watch(industrialWasteProvider);
+    case 'Construction & Demolition Waste': return ref.watch(constructionWasteProvider);
     case 'Hazardous Waste': return ref.watch(hazardousWasteProvider);
     case 'Organic  Waste': return ref.watch(organicWasteProvider);
-    case 'Material-specific waste': return ref.watch(materialWasteProvider);
-    case 'Energy-Related Waste': return ref.watch(energyWasteProvider);
+    case 'Material-specific Waste': return ref.watch(materialWasteProvider);
+    case 'Energy-related Waste': return ref.watch(energyWasteProvider);
     default:
       return [];
   }

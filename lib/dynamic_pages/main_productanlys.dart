@@ -283,7 +283,6 @@ for (int i = 0; i < rowCount; i++) {
           Labels(
             title: 'Downstream Transportation | ${totalDownstreamTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
-            fontsize: 17,
           ),
           Padding(
             padding: const EdgeInsets.only(right: 10),

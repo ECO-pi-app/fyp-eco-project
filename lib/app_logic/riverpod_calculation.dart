@@ -506,13 +506,13 @@ class EmissionCalculator
   };
 
   final Map<String, String> _wasteEndpoints = {
-  'Municipal Solid Waste': 'http://127.0.0.1:8000/calculate/waste/msw',
-  'Industrial Waste': 'http://127.0.0.1:8000/calculate/waste/industrial',
-  'Construction Waste': 'http://127.0.0.1:8000/calculate/waste/construction',
+  'Municipal Solid Waste (MSW)': 'http://127.0.0.1:8000/calculate/waste/msw',
+  'Industrial & Process Waste': 'http://127.0.0.1:8000/calculate/waste/industrial',
+  'Construction & Demolition Waste': 'http://127.0.0.1:8000/calculate/waste/construction',
   'Hazardous Waste': 'http://127.0.0.1:8000/calculate/waste/hazardous',
   'Organic Waste': 'http://127.0.0.1:8000/calculate/waste/organic',
-  'Material Waste': 'http://127.0.0.1:8000/calculate/waste/material',
-  'Energy Waste': 'http://127.0.0.1:8000/calculate/waste/energy',
+  'Material-specific Waste': 'http://127.0.0.1:8000/calculate/waste/material',
+  'Energy-related Waste': 'http://127.0.0.1:8000/calculate/waste/energy',
 };
 
 
@@ -577,7 +577,9 @@ Future<void> calculate(
                 json["emissions_kgco2e"] ??
                 json["materialacq_emission"] ??
                 json["emissions"] ??
+                json["usage_emissions"] ??
                 json["end_of_life_emissions"] ??
+                json["emission_kgco2e"] ??
                 0)
             .toDouble();
       }
