@@ -69,19 +69,50 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
       ].reduce((a, b) => a > b ? a : b);
 
       // Loop through each row and sum the converted emissions
-      for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i)));
-        totalNormalMaterial += rowEmissions.materialNormal;
-        totalMaterial += rowEmissions.material;
-        totalTransport += rowEmissions.transport;
-        totalMachining += rowEmissions.machining;
-        totalFugitive += rowEmissions.fugitive;
-        totalProductionTransport += rowEmissions.productionTransport;
-        totalDownstreamTransport += rowEmissions.downstreamTransport;
-        totalWaste += rowEmissions.waste;
-        totalUsageCycle += rowEmissions.usageCycle;
-        totalEndOfLife += rowEmissions.endofLife;
-      }
+      // Loop through each row and sum the converted emissions
+for (int i = 0; i < rowCount; i++) {
+  final normal = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i))
+  );
+  final material = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.material, i))
+  );
+  final transport = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.transportUpstream, i))
+  );
+  final machining = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.machining, i))
+  );
+  final fugitive = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.fugitive, i))
+  );
+  final prodTransport = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.productionTransport, i))
+  );
+  final downstream = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.transportDownstream, i))
+  );
+  final waste = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.waste, i))
+  );
+  final usage = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.usageCycle, i))
+  );
+  final endOfLife = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.endOfLife, i))
+  );
+
+  totalNormalMaterial += normal.materialNormal;
+  totalMaterial += material.material;
+  totalTransport += transport.transport;
+  totalMachining += machining.machining;
+  totalFugitive += fugitive.fugitive;
+  totalProductionTransport += prodTransport.productionTransport;
+  totalDownstreamTransport += downstream.downstreamTransport;
+  totalWaste += waste.waste;
+  totalUsageCycle += usage.usageCycle;
+  totalEndOfLife += endOfLife.endofLife;
+}
     }
 
 
@@ -560,7 +591,6 @@ class MaterialAttributesMenu extends ConsumerWidget {
 
 
     final materials = ref.watch(materialsProvider);
-    final countries = ref.watch(countriesProvider);
 
     final product = ref.watch(activeProductProvider);
     print('Active product: $product');
@@ -1161,15 +1191,16 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(wastesProvider(key));
     final tableNotifier = ref.read(wastesProvider(key).notifier);
 
-    final wasteMaterials = ref.watch(wasteMaterialProvider);
+    final wasteMaterials = ref.watch(wasteCategoryProvider);
 
     List<RowFormat> rows = List.generate(
       tableState.wasteType.length,
       (i) => RowFormat(
-        columnTitles: ['Waste Material', 'Mass (kg)'],
-        isTextFieldColumn: [false, true],
+        columnTitles: ['Waste Type', 'Waste Material', 'Mass (kg)'],
+        isTextFieldColumn: [false, false ,true],
         selections: [
           tableState.wasteType[i],
+          tableState.waste[i],
           tableState.mass[i],
         ],
       ),
@@ -1194,9 +1225,20 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumn(
-                        title: 'Waste Material',
+                        title: 'Waste Type',
                         values: tableState.wasteType,
                         items: wasteMaterials,
+                        onChanged: (row, value) =>
+                            tableNotifier.updateCell(row: row, column: 'Waste Type', value: value),
+                      ),
+                      const SizedBox(width: 10),
+                      buildDynamicColumn(
+                        title: 'Waste Material',
+                        values: tableState.waste,
+                        itemsPerRow:List.generate(tableState.wasteType.length, (i) {
+                          final selectedWasteType = tableState.wasteType[i] ?? '';
+                          return ref.watch(wasteTypeProvider(selectedWasteType));
+                        }),
                         onChanged: (row, value) =>
                             tableNotifier.updateCell(row: row, column: 'Waste Material', value: value),
                       ),

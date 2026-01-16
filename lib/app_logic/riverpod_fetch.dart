@@ -39,7 +39,14 @@ class MetaOptions {
   final List<String> usageCycleServices;
   final List<String> endOfLifeActivities;
   final List<String> assemblyProcesses;
-  final List<String> waste;
+  final List<String> wasteCategories;
+  final List<String> municipalSolidWaste;
+  final List<String> industrialWaste;
+  final List<String> constructionWaste;
+  final List<String> hazardousWaste;
+  final List<String> organicWaste;
+  final List<String> materialWaste;
+  final List<String> energyWaste;
 
   MetaOptions({
     required this.countries,
@@ -73,7 +80,14 @@ class MetaOptions {
     required this.usageCycleServices,
     required this.endOfLifeActivities,
     required this.assemblyProcesses,
-    required this.waste,
+    required this.wasteCategories,
+    required this.municipalSolidWaste,
+    required this.industrialWaste,
+    required this.constructionWaste,
+    required this.hazardousWaste,
+    required this.organicWaste,
+    required this.materialWaste,
+    required this.energyWaste,
   });
 
   factory MetaOptions.fromJson(Map<String, dynamic> json) {
@@ -109,7 +123,14 @@ class MetaOptions {
       usageCycleServices: List<String>.from(json['Usage_services'] ?? []),
       endOfLifeActivities: List<String>.from(json['End_of_Life_Activities'] ?? [],),
       assemblyProcesses: List<String>.from(json['type_here'] ?? [],),
-      waste: List<String>.from(json['Waste_mode'] ?? [],),
+      wasteCategories: List<String>.from(json['Waste_type'] ?? [],),
+      municipalSolidWaste: List<String>.from(json['MSW'] ?? [],),
+      industrialWaste: List<String>.from(json['Industrial_and_Process_Waste'] ?? [],),
+      constructionWaste: List<String>.from(json['Construction_and_Demolition_Waste'] ?? [],),
+      hazardousWaste: List<String>.from(json['Hazardous_Waste'] ?? [],),
+      organicWaste: List<String>.from(json['Organic_Waste'] ?? [],),
+      materialWaste: List<String>.from(json['Material_specific_waste'] ?? [],),
+      energyWaste: List<String>.from(json['Energy_Related_Waste'] ?? [],),
     );
   }
 }
@@ -412,14 +433,78 @@ final assemblyprocesses = Provider<List<String>>((ref) {
   );
 });
 
-final wasteMaterialProvider = Provider<List<String>>((ref) {
+final wasteCategoryProvider = Provider<List<String>>((ref) {
   final asyncMeta = ref.watch(metaOptionsProvider);
   return asyncMeta.when(
-    data: (meta) => meta.waste,
+    data: (meta) => meta.wasteCategories,
     loading: () => [],
     error: (_, __) => [],
   );
 });
+
+final municipalSolidWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.municipalSolidWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final industrialWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.industrialWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final constructionWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.constructionWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final hazardousWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.hazardousWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final organicWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.organicWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final materialWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.materialWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+final energyWasteProvider = Provider<List<String>>((ref) {
+  final asyncMeta = ref.watch(metaOptionsProvider);
+  return asyncMeta.when(
+    data: (meta) => meta.energyWaste,
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
 
 
 final usageCategoriesProvider = Provider.family<List<String>, String>((ref, category) {
@@ -457,3 +542,18 @@ final brandOptionsProvider = Provider.family<List<String>, String>((ref, vehicle
       return [];
   }
 });
+
+final wasteTypeProvider = Provider.family<List<String>, String>((ref, wasteType) {
+  switch (wasteType) {
+    case 'Municipal Solid Waste (MSW)': return ref.watch(municipalSolidWasteProvider);
+    case 'Industrial&Process Waste': return ref.watch(industrialWasteProvider);
+    case 'Construction&Demolition Waste': return ref.watch(constructionWasteProvider);
+    case 'Hazardous Waste': return ref.watch(hazardousWasteProvider);
+    case 'Organic  Waste': return ref.watch(organicWasteProvider);
+    case 'Material-specific waste': return ref.watch(materialWasteProvider);
+    case 'Energy-Related Waste': return ref.watch(energyWasteProvider);
+    default:
+      return [];
+  }
+});
+

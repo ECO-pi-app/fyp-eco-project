@@ -86,37 +86,74 @@ String getPercentageTitle(double value, double total) {
       ].reduce((a, b) => a > b ? a : b);
 
       // Loop through each row and sum the converted emissions
-      for (int i = 0; i < rowCount; i++) {
-        final rowEmissions = ref.watch(convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i)));
+for (int i = 0; i < rowCount; i++) {
+  final normal = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i))
+  );
+  final material = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.material, i))
+  );
+  final transport = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.transportUpstream, i))
+  );
+  final machining = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.machining, i))
+  );
+  final fugitive = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.fugitive, i))
+  );
+  final prodTransport = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.productionTransport, i))
+  );
+  final downstream = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.transportDownstream, i))
+  );
+  final waste = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.waste, i))
+  );
+  final usage = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.usageCycle, i))
+  );
+  final endOfLife = ref.watch(
+    convertedEmissionRowProvider((product, part, EmissionCategory.endOfLife, i))
+  );
 
-        totalNormalMaterial += rowEmissions.materialNormal;
-        totalMaterial += rowEmissions.material;
-        totalTransport += rowEmissions.transport;
-        totalMachining += rowEmissions.machining;
-        totalFugitive += rowEmissions.fugitive;
-        totalProductionTransport += rowEmissions.productionTransport;
-        totalDownstreamTransport += rowEmissions.downstreamTransport;
-        totalWaste += rowEmissions.waste;
-        totalUsageCycle += rowEmissions.usageCycle;
-        totalEndOfLife += rowEmissions.endofLife;
-      }
+  totalNormalMaterial += normal.materialNormal;
+  totalMaterial += material.material;
+  totalTransport += transport.transport;
+  totalMachining += machining.machining;
+  totalFugitive += fugitive.fugitive;
+  totalProductionTransport += prodTransport.productionTransport;
+  totalDownstreamTransport += downstream.downstreamTransport;
+  totalWaste += waste.waste;
+  totalUsageCycle += usage.usageCycle;
+  totalEndOfLife += endOfLife.endofLife;
+}
     }
+
 
     final List<Map<String, double>> toggleTotals = [
       // LCA Categories
       {
-        'Material': totalMaterial + totalNormalMaterial,
-        'Upstream Transport': totalTransport + totalDownstreamTransport + totalProductionTransport,
-        'Machining': totalMachining,
-        'Fugitive': totalFugitive,
-        'Usage Cycle' : totalUsageCycle,
-        'End of Life' : totalEndOfLife,
+        'Material : ': totalMaterial + totalNormalMaterial,
+        'Transport : ': totalTransport + totalDownstreamTransport + totalProductionTransport,
+        'Machining : ': totalMachining,
+        'Fugitive : ': totalFugitive,
+        'Usage Cycle : ' : totalUsageCycle,
+        'End of Life : ' : totalEndOfLife,
       },
       // Scope Categories
       {
-        'Scope 1 (hardcoded for demo)': 60 ,
-        'Scope 2 (hardcoded for demo)': 40,
-        'Scope 3 (hardcoded for demo)': 30,
+        'Scope 1': 0 ,
+        'Scope 2': totalMachining,
+        'Category 1/2': totalMaterial + totalNormalMaterial,
+        'Category 4' : totalTransport,
+        'Category 5' : totalWaste,
+        'Category 9' : totalDownstreamTransport,
+        'Category 10' : 0,
+        'Category 11' : totalUsageCycle,
+        'Category 12' : totalEndOfLife,
+
       },
       // Boundary
       {
@@ -175,20 +212,56 @@ String getPercentageTitle(double value, double total) {
       [
         PieChartSectionData(
           color: Apptheme.piechart1,
-          value: 60,
+          value: 0,
           title: 'Scope 1',
           radius: pieChartSize/2,
         ),
         PieChartSectionData(
           color: Apptheme.piechart2,
-          value: pieChartSize,
+          value: totalMachining,
           title: 'Scope 2',
           radius: pieChartSize/2,
         ),
         PieChartSectionData(
           color: Apptheme.piechart3,
-          value: 30,
-          title: 'Scope 3',
+          value: totalMaterial + totalNormalMaterial,
+          title: 'Category 1/2',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart4,
+          value: totalTransport,
+          title: 'Category 4',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart5,
+          value: totalWaste,
+          title: 'Category 5',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart6,
+          value: totalDownstreamTransport,
+          title: 'Category 9',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart7,
+          value: 0,
+          title: 'Category 10',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart8,
+          value: totalUsageCycle,
+          title: 'Category 11',
+          radius: pieChartSize/2,
+        ),
+        PieChartSectionData(
+          color: Apptheme.piechart9,
+          value: totalEndOfLife,
+          title: 'Category 12',
           radius: pieChartSize/2,
         ),
       ],
@@ -442,7 +515,7 @@ String getPercentageTitle(double value, double total) {
                                   RichTextsInsideWidget(
                                     firstPart: key,
                                     firstColor: color,
-                                    secondPart: ' emissions: ${value.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO2e',
+                                    secondPart: ' ${value.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO2e',
                                     secondColor: Apptheme.textclrdark,
                                   )
                                 ],

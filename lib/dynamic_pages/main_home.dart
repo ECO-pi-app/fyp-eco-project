@@ -192,6 +192,21 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
           : null;
     });
 
+    final timelineTotals = (product != null && timelines != null)
+      ? timelines.timelines.map((t) {
+          return ref.watch(timelineTotalProvider((product, t)));
+        }).toList()
+      : <double>[];
+
+    final maxTimelineY = timelineTotals.isEmpty
+        ? 1.0
+        : timelineTotals
+                .reduce((a, b) => a > b ? a : b)
+                .toDouble() *
+            1.2;
+
+
+
 
     debugPrint('Active part: $activePart, All parts: $parts');
 
@@ -220,29 +235,94 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                     child: SizedBox(
                       height: 200,
                       child: BarChart(
-                        BarChartData(
-                          titlesData: FlTitlesData(
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (val, meta) {
-                                  final idx = val.toInt();
-                                  if (idx < 0 || idx >= timelines.timelines.length) return const SizedBox();
-                                  return Text(timelines.timelines[idx], style: const TextStyle(fontSize: 10));
-                                },
-                              ),
-                            ),
-                            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-                          ),
-                          barGroups: List.generate(
-                            timelines.timelines.length,
-                            (i) => BarChartGroupData(
-                              x: i,
-                              barRods: [BarChartRodData(toY: 1, color: Apptheme.widgetsecondaryclr, width: 18)],
-                            ),
-                          ),
-                        ),
-                      ),
+  BarChartData(
+    maxY: maxTimelineY,
+    alignment: BarChartAlignment.spaceAround,
+    titlesData: FlTitlesData(
+      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 40,
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          getTitlesWidget: (val, meta) {
+            final idx = val.toInt();
+            if (idx < 0 || idx >= timelines.timelines.length) {
+              return const SizedBox();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                timelines.timelines[idx],
+                style: const TextStyle(fontSize: 10),
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          },
+        ),
+      ),
+    ),
+
+    barGroups: List.generate(timelines.timelines.length, (i) {
+      final timelineName = timelines.timelines[i];
+
+      final parts = ref
+          .watch(pieChartProvider((product: product!, timeline: timelineName)))
+          .parts;
+
+      double runningTotal = 0;
+
+      const colors = [
+        Apptheme.piechart1,
+        Apptheme.piechart2,
+        Apptheme.piechart3,
+        Apptheme.piechart4,
+        Apptheme.piechart5,
+        Apptheme.piechart6,
+        Apptheme.piechart7,
+        Apptheme.piechart8,
+      ];
+
+      final stacks = <BarChartRodStackItem>[];
+
+      for (int p = 0; p < parts.length; p++) {
+        final partName = parts[p];
+        final result =
+            ref.watch(convertedEmissionsTotalProvider((product!, partName)));
+
+        final value = result.total;
+
+        stacks.add(
+          BarChartRodStackItem(
+            runningTotal,
+            runningTotal + value,
+            colors[p % colors.length],
+          ),
+        );
+
+        runningTotal += value;
+      }
+
+      return BarChartGroupData(
+        x: i,
+        barRods: [
+          BarChartRodData(
+            toY: runningTotal,
+            rodStackItems: stacks,
+            width: 18,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ],
+      );
+    }),
+  ),
+),
+
                     ),
                   ),
                 const SizedBox(width: 16),
