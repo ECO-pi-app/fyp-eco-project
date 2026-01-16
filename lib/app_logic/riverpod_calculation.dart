@@ -170,6 +170,26 @@ final emissionTotalsProvider =
   },
 );
 
+final timelineTotalProvider = Provider.family<double, (String product, String timeline)>(
+  (ref, args) {
+    final (product, timeline) = args;
+
+    final parts = ref
+        .watch(pieChartProvider((product: product, timeline: timeline)))
+        .parts;
+
+    double sum = 0;
+
+    for (final part in parts) {
+      final result = ref.watch(convertedEmissionsTotalProvider((product, part)));
+      sum += result.total;
+    }
+
+    return sum;
+  },
+);
+
+
 /// ---------------- CONVERTED EMISSIONS PER PART ----------------
 enum EmissionCategory {
   materialNormal,
@@ -435,7 +455,7 @@ class EmissionCalculator
     'waste': {
       'endpoint': 'http://127.0.0.1:8000/calculate/waste',
       'apiKeys': {
-        "Waste Material": "waste_mode",
+        "Waste Material": "waste_type",
         "Mass (kg)": "mass_kg",
       }
     },
@@ -480,14 +500,22 @@ class EmissionCalculator
   };
 
     final Map<String, String> _usageEndpoints = {
-    'Van': 'http://127.0.0.1:8000/calculate/waste/msw',
-    'HGV (Diesel)': 'http://127.0.0.1:8000/calculate/waste/industrial',
-    'HGV Refrigerated (Diesel)':
-        'http://127.0.0.1:8000/calculate/waste/construction',
-    'Freight Flights':
-        'http://127.0.0.1:8000/calculate/waste/hazardous',
-    'Rail': 'http://127.0.0.1:8000/calculate/waste/organic',
+    'Electronics': 'http://127.0.0.1:8000/calculate/type_here',
+    'Energy': 'http://127.0.0.1:8000/calculate/waste/type_here',
+    'Consumables': 'http://127.0.0.1:8000/calculate/waste/type_here',
+    'Services': 'http://127.0.0.1:8000/calculate/waste/type_here',
   };
+
+  final Map<String, String> _wasteEndpoints = {
+  'Municipal Solid Waste': 'http://127.0.0.1:8000/calculate/waste/msw',
+  'Industrial Waste': 'http://127.0.0.1:8000/calculate/waste/industrial',
+  'Construction Waste': 'http://127.0.0.1:8000/calculate/waste/construction',
+  'Hazardous Waste': 'http://127.0.0.1:8000/calculate/waste/hazardous',
+  'Organic Waste': 'http://127.0.0.1:8000/calculate/waste/organic',
+  'Material Waste': 'http://127.0.0.1:8000/calculate/waste/material',
+  'Energy Waste': 'http://127.0.0.1:8000/calculate/waste/energy',
+};
+
 
 Future<void> calculate(
   String partId,
@@ -521,14 +549,27 @@ Future<void> calculate(
     if (featureType.contains('transport')) {
       endpoint = _transportEndpoints[row.selections.first] ?? endpointDefault;
     }
+    if (featureType.contains('usage_cycle')) {
+      endpoint = _usageEndpoints[row.selections.first] ?? endpointDefault;
+    }
+    if (featureType.contains('waste')) {
+      endpoint = _wasteEndpoints[row.selections.first] ?? endpointDefault;
+    }
 
     double value = 0;
     try {
+      debugPrint('API REQUEST [$featureType]');
+      debugPrint('Row: $i');
+      debugPrint('Endpoint: $endpoint');
+      debugPrint('Payload: ${jsonEncode(payload)}');
       final response = await http.post(
         Uri.parse(endpoint),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(payload),
       );
+
+      debugPrint('API RESPONSE STATUS: ${response.statusCode}');
+      debugPrint('API RESPONSE BODY: ${response.body}');
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -537,6 +578,7 @@ Future<void> calculate(
                 json["emissions_kgco2e"] ??
                 json["materialacq_emission"] ??
                 json["emissions"] ??
+                json["emission_kgco2e"] ??
                 0)
             .toDouble();
       }

@@ -149,8 +149,8 @@ Widget _parentTile({
                 child: Icon(icon, color:Apptheme.iconslight, size: 22)
               ),
               if (_hovered) ...[
-                const SizedBox(width: 16), // Space between icon and label
-                  Labelsinhoverdrawer(label: 'Scopes and Categories', verticalpad: 25,),
+                const SizedBox(width: 16),
+                  Labelsinhoverdrawer(label: label, verticalpad: 25,),
                   const SizedBox(width: 10,),
                   AnimatedRotation(
                     turns: isOpen ? 0.5 : 0.0,

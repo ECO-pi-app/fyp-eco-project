@@ -422,22 +422,26 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
 // ------------------ WASTE ----------------------------
 class WastesTableState {
   final List<String?> wasteType;
+  final List<String?> waste;
   final List<String?> mass;
   final List<String?> wasteAllocationValues; 
 
   WastesTableState({
     required this.wasteType,
+    required this.waste,
     required this.mass,
     required this.wasteAllocationValues,
   });
 
   WastesTableState copyWith({
     List<String?>? wasteType,
+    List<String?>? waste,
     List<String?>? mass,
     List<String?>? wasteAllocationValues,
   }) {
     return WastesTableState(
       wasteType: wasteType ?? this.wasteType,
+      waste: waste ?? this.waste,
       mass: mass ?? this.mass,
       wasteAllocationValues: wasteAllocationValues ?? this.wasteAllocationValues,
     );
@@ -449,6 +453,7 @@ class WastesTableNotifier extends StateNotifier<WastesTableState> {
       : super(
           WastesTableState(
             wasteType: [''],
+            waste: [''],
             mass: [''],
             wasteAllocationValues: [''],
           ),
@@ -457,6 +462,7 @@ class WastesTableNotifier extends StateNotifier<WastesTableState> {
   void addRow() {
     state = state.copyWith(
       wasteType: [...state.wasteType, ''],
+      waste: [...state.waste, ''],
       mass: [...state.mass, ''],
       wasteAllocationValues: [...state.wasteAllocationValues, ''],
     );
@@ -466,6 +472,7 @@ class WastesTableNotifier extends StateNotifier<WastesTableState> {
     if (state.wasteType.length > 1) {
       state = state.copyWith(
         wasteType: state.wasteType.sublist(0, state.wasteType.length - 1),
+        waste: state.waste.sublist(0, state.waste.length - 1),
         mass: state.mass.sublist(0, state.mass.length - 1),
         wasteAllocationValues: state.wasteAllocationValues.sublist(0, state.wasteAllocationValues.length - 1),
       );
@@ -478,12 +485,16 @@ class WastesTableNotifier extends StateNotifier<WastesTableState> {
     required String? value,
   }) {
     final wasteType = [...state.wasteType];
+    final waste = [...state.waste];
     final mass = [...state.mass];
     final wasteAllocationValues = [...state.wasteAllocationValues];
 
     switch (column) {
-      case 'Waste Material':
+      case 'Waste Type':
         wasteType[row] = value;
+        break;
+      case 'Waste Material':
+        waste[row] = value;
         break;
       case 'Mass (kg)':
         mass[row] = value;
@@ -495,6 +506,7 @@ class WastesTableNotifier extends StateNotifier<WastesTableState> {
 
     state = state.copyWith(
       wasteType: wasteType,
+      waste: waste,
       mass: mass,
       wasteAllocationValues: wasteAllocationValues,
     );
