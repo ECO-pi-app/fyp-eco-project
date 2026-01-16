@@ -395,6 +395,8 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
+                    
                     Expanded(
   flex: 2,
   child: parts.isEmpty
