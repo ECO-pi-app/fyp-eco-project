@@ -40,5 +40,14 @@
         "sample": "test"
       }
     }
+  },
+  "ECO-PI": {},
+  "ECO-pi": {
+    "test_product": {
+      "description": "Mock description",
+      "data": {
+        "sample": "test"
+      }
+    }
   }
 }

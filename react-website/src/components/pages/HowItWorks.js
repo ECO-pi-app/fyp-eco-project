@@ -5,8 +5,8 @@ import "./About_us.css";
 export default function HowItWorks() {
   return (
     <div
-      className="about"
-      style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/images/img-1.jpg)` }}
+      className="about about--howitworks"
+      style={{ backgroundImage: "url(/images/img-1.jpg)" }}
     >
       <div className="about__overlay">
         <div className="about__container">
@@ -18,11 +18,8 @@ export default function HowItWorks() {
           </header>
 
           <section className="about__videoWrap">
-            <video className="about__video" controls>
-              <source
-                src={`${process.env.PUBLIC_URL}/videos/app-tutorial.mp4`}
-                type="video/mp4"
-              />
+            <video className="about__video" controls muted>
+              <source src="/videos/log-in.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </section>
