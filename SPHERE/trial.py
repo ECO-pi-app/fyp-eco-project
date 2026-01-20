@@ -1097,14 +1097,14 @@ def calculate_recycling_emission(req: RecyclingEmissionRequest):
     manufacturing_electricity = float(electricity_list[country_index])
 
     # --- validate recycling type ---
-    normalized_types = [t.strip().lower() for t in metal_recyling_types_list]
+    normalized_types = [t.strip().lower() for t in metal_recycling_types_list]
     selected = req.metal_type.strip().lower()
 
     if selected not in normalized_types:
         raise HTTPException(status_code=400, detail="Recycling type not supported")
 
     idx = normalized_types.index(selected)
-    metal_emission = metal_recyling_emission_list[idx]
+    metal_emission = metal_recycling_emission_list[idx]
 
     if metal_emission == "N/A":
         raise HTTPException(status_code=400, detail="Emission factor not available")
@@ -1331,6 +1331,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "recycled_materials_emissions": recycled_materials_emissions,
         "total_material_emissions": total_material_emissions,
     }
+
 @app.get("/meta/machining/mazak")
 def get_mazak_list():
     return {
@@ -1429,7 +1430,7 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
     }
 
 @app.post("/calculate/assembly")
-def calculate_waste(req: AssemblyRequest):
+def calculate_assembly(req: AssemblyRequest):
 
     if req.Assembly_mode not in Assembly_lookup:
         raise HTTPException(status_code=400, detail="Invalid assembly mode")
