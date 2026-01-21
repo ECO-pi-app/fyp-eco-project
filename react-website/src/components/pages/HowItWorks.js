@@ -6,7 +6,7 @@ export default function HowItWorks() {
   return (
     <div
       className="about about--howitworks"
-      style={{ backgroundImage: "url(/images/img-1.jpg)" }}
+      style={{ "--banner-img": "url(/images/img-1.jpg)" }}
     >
       <div className="about__overlay">
         <div className="about__container">

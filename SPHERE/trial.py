@@ -674,13 +674,7 @@ def suggest_optimal_machine(
         midx = machine_value_list.index(machine_name)
         energy = float(specific_machine_energy_use_list[midx])
         electricity_emission_factor = float(electricity_list[cidx])
-        return (
-            energy
-            * weight_after_kg
-            * weight_after_qty
-            * (machining_time_min / 60.0)
-            * electricity_emission_factor
-        )
+        return (energy* weight_after_kg* weight_after_qty* (machining_time_min / 60.0)* electricity_emission_factor)
 
     current_em = machine_emission(current_machine)
     best_machine = current_machine
