@@ -190,7 +190,7 @@ for (var i = 0; i < materialRows.length; i++) {
           const SizedBox(height: 8),
           _emissionRow('Scope 1', 0),
           _emissionRow('Scope 2', emissionTotals.machining),
-          _emissionRow('Scope 3 Purchased goods and services/Capital Goods', emissionTotals.material),
+          _emissionRow('Scope 3 Purchased goods and services/Capital Goods', emissionTotals.material + emissionTotals.materialNormal),
           _emissionRow('Scope 3 Fuel- and energy-related activities', 0),
           _emissionRow('Scope 3 Upstream transportation and distribution', emissionTotals.transport),
           _emissionRow('Scope 3 Waste generated in operations', emissionTotals.waste),
