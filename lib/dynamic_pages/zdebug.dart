@@ -7,156 +7,264 @@ import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/app_logic/riverpod_states.dart';
 
+/// ===========================
+/// REUSABLE FINE-TUNE POPUP
+/// ===========================
+class FineTunePopup extends StatelessWidget {
+  final String title;
+  final String tooltip;
+  final Widget content;
+  final double width;
+  final double height;
+
+  const FineTunePopup({
+    super.key,
+    required this.title,
+    required this.tooltip,
+    required this.content,
+    this.width = 900,
+    this.height = 600,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      waitDuration: const Duration(milliseconds: 300),
+      child: IconButton(
+        icon: const Icon(Icons.tune, color: Apptheme.iconsprimary, size: 19,),
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => Dialog(
+              backgroundColor: Apptheme.backgroundlight,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Apptheme.textclrdark,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          )
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(12),
+                        child: content,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// ===========================
+/// DEBUG PAGE
+/// ===========================
 class DebugPage extends ConsumerWidget {
   final String productID;
-  const DebugPage({super.key, required this.productID });
+  const DebugPage({super.key, required this.productID});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ---------- PROVIDERS ----------
+    // ---------- ACTIVE CONTEXT ----------
     final product = ref.watch(activeProductProvider);
     final part = ref.watch(activePartProvider);
 
     if (product == null || part == null) {
-      return const SizedBox(); // or handle empty state
+      return const SizedBox();
     }
 
     final key = (product: product, part: part);
 
     /// ---------------- MATERIAL ----------------
-    final normalMaterialState = ref.watch(normalMaterialTableProvider(key));
-    final normalMaterialNotifier = ref.read(normalMaterialTableProvider(key).notifier);
+    final normalMaterialState =
+        ref.watch(normalMaterialTableProvider(key));
+    final normalMaterialNotifier =
+        ref.read(normalMaterialTableProvider(key).notifier);
 
-    final materialState = ref.watch(materialTableProvider(key));
-    final materialNotifier = ref.read(materialTableProvider(key).notifier);
+    final materialState =
+        ref.watch(materialTableProvider(key));
+    final materialNotifier =
+        ref.read(materialTableProvider(key).notifier);
 
     /// ---------------- UPSTREAM TRANSPORT ----------------
-    final upstreamTransportState = ref.watch(upstreamTransportTableProvider(key));
-    final upstreamTransportNotifier = ref.read(upstreamTransportTableProvider(key).notifier);
+    final upstreamTransportState =
+        ref.watch(upstreamTransportTableProvider(key));
+    final upstreamTransportNotifier =
+        ref.read(upstreamTransportTableProvider(key).notifier);
 
     /// ---------------- MACHINING ----------------
-    final machiningState = ref.watch(machiningTableProvider(key));
-    final machiningNotifier = ref.read(machiningTableProvider(key).notifier);
+    final machiningState =
+        ref.watch(machiningTableProvider(key));
+    final machiningNotifier =
+        ref.read(machiningTableProvider(key).notifier);
 
     /// ---------------- FUGITIVE LEAKS ----------------
-    final leaksState = ref.watch(fugitiveLeaksTableProvider(key));
-    final leaksNotifier = ref.read(fugitiveLeaksTableProvider(key).notifier);
+    final leaksState =
+        ref.watch(fugitiveLeaksTableProvider(key));
+    final leaksNotifier =
+        ref.read(fugitiveLeaksTableProvider(key).notifier);
 
     /// ---------------- PRODUCTION TRANSPORT ----------------
-    final productionTransportState = ref.watch(productionTransportTableProvider(key));
-    final productionTransportNotifier = ref.read(productionTransportTableProvider(key).notifier);
+    final productionTransportState =
+        ref.watch(productionTransportTableProvider(key));
+    final productionTransportNotifier =
+        ref.read(productionTransportTableProvider(key).notifier);
 
-    /// ---------------- PRODUCTION TRANSPORT ----------------
-    final downstreamTransportState = ref.watch(downstreamTransportTableProvider(key));
-    final downstreamTransportNotifier = ref.read(downstreamTransportTableProvider(key).notifier);
+    /// ---------------- DOWNSTREAM TRANSPORT ----------------
+    final downstreamTransportState =
+        ref.watch(downstreamTransportTableProvider(key));
+    final downstreamTransportNotifier =
+        ref.read(downstreamTransportTableProvider(key).notifier);
 
     /// ---------------- WASTE ----------------
-    final wasteTransportState = ref.watch(wastesProvider(key));
-    final wasteTransportNotifier = ref.read(wastesProvider(key).notifier);
+    final wasteTransportState =
+        ref.watch(wastesProvider(key));
+    final wasteTransportNotifier =
+        ref.read(wastesProvider(key).notifier);
 
     /// ---------------- USAGE CYCLE ----------------
-    final usageCycleState = ref.watch(usageCycleTableProvider(key));
-    final usageCycleNotifier = ref.read(usageCycleTableProvider(key).notifier);
+    final usageCycleState =
+        ref.watch(usageCycleTableProvider(key));
+    final usageCycleNotifier =
+        ref.read(usageCycleTableProvider(key).notifier);
 
     /// ---------------- END OF LIFE ----------------
-    final endOfLifeState = ref.watch(endOfLifeTableProvider(key));
-    final endOfLifeNotifier = ref.read(endOfLifeTableProvider(key).notifier);
-
-
+    final endOfLifeState =
+        ref.watch(endOfLifeTableProvider(key));
+    final endOfLifeNotifier =
+        ref.read(endOfLifeTableProvider(key).notifier);
 
     return PrimaryPages(
       childofmainpage: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+              sectionRow(
+                title: "Material Acquisition",
+                tooltip: "Fine-tune raw material inputs",
+                popupContent: buildNormalMaterialTable(
+                  normalMaterialState,
+                  normalMaterialNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- MATERIAL ACQUISITION --------------------
-          Labels(
-            title:
-                "Material Acquisition",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildNormalMaterialTable(normalMaterialState, normalMaterialNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Recycled Material Acquisition",
+                tooltip: "Fine-tune recycled material inputs",
+                popupContent: buildMaterialTable(
+                  materialState,
+                  materialNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- MATERIAL ACQUISITION --------------------
-          Labels(
-            title:
-                "Recycled Material Acquisition",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildMaterialTable(materialState, materialNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Upstream Transport",
+                tooltip: "Adjust upstream transport allocation",
+                popupContent: buildUpstreamTransportTable(
+                  upstreamTransportState,
+                  upstreamTransportNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- UPSTREAM TRANSPORT --------------------
-          Labels(
-            title: "Upstream Transport",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildUpstreamTransportTable(upstreamTransportState, upstreamTransportNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Machining",
+                tooltip: "Adjust machining allocation",
+                popupContent: buildMachiningTable(
+                  machiningState,
+                  machiningNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- MACHINING --------------------
-          Labels(
-            title: "Machining",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildMachiningTable(machiningState, machiningNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Fugitive Leaks",
+                tooltip: "Adjust fugitive emissions allocation",
+                popupContent: buildFugitiveLeaksTable(
+                  leaksState,
+                  leaksNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- FUGITIVE LEAKS --------------------
-          Labels(
-            title: "Fugitive Leaks",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildFugitiveLeaksTable(leaksState, leaksNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Production Transport",
+                tooltip: "Adjust production transport allocation",
+                popupContent: buildProductionTransportTable(
+                  productionTransportState,
+                  productionTransportNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- PRODUCTION TRANSPORT --------------------
-          Labels(
-            title: "Production Transport",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildProductionTransportTable(productionTransportState, productionTransportNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Manufacturing Wastes",
+                tooltip: "Adjust waste mass allocation",
+                popupContent: buildWasteTable(
+                  wasteTransportState,
+                  wasteTransportNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- WASTE --------------------------
-          Labels(
-            title: "Manufacturing Wastes",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildWasteTable(wasteTransportState, wasteTransportNotifier),
-          const SizedBox(height: 30),
+              sectionRow(
+                title: "Downstream Transportation",
+                tooltip: "Adjust downstream transport allocation",
+                popupContent: buildDownstreamTransportTable(
+                  downstreamTransportState,
+                  downstreamTransportNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- USAGE CYCLE --------------------
-          Labels(
-            title: "Downstream Transportation",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildDownstreamTransportTable(downstreamTransportState, downstreamTransportNotifier),
+              sectionRow(
+                title: "Usage Cycle",
+                tooltip: "Adjust usage cycle allocation",
+                popupContent: buildUsageCycleTable(
+                  usageCycleState,
+                  usageCycleNotifier,
+                ),
+              ),
+              const SizedBox(height: 30),
 
-          // -------------------- USAGE CYCLE --------------------
-          Labels(
-            title: "Usage Cycle",
-            color: Apptheme.textclrdark,
-          ),
-          const SizedBox(height: 10),
-          _buildUsageCycleTable(usageCycleState, usageCycleNotifier),
-
-          // --------------------- END OF LIFE -------------------
-          Labels(
-            title: 'End of Life', 
-            color: Apptheme.textclrdark
-          ),
-          const SizedBox(height: 10,),
-          _endOfLifeCycleTable(endOfLifeState, endOfLifeNotifier)
+              sectionRow(
+                title: "End of Life",
+                tooltip: "Adjust end-of-life allocation",
+                popupContent: endOfLifeCycleTable(
+                  endOfLifeState,
+                  endOfLifeNotifier,
+                ),
+              ),
         ],
       ),
     );
@@ -164,10 +272,20 @@ class DebugPage extends ConsumerWidget {
 }
 
 
-
+Widget sectionRow({
+  required String title,
+  required String tooltip,
+  required Widget popupContent,
+}) {
+  return FineTunePopup(
+    title: title,
+    tooltip: tooltip,
+    content: popupContent,
+  );
+}
 
 // -------------------- MATERIAL TABLE --------------------
-Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n) {
+Widget buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n) {
   final rowCount = s.normalMaterials.length;
 
   return Table(
@@ -175,9 +293,7 @@ Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
-      5: FlexColumnWidth(),
-      6: FixedColumnWidth(70),
+      2: FlexColumnWidth(),
     },
     children: [
       TableRow(
@@ -187,9 +303,7 @@ Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Material", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Country", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass (kg)", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
+          Padding(padding: EdgeInsets.all(8), child: Center(child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16))),
         ],
       ),
 
@@ -198,7 +312,6 @@ Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n
           children: [
             _staticCell(s.normalMaterials[i]),
             _staticCell(s.countries[i]),
-            _staticCell(s.masses[i]),
             _editableCell(
               text: s.materialAllocationValues[i],
               onChanged: (v) {
@@ -206,7 +319,6 @@ Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n
                 n.updateCell(row: i, column: 'Allocation Value', value: v);
               },
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -214,19 +326,14 @@ Widget _buildNormalMaterialTable(NormalMaterialState s, NormalMaterialNotifier n
 }
 
 
-Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
+Widget buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
   final rowCount = s.materials.length;
 
   return Table(
     defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
     columnWidths: const {
       0: FixedColumnWidth(200),
-      1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
-      3: FixedColumnWidth(120),
-      4: FixedColumnWidth(120),
-      5: FlexColumnWidth(),
-      6: FixedColumnWidth(70),
+      1: FlexColumnWidth(),
     },
     children: [
       TableRow(
@@ -235,12 +342,7 @@ Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
         ),
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Material", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Country", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass (kg)", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Custom EF", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Internal EF", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -248,10 +350,6 @@ Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
         TableRow(
           children: [
             _staticCell(s.materials[i]),
-            _staticCell(s.countries[i]),
-            _staticCell(s.masses[i]),
-            _staticCell(s.customEF[i]),
-            _staticCell(s.internalEF[i]),
             _editableCell(
               text: s.materialAllocationValues[i],
               onChanged: (v) {
@@ -259,7 +357,6 @@ Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
                 n.updateCell(row: i, column: 'Allocation Value', value: v);
               },
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -267,7 +364,7 @@ Widget _buildMaterialTable(MaterialTableState s, MaterialTableNotifier n) {
 }
 
 // -------------------- UPSTREAM TRANSPORT TABLE --------------------
-Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTransportTableNotifier n) {
+Widget buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTransportTableNotifier n) {
   final rowCount = s.vehicles.length;
 
   return Table(
@@ -275,10 +372,7 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
-      3: FixedColumnWidth(120),
-      4: FlexColumnWidth(),
-      5: FixedColumnWidth(70),
+      2: FlexColumnWidth(),
     },
     children: [
       TableRow(
@@ -288,10 +382,7 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Vehicle", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Class", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Distance", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -300,13 +391,10 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
           children: [
             _staticCell(s.vehicles[i]),
             _staticCell(s.classes[i]),
-            _staticCell(s.distances[i]),
-            _staticCell(s.masses[i]),
             _editableCell(
               text: s.transportAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -314,7 +402,7 @@ Widget _buildUpstreamTransportTable(UpstreamTransportTableState s, UpstreamTrans
 }
 
 // -------------------- MACHINING TABLE --------------------
-Widget _buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
+Widget buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
   final rowCount = s.machines.length;
 
   return Table(
@@ -322,9 +410,7 @@ Widget _buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
       3: FlexColumnWidth(),
-      4: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -334,9 +420,7 @@ Widget _buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Machine", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Country", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Time (hr)", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -345,12 +429,10 @@ Widget _buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
           children: [
             _staticCell(s.machines[i]),
             _staticCell(s.countries[i]),
-            _staticCell(s.times[i]),
             _editableCell(
               text: s.machiningAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -358,17 +440,14 @@ Widget _buildMachiningTable(MachiningTableState s, MachiningTableNotifier n) {
 }
 
 // -------------------- FUGITIVE LEAKS TABLE --------------------
-Widget _buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNotifier n) {
+Widget buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNotifier n) {
   final rowCount = s.ghg.length;
 
   return Table(
     defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
     columnWidths: const {
       0: FixedColumnWidth(200),
-      1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
       3: FlexColumnWidth(),
-      4: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -377,10 +456,7 @@ Widget _buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNot
         ),
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "GHG", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Total (kg)", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Remaining (kg)", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -388,13 +464,10 @@ Widget _buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNot
         TableRow(
           children: [
             _staticCell(s.ghg[i]),
-            _staticCell(s.totalCharge[i]),
-            _staticCell(s.remainingCharge[i]),
             _editableCell(
               text: s.fugitiveAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -402,7 +475,7 @@ Widget _buildFugitiveLeaksTable(FugitiveLeaksTableState s, FugitiveLeaksTableNot
 }
 
 // ---------------------PRODUCTION TRANSPORT -----------------
-Widget _buildProductionTransportTable(ProductionTransportTableState s, ProductionTransportTableNotifier n) {
+Widget buildProductionTransportTable(ProductionTransportTableState s, ProductionTransportTableNotifier n) {
   final rowCount = s.vehicles.length;
 
   return Table(
@@ -410,10 +483,7 @@ Widget _buildProductionTransportTable(ProductionTransportTableState s, Productio
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
-      3: FixedColumnWidth(120),
       4: FlexColumnWidth(),
-      5: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -423,10 +493,7 @@ Widget _buildProductionTransportTable(ProductionTransportTableState s, Productio
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Vehicle", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Class", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Distance", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -435,13 +502,10 @@ Widget _buildProductionTransportTable(ProductionTransportTableState s, Productio
           children: [
             _staticCell(s.vehicles[i]),
             _staticCell(s.classes[i]),
-            _staticCell(s.distances[i]),
-            _staticCell(s.masses[i]),
             _editableCell(
               text: s.transportAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -449,7 +513,7 @@ Widget _buildProductionTransportTable(ProductionTransportTableState s, Productio
 }
 
 // ---------------------WASTE ---------------------------------
-Widget _buildWasteTable(WastesTableState s, WastesTableNotifier n) {
+Widget buildWasteTable(WastesTableState s, WastesTableNotifier n) {
   final rowCount = s.wasteType.length;
 
   return Table(
@@ -467,9 +531,7 @@ Widget _buildWasteTable(WastesTableState s, WastesTableNotifier n) {
         ),
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Waste Material", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass (kg)", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -477,12 +539,10 @@ Widget _buildWasteTable(WastesTableState s, WastesTableNotifier n) {
         TableRow(
           children: [
             _staticCell(s.wasteType[i]),
-            _staticCell(s.mass[i]),
             _editableCell(
               text: s.wasteAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -490,7 +550,7 @@ Widget _buildWasteTable(WastesTableState s, WastesTableNotifier n) {
 }
 
 // ---------------------PRODUCTION TRANSPORT -----------------
-Widget _buildDownstreamTransportTable(DownstreamTransportTableState s, DownstreamTransportTableNotifier n) {
+Widget buildDownstreamTransportTable(DownstreamTransportTableState s, DownstreamTransportTableNotifier n) {
   final rowCount = s.vehicles.length;
 
   return Table(
@@ -498,10 +558,7 @@ Widget _buildDownstreamTransportTable(DownstreamTransportTableState s, Downstrea
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
-      3: FixedColumnWidth(120),
       4: FlexColumnWidth(),
-      5: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -511,10 +568,7 @@ Widget _buildDownstreamTransportTable(DownstreamTransportTableState s, Downstrea
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Vehicle", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Class", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Distance", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -523,13 +577,10 @@ Widget _buildDownstreamTransportTable(DownstreamTransportTableState s, Downstrea
           children: [
             _staticCell(s.vehicles[i]),
             _staticCell(s.classes[i]),
-            _staticCell(s.distances[i]),
-            _staticCell(s.masses[i]),
             _editableCell(
               text: s.transportAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
@@ -537,7 +588,7 @@ Widget _buildDownstreamTransportTable(DownstreamTransportTableState s, Downstrea
 }
 
 // -------------------- USAGE CYCLE TABLE --------------------
-Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
+Widget buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
   final rowCount = s.usageFrequencies.length;
 
   return Table(
@@ -545,9 +596,7 @@ Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
     columnWidths: const {
       0: FixedColumnWidth(200),
       1: FixedColumnWidth(120),
-      2: FixedColumnWidth(120),
       3: FlexColumnWidth(),
-      4: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -557,9 +606,7 @@ Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Categories", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Product", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Usage Frequency", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -568,28 +615,24 @@ Widget _buildUsageCycleTable(UsageCycleState s, UsageCycleNotifier n) {
           children: [
             _staticCell(s.categories[i]),
             _staticCell(s.productTypes[i]),
-            _staticCell(s.usageFrequencies[i]),
             _editableCell(
               text: s.usageCycleAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],
   );
 }
 
-Widget _endOfLifeCycleTable(EndOfLifeTableState s, EndOfLifeTableNotifier n) {
+Widget endOfLifeCycleTable(EndOfLifeTableState s, EndOfLifeTableNotifier n) {
   final rowCount = s.endOfLifeOptions.length;
 
   return Table(
     defaultVerticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
     columnWidths: const {
       0: FixedColumnWidth(200),
-      1: FixedColumnWidth(120),
       3: FlexColumnWidth(),
-      4: FixedColumnWidth(70),
     },
     children: [
       TableRow(
@@ -598,9 +641,7 @@ Widget _endOfLifeCycleTable(EndOfLifeTableState s, EndOfLifeTableNotifier n) {
         ),
         children: const [
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Process", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Mass", color: Apptheme.textclrdark, fontsize: 16)),
           Padding(padding: EdgeInsets.all(8), child: Labels(title: "Allocation Value", color: Apptheme.textclrdark, fontsize: 16)),
-          Padding(padding: EdgeInsets.all(8), child: Labels(title: "Action", color: Apptheme.textclrdark, fontsize: 16)),
         ],
       ),
 
@@ -608,12 +649,10 @@ Widget _endOfLifeCycleTable(EndOfLifeTableState s, EndOfLifeTableNotifier n) {
         TableRow(
           children: [
             _staticCell(s.endOfLifeOptions[i]),
-            _staticCell(s.endOfLifeTotalMass[i]),
             _editableCell(
               text: s.endOfLifeAllocationValues[i],
               onChanged: (v) => n.updateCell(row: i, column: 'Allocation Value', value: v),
             ),
-            _checkCell(),
           ],
         ),
     ],

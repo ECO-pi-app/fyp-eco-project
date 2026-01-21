@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/apptheme/colors.dart';
@@ -6,7 +8,6 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo
 import 'package:test_app/app_logic/river_controls.dart';
 import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/sub_navigator.dart';
-import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 
 class Welcomepage extends ConsumerStatefulWidget {
@@ -34,6 +35,8 @@ void dispose() {
 
 
     final dynamicfield = showLogin ? const LoginField() : const SignUpField();
+
+    final factsfield = RandomFactsWidget();
 
     return Scaffold(
       backgroundColor: Apptheme.backgroundlight,
@@ -92,7 +95,7 @@ void dispose() {
                           height: 330,
                           child: AspectRatio(
                             aspectRatio: 16 / 9,
-                            child: dynamicfield,
+                            child: factsfield,
                           ),
                         ),
 
@@ -113,19 +116,6 @@ void dispose() {
                           ),
                         ),
 
-                        Container(
-                          color: Apptheme.transparentcheat,
-                          height: 50,
-                          child: Center(
-                            child: IconButton(
-                              onPressed: () {
-                                RootScaffold.of(context)?.goToHomePage();
-                              },
-                              icon: const Icon(Icons.alarm),
-                              color: Apptheme.iconslight,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -134,210 +124,7 @@ void dispose() {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 20, bottom: 20, right: 20, left: 80),
-                    child: Container(
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Apptheme.transparentcheat,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Apptheme.widgetclrdark,
-                          width: 2,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 20, right: 20),
-                        child: productsAsync.when(
-                          data: (products) {
-                            return ListView(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 50),
-                                    child: Titletext(
-                                      title: 'Your Projects',
-                                      color: Apptheme.textclrdark,
-                                    ),
-                                  ),
-                                ),
-
-                               
-                                ...products.map((product) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: InkWell(
-                                        onTap: () {
-                                          print('HomeScreen tapped for product: ${product.name}');
-                                          RootScaffold.of(context)?.goToHomePageWithArgs(product.name);
-                                        },
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            color: Apptheme.widgettertiaryclr,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.only(left: 20),
-                                                  child: Labels(
-                                                    title: product.name,
-                                                    color: Apptheme.textclrdark,
-                                                  ),
-                                                ),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.delete),
-                                                color: Apptheme.iconsdark,
-                                                onPressed: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return AlertDialog(
-                                                        title: const Text("Confirm Delete"),
-                                                        content: Text("Delete ${product.name}?"),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () => Navigator.of(context).pop(),
-                                                            child: const Text("Cancel"),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              ref
-                                                                  .read(deleteProfileProvider.notifier)
-                                                                  .delete(product.name, ref);
-
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                            child: const Text("Delete"),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              const SizedBox(width: 10),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-
-                                const SizedBox(height: 40),
-
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Labels(
-                                        title: "Create Profile",
-                                        color: Apptheme.textclrdark,
-                                      ),
-
-                                      const SizedBox(height: 10),
-
-                                      SizedBox(
-                                        width: 600,
-                                        child: TextField(
-                                          controller: _profileNameCtrl,
-                                          decoration: InputDecoration(
-                                            hintText: "Enter profile name...",
-                                            hintStyle: TextStyle(
-                                              color: Apptheme.texthintclrlight
-                                            ),
-                                            filled: true,
-                                            fillColor: Apptheme.transparentcheat,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(5),
-                                              borderSide: BorderSide(
-                                                color: Apptheme.widgetclrlight 
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Apptheme.widgetclrlight
-                                              )
-                                            ),
-
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Apptheme.widgetclrlight
-                                              )
-                                            )
-                                          ),
-                                          style: TextStyle(color: Apptheme.textclrdark),
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 15),
-
-                                      SizedBox(
-                                        width: 120,
-                                        height: 20,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Apptheme.widgetclrlight,
-                                            foregroundColor: Apptheme.widgetclrdark,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(5),
-                                            ),
-                                          ),
-                                          onPressed: () async {
-                                            final name = _profileNameCtrl.text.trim();
-                                            if (name.isEmpty) return;
-
-                                            final username = await secureStorage.read(key: "username");
-                                            print("Create pressed. storage username = $username");
-
-                                            if (username == null || username.isEmpty) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text("Please log in first")),
-                                              );
-                                              return;
-                                            }
-
-                                            final req = ProfileSaveRequest(
-                                              profileName: name,
-                                              description: "Mock description",
-                                              data: {"sample": "test"}, 
-                                              username: username,   
-                                            );
-
-                                            await ref.read(saveProfileProvider(req).future);
-
-                                            _profileNameCtrl.clear();
-                                            ref.invalidate(productsProvider);
-
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Saved profile: $name")),
-                                            );
-                                          },
-                                          child: const Text("Create"),
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 15),
-
-                                    ],
-                                  ),
-                                ),
-
-                              ],
-                            );
-                          },
-                          loading: () => const Center(child: CircularProgressIndicator()),
-                          error: (err, stack) => Center(child: Text('Error: $err')),
-                        ),
-                      ),
-                    ),
+                    child: ProjectsPanel()
                   ),
                 ),
               ],
@@ -354,6 +141,240 @@ void dispose() {
 
 
 
+//--------------LIST OF PROJECTS------------------------
+class ProjectsPanel extends ConsumerStatefulWidget {
+  const ProjectsPanel({super.key});
+
+  @override
+  ConsumerState<ProjectsPanel> createState() => _ProjectsPanelState();
+}
+
+class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
+  final TextEditingController _profileNameCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _profileNameCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final productsAsync = ref.watch(productsProvider);
+
+    return Container(
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: Apptheme.transparentcheat,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Apptheme.widgetclrdark,
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20, top: 20, right: 20),
+        child: productsAsync.when(
+          data: (products) {
+            return ListView(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 50),
+                    child: Titletext(
+                      title: 'Your Projects',
+                      color: Apptheme.textclrdark,
+                    ),
+                  ),
+                ),
+
+                // ---------- PROJECT LIST ----------
+                ...products.map((product) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: InkWell(
+                        onTap: () {
+                          RootScaffold.of(context)
+                              ?.goToHomePageWithArgs(product.name);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Apptheme.widgettertiaryclr,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Labels(
+                                    title: product.name,
+                                    color: Apptheme.textclrdark,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                color: Apptheme.iconsdark,
+                                onPressed: () {
+                                  _confirmDelete(context, product.name);
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+
+                const SizedBox(height: 40),
+
+                // ---------- CREATE PROJECT ----------
+                _buildCreateSection(context),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Center(child: Text('Error: $err')),
+        ),
+      ),
+    );
+  }
+
+  // ---------------- HELPERS ----------------
+
+  Widget _buildCreateSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Labels(
+            title: "Create Project",
+            color: Apptheme.textclrdark,
+          ),
+          const SizedBox(height: 10),
+
+          SizedBox(
+            width: 600,
+            child: TextField(
+              controller: _profileNameCtrl,
+              decoration: InputDecoration(
+                hintText: "Enter profile name...",
+                hintStyle: TextStyle(
+                  color: Apptheme.texthintclrlight,
+                ),
+                filled: true,
+                fillColor: Apptheme.transparentcheat,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(
+                    color: Apptheme.widgetclrlight,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Apptheme.widgetclrlight,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Apptheme.widgetclrlight,
+                  ),
+                ),
+              ),
+              style: TextStyle(color: Apptheme.textclrdark),
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          SizedBox(
+            width: 120,
+            height: 20,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Apptheme.widgetclrlight,
+                foregroundColor: Apptheme.widgetclrdark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              onPressed: () async {
+                final name = _profileNameCtrl.text.trim();
+                if (name.isEmpty) return;
+
+                final username =
+                    await secureStorage.read(key: "username");
+
+                if (username == null || username.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please log in first")),
+                  );
+                  return;
+                }
+
+                final req = ProfileSaveRequest(
+                  profileName: name,
+                  description: "Mock description",
+                  data: {"sample": "test"},
+                  username: username,
+                );
+
+                await ref.read(saveProfileProvider(req).future);
+
+                _profileNameCtrl.clear();
+                ref.invalidate(productsProvider);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Saved profile: $name")),
+                );
+              },
+              child: const Text("Create"),
+            ),
+          ),
+
+          const SizedBox(height: 15),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String productName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: Text("Delete $productName?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                ref
+                    .read(deleteProfileProvider.notifier)
+                    .delete(productName, ref);
+
+                Navigator.of(context).pop();
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
 
 //------------------HELPERS----------------------------------------------------------
 final signUpParamsProvider = StateProvider<SignUpParameters?>((ref) => null);
@@ -599,6 +620,7 @@ class _LoginFieldState extends ConsumerState<LoginField> {
                 ),
               ),
       
+            
             
             ]
           ),
@@ -851,5 +873,126 @@ class _SignUpFieldState extends ConsumerState<SignUpField> {
       ),
     );
 
+  }
+}
+
+//------------------RANDOM FACTS PAGE----------------------------------------------
+class RandomFactsWidget extends StatefulWidget {
+  final Duration interval;
+  final double minHeight;
+
+  const RandomFactsWidget({
+    super.key,
+    this.interval = const Duration(seconds: 4),
+    this.minHeight = 120,
+  });
+
+  @override
+  State<RandomFactsWidget> createState() => _RandomFactsWidgetState();
+}
+
+class _RandomFactsWidgetState extends State<RandomFactsWidget> {
+  late Timer _timer;
+  int _currentIndex = 0;
+  final _rng = Random();
+
+  final List<String> ecoFacts = [
+    "Recycling aluminum saves up to 95% of the energy needed to make new aluminum.",
+    "A single tree can absorb up to 22kg of CO₂ per year.",
+    "Glass can be recycled endlessly without losing quality.",
+    "Food waste in landfills produces methane, a gas 25x stronger than CO₂.",
+    "LED bulbs use up to 75% less energy than traditional bulbs.",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _timer = Timer.periodic(widget.interval, (_) {
+      if (!mounted || ecoFacts.isEmpty) return;
+
+      setState(() {
+        int next;
+        do {
+          next = _rng.nextInt(ecoFacts.length);
+        } while (next == _currentIndex && ecoFacts.length > 1);
+
+        _currentIndex = next;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        return Container(
+          constraints: BoxConstraints(
+            minHeight: widget.minHeight,
+          ),
+          decoration: BoxDecoration(
+            color: Apptheme.transparentcheat,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Apptheme.widgetclrdark,
+              width: 2,
+            ),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 👈 CRITICAL FIX
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Titletext(
+                title: "Did You Know?",
+                color: Apptheme.textclrdark,
+              ),
+
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: width,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: Container(
+                    key: ValueKey(_currentIndex),
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: width * 0.95,
+                        ),
+                        child: Labels(
+                          title: ecoFacts.isEmpty
+                              ? "No facts available"
+                              : ecoFacts[_currentIndex],
+                          color: Apptheme.textclrdark,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
