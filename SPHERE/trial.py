@@ -15,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import portalocker
 from openpyxl import load_workbook
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of trial.py (SPHERE)
 USERS_FILE = os.path.join(BASE_DIR, "users.xlsx")
 

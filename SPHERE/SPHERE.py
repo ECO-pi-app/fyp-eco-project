@@ -147,6 +147,9 @@ machine_parts_data = []
 UPDATE_VERSION_URL = "https://raw.githubusercontent.com/Spmae-vrar/update-Version/refs/heads/main/version.txt"
 UPDATE_EXE_URL = "https://github.com/Spmae-vrar/Upload-new-EXE/releases/download/1.0.2/SPHERE.zip" #Always +1 more than the version.txt file (Same for UPDATE_EXE Github)
 
+SPHERE_DIR = os.path.dirname(os.path.abspath(__file__))
+EXCEL_PATH = os.path.join(SPHERE_DIR, "Emission Data.xlsx")
+
 def check_for_update_and_prompt(root):
     try:
         response = requests.get(UPDATE_VERSION_URL, timeout=5)
@@ -488,7 +491,7 @@ def restore_full_state(widgets, generate_transport_rows, update_machine_process_
     tkroot.after(500, reset_restoring_flag)
 
 # Data Extraction from Excel
-book = openpyxl.load_workbook(resource_path('Emission Data.xlsx'))
+book = openpyxl.load_workbook(EXCEL_PATH)
 sheet = book['Data Sheet']
 sheet2 = book['Transport']
 sheet3 = book['Transport WTT']
