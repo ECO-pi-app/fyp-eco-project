@@ -14,11 +14,11 @@ function CardItem(props) {
           <figure className='cards__item__pic-wrap' data-category={props.label}>
             <img
               src={props.src}
-              alt="Sustainability Image"
+              alt={props.text}
               className='cards__item__img'
               onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "/images/img-9.jpg";
+                e.target.onerror = null;
+                e.target.src = "/images/img-9.jpg";
               }}
             />
           </figure>
