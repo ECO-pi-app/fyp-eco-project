@@ -41,7 +41,7 @@ class _ContentofLState extends ConsumerState<ContentofL> {
             
                 _subdrawertile((Icons.supervised_user_circle), 'Method', () => showMethodologyPopup(context)),
 
-                _subdrawertile(Icons.logout, 'Logout', () {RootScaffold.of(context)?.goToWelcomePage();}),
+                _subdrawertile(Icons.logout, 'Logout', () {RootScaffold.of(context)?.goToLoginPage();}),
 
                 SizedBox(height: 1000,)
               

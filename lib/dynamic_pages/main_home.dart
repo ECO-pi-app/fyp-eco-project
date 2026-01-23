@@ -45,72 +45,109 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
   }
 
   /// ---------- TIMELINE DIALOG ----------
-  Future<Map<String, String>?> _showTimelineDialog() async {
-    final nameController = TextEditingController();
-    final startController = TextEditingController();
-    final endController = TextEditingController();
+Future<Map<String, String>?> _showTimelineDialog() async {
+  final nameController = TextEditingController();
 
-    const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
-    String? selectedStartMonth;
-    String? selectedEndMonth;
+  String? selectedStartMonth;
+  String? selectedEndMonth;
 
-    await showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(builder: (_, setState) {
+  await showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (_, setState) {
         return AlertDialog(
           title: const Text("Add Timeline"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Timeline name
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: "Timeline Name"),
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: startController,
-                  decoration: const InputDecoration(labelText: "Start Month"),
-                  onChanged: (val) => setState(() {
-                    selectedStartMonth = months.firstWhere(
-                      (m) => m.toLowerCase().startsWith(val.toLowerCase()),
-                      orElse: () => val,
-                    );
-                  }),
+                const SizedBox(height: 12),
+
+                // Start month dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedStartMonth,
+                  hint: const Text("Select Start Month"),
+                  items: months
+                      .map(
+                        (m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(m),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() => selectedStartMonth = val);
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Start Month",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                TextField(
-                  controller: endController,
-                  decoration: const InputDecoration(labelText: "End Month"),
-                  onChanged: (val) => setState(() {
-                    selectedEndMonth = months.firstWhere(
-                      (m) => m.toLowerCase().startsWith(val.toLowerCase()),
-                      orElse: () => val,
-                    );
-                  }),
+                const SizedBox(height: 8),
+
+                // End month dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedEndMonth,
+                  hint: const Text("Select End Month"),
+                  items: months
+                      .map(
+                        (m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(m),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() => selectedEndMonth = val);
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "End Month",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Add")),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Add"),
+            ),
           ],
         );
-      }),
-    );
+      },
+    ),
+  );
 
-    if (nameController.text.isEmpty) return null;
-    return {
-      "name": nameController.text,
-      "start": selectedStartMonth ?? startController.text,
-      "end": selectedEndMonth ?? endController.text,
-    };
+  if (nameController.text.isEmpty ||
+      selectedStartMonth == null ||
+      selectedEndMonth == null) {
+    return null;
   }
+
+  return {
+    "name": nameController.text,
+    "start": selectedStartMonth!,
+    "end": selectedEndMonth!,
+  };
+}
+
 
   Future<void> _addTimeline() async {
     final product = ref.read(activeProductProvider);
@@ -131,7 +168,6 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
     };
   }
 
-  /// ---------- ADD PART ----------
   Future<void> _addPart() async {
     final product = ref.read(activeProductProvider);
     final timeline = ref.read(activeTimelineProvider);

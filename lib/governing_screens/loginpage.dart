@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
@@ -11,14 +10,14 @@ import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/sub_navigator.dart';
 
 
-class Welcomepage extends ConsumerStatefulWidget {
-  const Welcomepage({super.key});
+class Loginpage extends ConsumerStatefulWidget {
+  const Loginpage({super.key});
 
   @override
-  ConsumerState<Welcomepage> createState() => _WelcomepageState();
+  ConsumerState<Loginpage> createState() => _LoginpageState();
 }
 
-class _WelcomepageState extends ConsumerState<Welcomepage> {
+class _LoginpageState extends ConsumerState<Loginpage> {
   final TextEditingController _profileNameCtrl = TextEditingController();
   bool showLogin = true;
 
@@ -69,42 +68,51 @@ void dispose() {
                     color: Apptheme.transparentcheat,
                     child: ListView(
                       children: [
-                        Row(
-                          children: [
-                            Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10, left: 20, right: 30),
-                                child: SizedBox(
-                                  height: 70,
-                                  child: Welcomepagelogo(
-                                    whathappens: null,
-                                    choosecolor: Apptheme.transparentcheat,
-                                    pad: 0,
-                                  ),
-                                ),
-                              ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Welcomepagelogo(
+                              whathappens: null,
+                              choosecolor: Apptheme.error,
+                              pad: 0,
                             ),
-                            SizedBox(
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 20),
-                                  child: Bigfocusedtext(
-                                    title: 'ECO-pi',
-                                    color: Apptheme.textclrdark,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          ],
+                          ),
                         ),
 
                         SizedBox(
-                          height: 280,
-                            child: factsfield,
-                          
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Bigfocusedtext(title: 'ECO-pi'),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 330,
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: dynamicfield,
+                          ),
+                        ),
+
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                showLogin = !showLogin;
+                              });
+                            },
+                            child: Text(
+                              showLogin ? "Don't have an account? Sign Up" : "Already have an account? Log In",
+                              style: TextStyle(
+                                color: Apptheme.textclrdark,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
                         ),
 
                       ],
@@ -115,7 +123,7 @@ void dispose() {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 20, bottom: 20, right: 20, left: 80),
-                    child: ProjectsPanel()
+                    child: factsfield
                   ),
                 ),
               ],
@@ -152,7 +160,6 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsProvider);
-    final product = ref.watch(activeProductProvider);
 
     return Container(
       height: double.infinity,
@@ -187,51 +194,40 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onDoubleTap: () {
-                                RootScaffold.of(context)
-                                    ?.goToHomePageWithArgs(product.name);
-                              },
-                              child: ChoiceChip(
-                                selectedColor: Apptheme.widgetsecondaryclr,
-                                backgroundColor: Apptheme.widgettertiaryclr,
-                                selected: product == product.name,
-                                onSelected: (_) {
-                                  
-                                },
-                                label: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0),
-                                        child: Textsinsidewidgetsdrysafe(
-                                          words: product.name,
-                                          color: Apptheme.textclrdark,
-                                          fontsize: 20,
-                                          toppadding: 0,
-                                          leftpadding: 0,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                      child: InkWell(
+                        onTap: () {
+                          RootScaffold.of(context)
+                              ?.goToHomePageWithArgs(product.name);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Apptheme.widgettertiaryclr,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Labels(
+                                    title: product.name,
+                                    color: Apptheme.textclrdark,
+                                  ),
                                 ),
                               ),
-                            ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                color: Apptheme.iconsdark,
+                                onPressed: () {
+                                  _confirmDelete(context, product.name);
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                            ],
                           ),
-                          SizedBox(
-                            width: 50,
-                            child: IconButton(
-                              icon: const Icon(Icons.delete),
-                              color: Apptheme.iconsdark,
-                              onPressed: () {
-                                _confirmDelete(context, product.name);
-                              },
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   );
@@ -590,9 +586,9 @@ class _LoginFieldState extends ConsumerState<LoginField> {
                                 profileName: usernameController.text,
                                 password: passwordController.text,
                               );
-
-
+                              RootScaffold.of(context)?.goToWelcomePage();
                             },
+
                             child: (loginState?.isLoading ?? false)
                                 ? const SizedBox(
                                     width: 20,
@@ -952,7 +948,7 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // 👈 CRITICAL FIX
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Titletext(
@@ -973,6 +969,7 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
                     );
                   },
                   child: Container(
+                    height: 300,
                     key: ValueKey(_currentIndex),
                     alignment: Alignment.centerLeft,
                     child: FittedBox(
@@ -984,7 +981,7 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
                         ),
                         child: Labels(
                           title: ecoFacts.isEmpty
-                              ? "No facts available"
+                              ? "??"
                               : ecoFacts[_currentIndex],
                           color: Apptheme.textclrdark,
                         ),

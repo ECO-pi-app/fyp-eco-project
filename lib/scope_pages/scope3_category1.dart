@@ -31,7 +31,7 @@ class _ProductDetailFormState extends ConsumerState<ProductDetailForm> {
     _declarationsController.dispose();
     super.dispose();
   }
-// ---------- EXPORT TO EXCEL ----------
+
 void _exportToExcel() {
   final part = ref.read(activePartProvider);
   if (part == null) return;
@@ -42,7 +42,6 @@ void _exportToExcel() {
   final excel = Excel.createExcel();
   final sheetName = 'Sheet1';
 
-  // Helper to write a row
   void writeRow(int rowIndex, List<dynamic> values) {
     for (var col = 0; col < values.length; col++) {
       final value = values[col];
@@ -55,14 +54,13 @@ void _exportToExcel() {
 
   int currentRow = 0;
 
-  // 1️⃣ Form fields
-  writeRow(currentRow++, ['Product Description', _descriptionController.text]);
-  writeRow(currentRow++, ['Functional Unit', _functionalUnitController.text]);
-  writeRow(currentRow++, ['Declarations', _declarationsController.text]);
-  writeRow(currentRow++, ['Allocation Applied?', allocationApplied ? 'Yes' : 'No']);
-  currentRow++; // empty row
+  writeRow(currentRow++, ['Product Description: ', _descriptionController.text]);
+  writeRow(currentRow++, ['Functional Unit: ', _functionalUnitController.text]);
+  writeRow(currentRow++, ['Declarations: ', _declarationsController.text]);
+  writeRow(currentRow++, ['Allocation: ', allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None']);
 
-  // 2️⃣ Emission summary
+  currentRow++; 
+
   writeRow(currentRow++, ['Scope', 'Value (kg CO₂e)']);
   writeRow(currentRow++, ['Scope 1', 0]);
   writeRow(currentRow++, ['Scope 2', emissionTotals.machining]);
@@ -80,20 +78,19 @@ void _exportToExcel() {
   writeRow(currentRow++, ['Scope 3 Downstream leased assets (NOT APPLICABLE)', 0]);
   writeRow(currentRow++, ['Scope 3 Franchises (NOT APPLICABLE)', 0]);
   writeRow(currentRow++, ['Scope 3 Investments (NOT APPLICABLE)', 0]);
-  currentRow++; // empty row
 
-// 3️⃣ Material rows
+  currentRow++;
+
 writeRow(currentRow++, ['Material', 'Normal', 'Custom']);
 for (var i = 0; i < materialRows.length; i++) {
   final r = materialRows[i];
   writeRow(currentRow++, [
-    'Material ${i + 1}', // placeholder name
+    'Material ${i + 1}', 
     r.materialNormal,
     r.material,
   ]);
 }
 
-  // 4️⃣ Save file (desktop example)
   final bytes = excel.encode();
   if (bytes != null) {
     final file = File('Product_${widget.productId}.xlsx');

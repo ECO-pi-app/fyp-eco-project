@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/appbar.dart';
+import 'package:test_app/governing_screens/loginpage.dart';
 import 'package:test_app/governing_screens/welcomepage.dart';
 import 'package:test_app/governing_screens/primarypage.dart';
 
@@ -19,6 +20,10 @@ class RootScaffold extends StatefulWidget {
 class RootScaffoldState extends State<RootScaffold> {
   final GlobalKey<NavigatorState> _innerNavigatorKey =
       GlobalKey<NavigatorState>();
+
+  void goToLoginPage() {
+    _innerNavigatorKey.currentState!.pushReplacementNamed('/loginpage');
+  }
 
   void goToWelcomePage() {
     _innerNavigatorKey.currentState!.pushReplacementNamed('/welcomepage');
@@ -46,6 +51,9 @@ class RootScaffoldState extends State<RootScaffold> {
         initialRoute: '/welcomepage',
         onGenerateRoute: (settings) {
           switch (settings.name) {
+            case '/loginpage':
+              return MaterialPageRoute(
+                  builder: (_) => const Loginpage(), settings: settings);
             case '/welcomepage':
               return MaterialPageRoute(
                   builder: (_) => const Welcomepage(), settings: settings);
