@@ -45,72 +45,109 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
   }
 
   /// ---------- TIMELINE DIALOG ----------
-  Future<Map<String, String>?> _showTimelineDialog() async {
-    final nameController = TextEditingController();
-    final startController = TextEditingController();
-    final endController = TextEditingController();
+Future<Map<String, String>?> _showTimelineDialog() async {
+  final nameController = TextEditingController();
 
-    const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
-    String? selectedStartMonth;
-    String? selectedEndMonth;
+  String? selectedStartMonth;
+  String? selectedEndMonth;
 
-    await showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(builder: (_, setState) {
+  await showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (_, setState) {
         return AlertDialog(
           title: const Text("Add Timeline"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Timeline name
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: "Timeline Name"),
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: startController,
-                  decoration: const InputDecoration(labelText: "Start Month"),
-                  onChanged: (val) => setState(() {
-                    selectedStartMonth = months.firstWhere(
-                      (m) => m.toLowerCase().startsWith(val.toLowerCase()),
-                      orElse: () => val,
-                    );
-                  }),
+                const SizedBox(height: 12),
+
+                // Start month dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedStartMonth,
+                  hint: const Text("Select Start Month"),
+                  items: months
+                      .map(
+                        (m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(m),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() => selectedStartMonth = val);
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Start Month",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                TextField(
-                  controller: endController,
-                  decoration: const InputDecoration(labelText: "End Month"),
-                  onChanged: (val) => setState(() {
-                    selectedEndMonth = months.firstWhere(
-                      (m) => m.toLowerCase().startsWith(val.toLowerCase()),
-                      orElse: () => val,
-                    );
-                  }),
+                const SizedBox(height: 8),
+
+                // End month dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedEndMonth,
+                  hint: const Text("Select End Month"),
+                  items: months
+                      .map(
+                        (m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(m),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() => selectedEndMonth = val);
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "End Month",
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("Add")),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Add"),
+            ),
           ],
         );
-      }),
-    );
+      },
+    ),
+  );
 
-    if (nameController.text.isEmpty) return null;
-    return {
-      "name": nameController.text,
-      "start": selectedStartMonth ?? startController.text,
-      "end": selectedEndMonth ?? endController.text,
-    };
+  if (nameController.text.isEmpty ||
+      selectedStartMonth == null ||
+      selectedEndMonth == null) {
+    return null;
   }
+
+  return {
+    "name": nameController.text,
+    "start": selectedStartMonth!,
+    "end": selectedEndMonth!,
+  };
+}
+
 
   Future<void> _addTimeline() async {
     final product = ref.read(activeProductProvider);
@@ -131,7 +168,6 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
     };
   }
 
-  /// ---------- ADD PART ----------
   Future<void> _addPart() async {
     final product = ref.read(activeProductProvider);
     final timeline = ref.read(activeTimelineProvider);
@@ -235,93 +271,93 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                     child: SizedBox(
                       height: 200,
                       child: BarChart(
-  BarChartData(
-    maxY: maxTimelineY,
-    alignment: BarChartAlignment.spaceAround,
-    titlesData: FlTitlesData(
-      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 40,
-        ),
-      ),
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          getTitlesWidget: (val, meta) {
-            final idx = val.toInt();
-            if (idx < 0 || idx >= timelines.timelines.length) {
-              return const SizedBox();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                timelines.timelines[idx],
-                style: const TextStyle(fontSize: 10),
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          },
-        ),
-      ),
-    ),
+                        BarChartData(
+                          maxY: maxTimelineY,
+                          alignment: BarChartAlignment.spaceAround,
+                          titlesData: FlTitlesData(
+                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (val, meta) {
+                                  final idx = val.toInt();
+                                  if (idx < 0 || idx >= timelines.timelines.length) {
+                                    return const SizedBox();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Text(
+                                      timelines.timelines[idx],
+                                      style: const TextStyle(fontSize: 10),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
 
-    barGroups: List.generate(timelines.timelines.length, (i) {
-      final timelineName = timelines.timelines[i];
+                          barGroups: List.generate(timelines.timelines.length, (i) {
+                            final timelineName = timelines.timelines[i];
 
-      final parts = ref
-          .watch(pieChartProvider((product: product!, timeline: timelineName)))
-          .parts;
+                            final parts = ref
+                                .watch(pieChartProvider((product: product!, timeline: timelineName)))
+                                .parts;
 
-      double runningTotal = 0;
+                            double runningTotal = 0;
 
-      const colors = [
-        Apptheme.piechart1,
-        Apptheme.piechart2,
-        Apptheme.piechart3,
-        Apptheme.piechart4,
-        Apptheme.piechart5,
-        Apptheme.piechart6,
-        Apptheme.piechart7,
-        Apptheme.piechart8,
-      ];
+                            const colors = [
+                              Apptheme.piechart1,
+                              Apptheme.piechart2,
+                              Apptheme.piechart3,
+                              Apptheme.piechart4,
+                              Apptheme.piechart5,
+                              Apptheme.piechart6,
+                              Apptheme.piechart7,
+                              Apptheme.piechart8,
+                            ];
 
-      final stacks = <BarChartRodStackItem>[];
+                            final stacks = <BarChartRodStackItem>[];
 
-      for (int p = 0; p < parts.length; p++) {
-        final partName = parts[p];
-        final result =
-            ref.watch(convertedEmissionsTotalProvider((product!, partName)));
+                            for (int p = 0; p < parts.length; p++) {
+                              final partName = parts[p];
+                              final result =
+                                  ref.watch(convertedEmissionsTotalProvider((product!, partName)));
 
-        final value = result.total;
+                              final value = result.total;
 
-        stacks.add(
-          BarChartRodStackItem(
-            runningTotal,
-            runningTotal + value,
-            colors[p % colors.length],
-          ),
-        );
+                              stacks.add(
+                                BarChartRodStackItem(
+                                  runningTotal,
+                                  runningTotal + value,
+                                  colors[p % colors.length],
+                                ),
+                              );
 
-        runningTotal += value;
-      }
+                              runningTotal += value;
+                            }
 
-      return BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            toY: runningTotal,
-            rodStackItems: stacks,
-            width: 18,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ],
-      );
-    }),
-  ),
-),
+                            return BarChartGroupData(
+                              x: i,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: runningTotal,
+                                  rodStackItems: stacks,
+                                  width: 18,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
 
                     ),
                   ),
@@ -398,69 +434,66 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
 
                     
                     Expanded(
-  flex: 2,
-  child: parts.isEmpty
-      ? Center(child: Text("No parts to display", style: TextStyle(color: Apptheme.textclrdark)))
-      : BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: results.isEmpty
-                ? 1
-                : results.map((r) => (r!.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
-            titlesData: FlTitlesData(
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                              ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 || idx >= parts.length) {
-                                    return const SizedBox();
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Text(
-                                      parts[idx],
-                                      style: const TextStyle(fontSize: 9),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                      flex: 2,
+                      child: parts.isEmpty
+                          ? Center(child: Text("No parts to display", style: TextStyle(color: Apptheme.textclrdark)))
+                          : BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                maxY: results.isEmpty
+                                    ? 1
+                                    : results.map((r) => (r!.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
+                                titlesData: FlTitlesData(
+                                                topTitles: AxisTitles(
+                                                  sideTitles: SideTitles(showTitles: false),
+                                                ),
+                                                rightTitles: AxisTitles(
+                                                  sideTitles: SideTitles(showTitles: false),
+                                                ),
+                                                leftTitles: AxisTitles(
+                                                  sideTitles: SideTitles(
+                                                    showTitles: true,
+                                                    reservedSize: 40,
+                                                  ),
+                                                ),
+                                                bottomTitles: AxisTitles(
+                                                  sideTitles: SideTitles(
+                                                    showTitles: true,
+                                                    getTitlesWidget: (value, meta) {
+                                                      final idx = value.toInt();
+                                                      if (idx < 0 || idx >= parts.length) {
+                                                        return const SizedBox();
+                                                      }
+                                                      return Padding(
+                                                        padding: const EdgeInsets.only(top: 4),
+                                                        child: Text(
+                                                          parts[idx],
+                                                          style: const TextStyle(fontSize: 9),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                barGroups: List.generate(parts.length, (i) {
+                                  final r = results[i]!;
+                                  final materialTotal = r.materialNormal + r.material;
+                                  return BarChartGroupData(
+                                    x: i,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: materialTotal,
+                                        width: 14,
+                                        color: Apptheme.piechart2,
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ],
                                   );
-                                },
+                                }),
                               ),
                             ),
-                          ),
-            barGroups: List.generate(parts.length, (i) {
-              final r = results[i]!;
-              final materialTotal = r.materialNormal + r.material;
-              return BarChartGroupData(
-                x: i,
-                barRods: [
-                  BarChartRodData(
-                    toY: materialTotal,
-                    width: 14,
-                    color: Apptheme.piechart2,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ],
-              );
-            }),
-          ),
-        ),
-),
-
-
-
+                    ),
                     // ---------------- Pie Chart ----------------
                     Expanded(
                       flex: 2,

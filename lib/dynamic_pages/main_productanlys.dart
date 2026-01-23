@@ -5,11 +5,12 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
-import 'package:test_app/dynamic_pages/popup_pages.dart';
 import 'package:test_app/app_logic/river_controls.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_fetch.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
+import 'package:test_app/dynamic_pages/popup_pages.dart';
+import 'package:test_app/dynamic_pages/zdebug.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
   final String productID;
@@ -115,6 +116,70 @@ for (int i = 0; i < rowCount; i++) {
 }
     }
 
+    if (product == null || part == null) {
+      return const SizedBox();
+    }
+
+    final key = (product: product, part: part);
+
+    /// ---------------- MATERIAL ----------------
+    final normalMaterialState =
+        ref.watch(normalMaterialTableProvider(key));
+    final normalMaterialNotifier =
+        ref.read(normalMaterialTableProvider(key).notifier);
+
+    final materialState =
+        ref.watch(materialTableProvider(key));
+    final materialNotifier =
+        ref.read(materialTableProvider(key).notifier);
+
+    /// ---------------- UPSTREAM TRANSPORT ----------------
+    final upstreamTransportState =
+        ref.watch(upstreamTransportTableProvider(key));
+    final upstreamTransportNotifier =
+        ref.read(upstreamTransportTableProvider(key).notifier);
+
+    /// ---------------- MACHINING ----------------
+    final machiningState =
+        ref.watch(machiningTableProvider(key));
+    final machiningNotifier =
+        ref.read(machiningTableProvider(key).notifier);
+
+    /// ---------------- FUGITIVE LEAKS ----------------
+    final leaksState =
+        ref.watch(fugitiveLeaksTableProvider(key));
+    final leaksNotifier =
+        ref.read(fugitiveLeaksTableProvider(key).notifier);
+
+    /// ---------------- PRODUCTION TRANSPORT ----------------
+    final productionTransportState =
+        ref.watch(productionTransportTableProvider(key));
+    final productionTransportNotifier =
+        ref.read(productionTransportTableProvider(key).notifier);
+
+    /// ---------------- DOWNSTREAM TRANSPORT ----------------
+    final downstreamTransportState =
+        ref.watch(downstreamTransportTableProvider(key));
+    final downstreamTransportNotifier =
+        ref.read(downstreamTransportTableProvider(key).notifier);
+
+    /// ---------------- WASTE ----------------
+    final wasteTransportState =
+        ref.watch(wastesProvider(key));
+    final wasteTransportNotifier =
+        ref.read(wastesProvider(key).notifier);
+
+    /// ---------------- USAGE CYCLE ----------------
+    final usageCycleState =
+        ref.watch(usageCycleTableProvider(key));
+    final usageCycleNotifier =
+        ref.read(usageCycleTableProvider(key).notifier);
+
+    /// ---------------- END OF LIFE ----------------
+    final endOfLifeState =
+        ref.watch(endOfLifeTableProvider(key));
+    final endOfLifeNotifier =
+        ref.read(endOfLifeTableProvider(key).notifier);
 
     final List<Widget> widgetofpage1 = [
       
@@ -132,9 +197,20 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-
-          InfoIconPopupDark(
-            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+          Row(
+            children: [
+              sectionRow(
+                title: "Material Acquisition",
+                tooltip: "Fine-tune raw material inputs",
+                popupContent: buildNormalMaterialTable(
+                  normalMaterialState,
+                  normalMaterialNotifier,
+                ),
+              ),
+              InfoIconPopupDark(
+                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+              ),
+            ],
           ),
         ],
       ),
@@ -148,8 +224,20 @@ for (int i = 0; i < rowCount; i++) {
             fontsize: 17,
           ),
 
-          InfoIconPopupDark(
-            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+          Row(
+            children: [
+              sectionRow(
+                title: "Recycled Material Acquisition",
+                tooltip: "Fine-tune recycled material inputs",
+                popupContent: buildMaterialTable(
+                  materialState,
+                  materialNotifier,
+                ),
+              ),
+              InfoIconPopupDark(
+                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+              ),
+            ],
           ),
         ],
       ),
@@ -171,12 +259,24 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
-              
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Upstream Transport",
+                tooltip: "Adjust upstream transport allocation",
+                popupContent: buildUpstreamTransportTable(
+                  upstreamTransportState,
+                  upstreamTransportNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
+                  
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -199,11 +299,23 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Power consumed during the operation of all processes required to create a product',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Machining",
+                tooltip: "Adjust machining allocation",
+                popupContent: buildMachiningTable(
+                  machiningState,
+                  machiningNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Power consumed during the operation of all processes required to create a product',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -226,11 +338,23 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Fugitive Leaks",
+                tooltip: "Adjust fugitive emissions allocation",
+                popupContent: buildFugitiveLeaksTable(
+                  leaksState,
+                  leaksNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -245,11 +369,23 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Production Transport",
+                tooltip: "Adjust production transport allocation",
+                popupContent: buildProductionTransportTable(
+                  productionTransportState,
+                  productionTransportNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -264,11 +400,23 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Manufacturing Wastes",
+                tooltip: "Adjust waste mass allocation",
+                popupContent: buildWasteTable(
+                  wasteTransportState,
+                  wasteTransportNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -284,12 +432,24 @@ for (int i = 0; i < rowCount; i++) {
             title: 'Downstream Transportation | ${totalDownstreamTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
-              
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Downstream Transportation",
+                tooltip: "Adjust downstream transport allocation",
+                popupContent: buildDownstreamTransportTable(
+                  downstreamTransportState,
+                  downstreamTransportNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
+                  
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -302,11 +462,23 @@ for (int i = 0; i < rowCount; i++) {
             title: 'Usage Cycle | ${totalUsageCycle.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Emissions from the usage of the product by the end user.',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Usage Cycle",
+                tooltip: "Adjust usage cycle allocation",
+                popupContent: buildUsageCycleTable(
+                  usageCycleState,
+                  usageCycleNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Emissions from the usage of the product by the end user.',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -321,11 +493,23 @@ for (int i = 0; i < rowCount; i++) {
             title: 'End of Life |  ${totalEndOfLife.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InfoIconPopupDark(
-              text: 'Emissions from the disposal and treatment of the product at the end of its useful life.',
-            ),
+          Row(
+            children: [
+              sectionRow(
+                title: "End of Life",
+                tooltip: "Adjust end-of-life allocation",
+                popupContent: endOfLifeCycleTable(
+                  endOfLifeState,
+                  endOfLifeNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Emissions from the disposal and treatment of the product at the end of its useful life.',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -850,7 +1034,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(machiningTableProvider(key));
     final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
-    final machines = ref.watch(mazakTypesProvider);
+    final machines = ref.watch(ycmTypesProvider);
     final countries = ref.watch(countriesProvider);
 
     List<RowFormat> rows = List.generate(

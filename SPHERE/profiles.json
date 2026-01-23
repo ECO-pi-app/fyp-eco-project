@@ -11,6 +11,12 @@
       "data": {
         "sample": "test"
       }
+    },
+    "New Project": {
+      "description": "Mock description",
+      "data": {
+        "sample": "test"
+      }
     }
   },
   "Htoo": {
@@ -41,9 +47,14 @@
       }
     }
   },
-  "ECO-PI": {},
-  "ECO-pi": {
-    "test_product": {
+  "DEMO": {
+    "Aluminium Cup": {
+      "description": "Mock description",
+      "data": {
+        "sample": "test"
+      }
+    },
+    "Alumiium Cup 2025 January 22": {
       "description": "Mock description",
       "data": {
         "sample": "test"

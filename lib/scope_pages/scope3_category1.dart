@@ -31,7 +31,7 @@ class _ProductDetailFormState extends ConsumerState<ProductDetailForm> {
     _declarationsController.dispose();
     super.dispose();
   }
-// ---------- EXPORT TO EXCEL ----------
+
 void _exportToExcel() {
   final part = ref.read(activePartProvider);
   if (part == null) return;
@@ -42,7 +42,6 @@ void _exportToExcel() {
   final excel = Excel.createExcel();
   final sheetName = 'Sheet1';
 
-  // Helper to write a row
   void writeRow(int rowIndex, List<dynamic> values) {
     for (var col = 0; col < values.length; col++) {
       final value = values[col];
@@ -55,14 +54,13 @@ void _exportToExcel() {
 
   int currentRow = 0;
 
-  // 1️⃣ Form fields
-  writeRow(currentRow++, ['Product Description', _descriptionController.text]);
-  writeRow(currentRow++, ['Functional Unit', _functionalUnitController.text]);
-  writeRow(currentRow++, ['Declarations', _declarationsController.text]);
-  writeRow(currentRow++, ['Allocation Applied?', allocationApplied ? 'Yes' : 'No']);
-  currentRow++; // empty row
+  writeRow(currentRow++, ['Product Description: ', _descriptionController.text]);
+  writeRow(currentRow++, ['Functional Unit: ', _functionalUnitController.text]);
+  writeRow(currentRow++, ['Declarations: ', _declarationsController.text]);
+  writeRow(currentRow++, ['Allocation: ', allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None']);
 
-  // 2️⃣ Emission summary
+  currentRow++; 
+
   writeRow(currentRow++, ['Scope', 'Value (kg CO₂e)']);
   writeRow(currentRow++, ['Scope 1', 0]);
   writeRow(currentRow++, ['Scope 2', emissionTotals.machining]);
@@ -80,20 +78,19 @@ void _exportToExcel() {
   writeRow(currentRow++, ['Scope 3 Downstream leased assets (NOT APPLICABLE)', 0]);
   writeRow(currentRow++, ['Scope 3 Franchises (NOT APPLICABLE)', 0]);
   writeRow(currentRow++, ['Scope 3 Investments (NOT APPLICABLE)', 0]);
-  currentRow++; // empty row
 
-// 3️⃣ Material rows
+  currentRow++;
+
 writeRow(currentRow++, ['Material', 'Normal', 'Custom']);
 for (var i = 0; i < materialRows.length; i++) {
   final r = materialRows[i];
   writeRow(currentRow++, [
-    'Material ${i + 1}', // placeholder name
+    'Material ${i + 1}', 
     r.materialNormal,
     r.material,
   ]);
 }
 
-  // 4️⃣ Save file (desktop example)
   final bytes = excel.encode();
   if (bytes != null) {
     final file = File('Product_${widget.productId}.xlsx');
@@ -110,7 +107,11 @@ for (var i = 0; i < materialRows.length; i++) {
     final part = ref.watch(activePartProvider);
     if (part == null) return const SizedBox();
 
+    final key = (product: widget.productId, part: part);
+
     final emissionTotals = ref.watch(emissionTotalsProvider((widget.productId, part)));
+
+
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -188,22 +189,22 @@ for (var i = 0; i < materialRows.length; i++) {
             ),
           ),
           const SizedBox(height: 8),
-          _emissionRow('Scope 1', 0),
-          _emissionRow('Scope 2', emissionTotals.machining),
-          _emissionRow('Scope 3 Purchased goods and services/Capital Goods', emissionTotals.material),
-          _emissionRow('Scope 3 Fuel- and energy-related activities', 0),
-          _emissionRow('Scope 3 Upstream transportation and distribution', emissionTotals.transport),
-          _emissionRow('Scope 3 Waste generated in operations', emissionTotals.waste),
-          _emissionRow('Scope 3 Business travel (NOT APPLICABLE)', 0),
-          _emissionRow('Scope 3 Employee commuting (NOT APPLICABLE)', 0),
-          _emissionRow('Scope 3 Upstream leased assets (NOT APPLICABLE)', 0),
-          _emissionRow('Scope 3 Downstream transportation and distribution', 0),
-          _emissionRow('Scope 3 Processing of sold products', 0),
-          _emissionRow('Scope 3 Use of sold products', emissionTotals.usageCycle),
-          _emissionRow('Scope 3 End-of-life treatment of sold products', emissionTotals.endofLife),
-          _emissionRow('Scope 3 Downstream leased assets (NOT APPLICABLE)', 0),
-          _emissionRow('Scope 3 Franchises (NOT APPLICABLE)', 0),
-          _emissionRow('Scope 3 Investments (NOT APPLICABLE)', 0),
+          emissionRow('Scope 1', 0),
+          emissionRow('Scope 2', emissionTotals.machining),
+          emissionRow('Scope 3 Purchased goods and services/Capital Goods', emissionTotals.material + emissionTotals.materialNormal),
+          emissionRow('Scope 3 Fuel- and energy-related activities', 0),
+          emissionRow('Scope 3 Upstream transportation and distribution', emissionTotals.transport),
+          emissionRow('Scope 3 Waste generated in operations', emissionTotals.waste),
+          emissionRow('Scope 3 Business travel (NOT APPLICABLE)', 0),
+          emissionRow('Scope 3 Employee commuting (NOT APPLICABLE)', 0),
+          emissionRow('Scope 3 Upstream leased assets (NOT APPLICABLE)', 0),
+          emissionRow('Scope 3 Downstream transportation and distribution', 0),
+          emissionRow('Scope 3 Processing of sold products', 0),
+          emissionRow('Scope 3 Use of sold products', emissionTotals.usageCycle),
+          emissionRow('Scope 3 End-of-life treatment of sold products', emissionTotals.endofLife),
+          emissionRow('Scope 3 Downstream leased assets (NOT APPLICABLE)', 0),
+          emissionRow('Scope 3 Franchises (NOT APPLICABLE)', 0),
+          emissionRow('Scope 3 Investments (NOT APPLICABLE)', 0),
           const SizedBox(height: 24),
 
           // ---------------- ALL EMISSION RESULTS ----------------
@@ -212,8 +213,18 @@ for (var i = 0; i < materialRows.length; i++) {
             color: Apptheme.textclrdark,
           ),
           const SizedBox(height: 8),
-          _buildMaterialEmissionResults(ref, widget.productId, part),
+          buildMaterialEmissionResults(ref, widget.productId, part, key),
           const SizedBox(height: 24),
+
+          // ---------------- ALL MACHINING RESULTS ----------------
+          Labels(
+            title: 'All Machining Used',
+            color: Apptheme.textclrdark,
+          ),
+          const SizedBox(height: 8),
+          buildMachiningEmissionResults(ref, widget.productId, part, key),
+          const SizedBox(height: 24),
+
 
           // ---------------- EXPORT BUTTON ----------------
           Center(
@@ -232,7 +243,7 @@ for (var i = 0; i < materialRows.length; i++) {
     );
   }
 
-  Widget _emissionRow(String label, double value) {
+  Widget emissionRow(String label, double value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -248,43 +259,97 @@ for (var i = 0; i < materialRows.length; i++) {
     );
   }
 
-  Widget _buildMaterialEmissionResults(
-      WidgetRef ref, String productId, String partId) {
-    final rows = ref.watch(emissionRowsProvider((productId, partId)));
+  Widget buildMaterialEmissionResults(
+      WidgetRef ref,
+      String productId,
+      String partId,
+      TableKey tableKey,
+    ) {
+      final rows = ref.watch(emissionRowsProvider((productId, partId)));
 
-    if (rows.isEmpty) {
-      return Text(
-        'No emission rows calculated yet',
-        style: TextStyle(color: Apptheme.textclrdark),
+      final materialsState =
+          ref.watch(normalMaterialTableProvider(tableKey));
+
+      if (rows.isEmpty) {
+        return Text(
+          'No emission rows calculated yet',
+          style: TextStyle(color: Apptheme.textclrdark),
+        );
+      }
+
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: rows.length,
+        itemBuilder: (context, index) {
+          final r = rows[index];
+
+          final materialName =
+              materialsState.normalMaterials.length > index
+                  ? materialsState.normalMaterials[index] ?? 'Unnamed Material'
+                  : 'Unknown Material';
+
+          return SizedBox(
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  resultLine(materialName, r.materialNormal),
+                ],
+              ),
+            ),
+          );
+        },
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: rows.length,
-      itemBuilder: (context, index) {
-        final r = rows[index];
+  Widget buildMachiningEmissionResults(
+  WidgetRef ref,
+  String productId,
+  String partId,
+  TableKey tableKey,
+) {
+  final rows = ref.watch(emissionRowsProvider((productId, partId)));
 
-        return Card(
-          color: Apptheme.widgetsecondaryclr,
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _resultLine('Material (Total)', r.materialNormal),
-                _resultLine('Material (Total)', r.material),
-              ],
-            ),
-          ),
-        );
-      },
+  final machiningState =
+      ref.watch(machiningTableProvider(tableKey));
+
+  if (rows.isEmpty) {
+    return Text(
+      'No machining emission rows calculated yet',
+      style: TextStyle(color: Apptheme.textclrdark),
     );
   }
 
-  Widget _resultLine(String label, double value, {bool bold = false}) {
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: rows.length,
+    itemBuilder: (context, index) {
+      final r = rows[index];
+
+      final machineName =
+          machiningState.machines.length > index
+              ? machiningState.machines[index] ?? 'Unnamed Machine'
+              : 'Unknown Machine';
+
+      return SizedBox(
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              resultLine(machineName, r.machining),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+  Widget resultLine(String label, double value, {bool bold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(

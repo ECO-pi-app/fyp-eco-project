@@ -6,6 +6,7 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/hover_drawer.d
 import 'package:test_app/design/secondary_elements_(to_design_pages)/welcomelogo.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/sub_drawer.dart';
 import 'package:test_app/dynamic_pages/master_panel.dart';
+import 'package:test_app/sub_navigator.dart';
 
 class BackgroundDrawer extends ConsumerStatefulWidget {
   final String profileName;
@@ -104,7 +105,7 @@ class HeaderofMasterPanel extends StatelessWidget {
             children: [
               SizedBox(width: 0+headeradjust,),
               Welcomepagelogo(
-                whathappens: () => onSelectPage(0), 
+                whathappens: () {RootScaffold.of(context)?.goToWelcomePage();},
                 choosecolor: Apptheme.transparentcheat, 
                 pad: 0,
                 size: 70,
