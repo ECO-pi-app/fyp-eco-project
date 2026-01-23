@@ -102,7 +102,7 @@ void dispose() {
                         ),
 
                         SizedBox(
-                          height: 280,
+                          height: 200,
                             child: factsfield,
                           
                         ),
@@ -114,7 +114,7 @@ void dispose() {
 
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 20, right: 20, left: 80),
+                    padding: const EdgeInsets.only(top: 20, bottom: 20, right: 20, left: 20),
                     child: ProjectsPanel()
                   ),
                 ),
@@ -158,14 +158,14 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
       height: double.infinity,
       decoration: BoxDecoration(
         color: Apptheme.transparentcheat,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(5),
         border: Border.all(
-          color: Apptheme.widgetclrdark,
+          color: Apptheme.transparentcheat,
           width: 2,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 20, top: 20, right: 20),
+        padding: const EdgeInsets.only(left: 20, top: 20, right: 0),
         child: productsAsync.when(
           data: (products) {
             return ListView(
@@ -173,7 +173,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 50),
+                    padding: const EdgeInsets.only(bottom: 25),
                     child: Titletext(
                       title: 'Your Projects',
                       color: Apptheme.textclrdark,
@@ -188,6 +188,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: GestureDetector(
@@ -221,8 +222,13 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                               ),
                             ),
                           ),
-                          SizedBox(
-                            width: 50,
+                          const SizedBox(width: 10),
+                          Container(
+                            width: 45,
+                            decoration: BoxDecoration(
+                              color: Apptheme.widgettertiaryclr,
+                              borderRadius: BorderRadius.circular(5)
+                            ),
                             child: IconButton(
                               icon: const Icon(Icons.delete),
                               color: Apptheme.iconsdark,
@@ -231,13 +237,15 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                               },
                             ),
                           ),
+                          const SizedBox(width: 10),
+                          
                         ],
                       ),
                     ),
                   );
                 }).toList(),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 15),
 
                 // ---------- CREATE PROJECT ----------
                 _buildCreateSection(context),
@@ -943,16 +951,16 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
             minHeight: widget.minHeight,
           ),
           decoration: BoxDecoration(
-            color: Apptheme.transparentcheat,
-            borderRadius: BorderRadius.circular(20),
+            color: Apptheme.widgetclrlighttransparent,
+            borderRadius: BorderRadius.circular(5),
             border: Border.all(
-              color: Apptheme.widgetclrdark,
+              color: Apptheme.transparentcheat,
               width: 2,
             ),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // 👈 CRITICAL FIX
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Titletext(

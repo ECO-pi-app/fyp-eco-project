@@ -4,6 +4,7 @@ class Apptheme{
   //--contents color theme--
   static const Color lightpallete1 = Color(0xFFF7F4EB);
   static const Color lightpallete2 = Color(0xFFEFE8DF); 
+  static const Color lightpallete2transparent = Color(0x85EFE8DF); 
   static const Color primarycolour1 = Color(0xFF838D75) ; 
   static const Color primarycolour3 = Color(0xFFE2DDD3);
   static const Color primarycolour2 = Color(0xFF595E48); 
@@ -47,6 +48,7 @@ class Apptheme{
 
   //--universal colours used on widgets--
   static const Color widgetclrlight = lightpallete2;
+  static const Color widgetclrlighttransparent = lightpallete2transparent;
   static const Color widgetsecondaryclr = primarycolour1;
   static const Color tertiarysecondaryclr = primarycolour2;
   static const Color widgettertiaryclr = primarycolour3;
