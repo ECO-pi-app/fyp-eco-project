@@ -316,7 +316,7 @@ YCM_sub_spindle_cells               = sheet14['C2':'C999']
 
 Amada_machine_model_cells           = sheet15['A2':'A999']
 Amada_main_spindle_cells            = sheet15['B2':'B999']
-Amada_sub_spindle_cells             = sheet15['C2':'C999']
+Amada_secondary_spindle_cells             = sheet15['C2':'C999']
 
 Mazak_machine_model_cells           = sheet16['A2':'A999']
 Mazak_main_spindle_cells            = sheet16['B2':'B999']
@@ -453,7 +453,7 @@ YCM_sub_spindle                  = extract_selection_list(YCM_sub_spindle_cells)
 
 Amada_machine_model              = extract_selection_list(Amada_machine_model_cells)
 Amada_main_spindle               = extract_selection_list(Amada_main_spindle_cells)
-Amada_sub_spindle                = extract_selection_list(Amada_sub_spindle_cells)
+Amada_secondary_spindle                = extract_selection_list(Amada_secondary_spindle_cells)
 
 Mazak_machine_model              = extract_selection_list(Mazak_machine_model_cells)
 Mazak_main_spindle               = extract_selection_list(Mazak_main_spindle_cells)
@@ -1386,6 +1386,96 @@ def calculate_machine(req:MachineEmissionsAdvancedReq):
 
         "emissions_main": emissions_main,
         "emissions_second": emissions_second,
+        "emissions_secondary": emissions_secondary,
+        "total_emissions": total_emissions
+    }
+
+@app.post("/calculate/machining_ycm_advanced")
+def calculate_machine_ycm(req: MachineEmissionsAdvancedReq):
+
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail=f"Country '{req.country}' not found.")
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kgCO2e/kWh
+
+    if req.machine_model not in YCM_machine_model:
+        raise HTTPException(status_code=400, detail=f"YCM machine '{req.machine_model}' not found.")
+    midx = YCM_machine_model.index(req.machine_model)
+
+    main_spindle_kw = float(YCM_main_spindle[midx])      
+    sub_spindle_kw  = float(YCM_sub_spindle[midx])                               
+
+    t_main = float(req.time_operated_main_hr)
+    t_second = float(req.time_operated_second_hr)
+    t_sub = float(req.time_operated_secondary_hr)
+
+    if t_main < 0 or t_second < 0 or t_sub < 0:
+        raise HTTPException(status_code=400, detail="Time operated cannot be negative.")
+
+    emissions_main = main_spindle_kw * grid_intensity * t_main
+    emissions_sub = sub_spindle_kw * grid_intensity * t_sub
+
+    total_emissions = emissions_main + emissions_sub
+
+    return {
+        "country": req.country,
+        "machine_brand": "YCM",
+        "machine_model": req.machine_model,
+        "grid_intensity": grid_intensity,
+
+        "power_drawed_main_kw": main_spindle_kw,
+        "power_drawed_secondary_kw": sub_spindle_kw,
+
+        "time_operated_main_hr": t_main,
+        "time_operated_second_hr": t_second,
+        "time_operated_secondary_hr": t_sub,
+
+        "emissions_main": emissions_main,
+        "emissions_secondary": emissions_sub,
+        "total_emissions": total_emissions
+    }
+
+@app.post("/calculate/machining_amada_advanced")
+def calculate_machine_amada(req: MachineEmissionsAdvancedReq):
+
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail=f"Country '{req.country}' not found.")
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kgCO2e/kWh
+
+    if req.machine_model not in Amada_machine_model:
+        raise HTTPException(status_code=400, detail=f"Amada machine '{req.machine_model}' not found.")
+    midx = Amada_machine_model.index(req.machine_model)
+
+    main_spindle_kw = float(Amada_main_spindle[midx])        
+    secondary_spindle_kw = float(Amada_secondary_spindle[midx])
+
+    t_main = float(req.time_operated_main_hr)
+    t_second = float(req.time_operated_second_hr)
+    t_secondary = float(req.time_operated_secondary_hr)
+
+    if t_main < 0 or t_second < 0 or t_secondary < 0:
+        raise HTTPException(status_code=400, detail="Time operated cannot be negative.")
+
+    emissions_main = main_spindle_kw * grid_intensity * t_main
+    emissions_secondary = secondary_spindle_kw * grid_intensity * t_secondary
+
+    total_emissions = emissions_main + emissions_secondary
+
+    return {
+        "country": req.country,
+        "machine_brand": "Amada",
+        "machine_model": req.machine_model,
+        "grid_intensity": grid_intensity,
+
+        "power_drawed_main_kw": main_spindle_kw,
+        "power_drawed_secondary_kw": secondary_spindle_kw,
+
+        "time_operated_main_hr": t_main,
+        "time_operated_second_hr": t_second,
+        "time_operated_secondary_hr": t_secondary,
+
+        "emissions_main": emissions_main,
         "emissions_secondary": emissions_secondary,
         "total_emissions": total_emissions
     }
