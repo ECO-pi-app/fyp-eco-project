@@ -1522,7 +1522,7 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
     cidx = country_list.index(req.country)
     grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
 
-    # 2) Get Mazak main spindle power from selected machine
+    # 2) Get ycm main spindle power from selected machine
     if req.machine_model not in YCM_machine_model:
         raise HTTPException(
             status_code=400,
@@ -1554,11 +1554,11 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
     cidx = country_list.index(req.country)
     grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
 
-    # 2) Get Mazak main spindle power from selected machine
+    # 2) Get Amada main spindle power from selected machine
     if req.machine_model not in Amada_machine_model:
         raise HTTPException(
             status_code=400,
-            detail=f"YCM machine '{req.machine_model}' not found."
+            detail=f"Amada machine '{req.machine_model}' not found."
         )
     midx = Amada_machine_model.index(req.machine_model)
     main_spindle_kw = float(Amada_main_spindle[midx])  # kW
