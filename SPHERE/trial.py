@@ -1480,7 +1480,7 @@ def calculate_machine_amada(req: MachineEmissionsAdvancedReq):
         "total_emissions": total_emissions
     }
 
-@app.post("/calculate/machine_power_emission")
+@app.post("/calculate/machine_power_emission_mazak")
 def calculate_machine_power_emission(req:MachineEmissionsReq):
     if req.country not in country_list:
         raise HTTPException(
@@ -1512,6 +1512,69 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
+@app.post("/calculate/machine_power_emission_ycm")
+def calculate_machine_power_emission(req:MachineEmissionsReq):
+    if req.country not in country_list:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Country '{req.country}' not found in grid intensity list."
+        )
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
+
+    # 2) Get Mazak main spindle power from selected machine
+    if req.machine_model not in YCM_machine_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"YCM machine '{req.machine_model}' not found."
+        )
+    midx = YCM_machine_model.index(req.machine_model)
+    main_spindle_kw = float(YCM_main_spindle[midx])  # kW
+
+    power_drawed = main_spindle_kw                 # only main spindle for now
+    time_operated = req.time_operated_hr          # hours
+    emissions = power_drawed * grid_intensity * time_operated
+
+    return {
+        "country": req.country,
+        "machine_model": req.machine_model,
+        "time_operated_hr": time_operated,
+        "power_drawed_kw": power_drawed,
+        "grid_intensity": grid_intensity,
+        "emissions": emissions,       # kg CO2e
+    }
+
+@app.post("/calculate/machine_power_emission_Amada")
+def calculate_machine_power_emission(req:MachineEmissionsReq):
+    if req.country not in country_list:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Country '{req.country}' not found in grid intensity list."
+        )
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
+
+    # 2) Get Mazak main spindle power from selected machine
+    if req.machine_model not in Amada_machine_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"YCM machine '{req.machine_model}' not found."
+        )
+    midx = Amada_machine_model.index(req.machine_model)
+    main_spindle_kw = float(Amada_main_spindle[midx])  # kW
+
+    power_drawed = main_spindle_kw                 # only main spindle for now
+    time_operated = req.time_operated_hr          # hours
+    emissions = power_drawed * grid_intensity * time_operated
+
+    return {
+        "country": req.country,
+        "machine_model": req.machine_model,
+        "time_operated_hr": time_operated,
+        "power_drawed_kw": power_drawed,
+        "grid_intensity": grid_intensity,
+        "emissions": emissions,       # kg CO2e
+    }
 @app.post("/calculate/assembly")
 def calculate_assembly(req: AssemblyRequest):
 
