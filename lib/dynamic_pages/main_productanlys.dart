@@ -1034,7 +1034,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(machiningTableProvider(key));
     final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
-    final machines = ref.watch(ycmTypesProvider);
+    final machines = ref.watch(amadaTypesProvider);
     final countries = ref.watch(countriesProvider);
 
     List<RowFormat> rows = List.generate(

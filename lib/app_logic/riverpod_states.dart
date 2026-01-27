@@ -355,14 +355,14 @@ class MachiningTableState {
 
 class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
   MachiningTableNotifier()
-      : super(
-          MachiningTableState(
-            machines: [''],
-            countries: [''],
-            times: [''],
-            machiningAllocationValues: [''],
-          ),
-        );
+  : super(
+    MachiningTableState(
+      machines: [''],
+      countries: [''],
+      times: [''],
+      machiningAllocationValues: [''],
+    ),
+  );
 
   void addRow() {
     state = state.copyWith(

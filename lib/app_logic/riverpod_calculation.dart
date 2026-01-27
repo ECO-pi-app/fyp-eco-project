@@ -427,7 +427,7 @@ class EmissionCalculator
     },
     'machining': {
       'endpoint':
-          'http://127.0.0.1:8000/calculate/machine_power_emission',
+          'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
       'apiKeys': {
         "Machine": "machine_model",
         "Country": "country",
@@ -513,7 +513,15 @@ class EmissionCalculator
   'Organic Waste': 'http://127.0.0.1:8000/calculate/waste/organic',
   'Material-specific Waste': 'http://127.0.0.1:8000/calculate/waste/material',
   'Energy-related Waste': 'http://127.0.0.1:8000/calculate/waste/energy',
-};
+  };
+
+  final Map<String, String> _machinesBrandEndpoints = {
+    'Amada': 'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
+    'YCM': 'http://127.0.0.1:8000/calculate/machine_power_emission_YCM',
+    'Mazak': 'http://127.0.0.1:8000/calculate/machine_power_emission_mazak',
+  };
+
+
 
 
 Future<void> calculate(
@@ -553,6 +561,9 @@ Future<void> calculate(
     }
     if (featureType.contains('waste')) {
       endpoint = _wasteEndpoints[row.selections.first] ?? endpointDefault;
+    }
+    if (featureType.contains('machining')) {
+      endpoint = _machinesBrandEndpoints[row.selections.first] ?? endpointDefault;
     }
 
     double value = 0;
