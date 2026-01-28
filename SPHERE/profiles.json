@@ -53,6 +53,18 @@
       "data": {
         "sample": "test"
       }
+    },
+    "Test": {
+      "description": "535555343",
+      "data": {
+        "sample": "test"
+      }
+    },
+    "18 Parts Onn Wah Tech": {
+      "description": "18 Parts Assembly",
+      "data": {
+        "sample": "test"
+      }
     }
   }
 }
