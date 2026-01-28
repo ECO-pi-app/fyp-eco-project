@@ -1575,6 +1575,7 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "grid_intensity": grid_intensity,
         "emissions": emissions,       # kg CO2e
     }
+
 @app.post("/calculate/assembly")
 def calculate_assembly(req: AssemblyRequest):
 
