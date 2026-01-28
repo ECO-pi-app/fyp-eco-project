@@ -5,6 +5,39 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 
+
+// Stores user-entered descriptions per product
+class ProductDescriptionNotifier
+    extends StateNotifier<Map<String, String>> {
+  ProductDescriptionNotifier() : super({});
+
+  void setDescription(String productName, String description) {
+    state = {
+      ...state,
+      productName: description,
+    };
+  }
+
+  String? getDescription(String productName) {
+    return state[productName];
+  }
+}
+
+// Map<productName, description>
+final productDescriptionProvider =
+    StateNotifierProvider<ProductDescriptionNotifier, Map<String, String>>(
+  (ref) => ProductDescriptionNotifier(),
+);
+
+// Derived provider for active product description
+final activeProductDescriptionProvider = Provider<String?>((ref) {
+  final name = ref.watch(activeProductProvider);
+  final map = ref.watch(productDescriptionProvider);
+
+  if (name == null) return null;
+  return map[name];
+});
+
 // --------------- NORMAL MATERIAL STATE -----------------
 class NormalMaterialState {
   final List<String?> normalMaterials;

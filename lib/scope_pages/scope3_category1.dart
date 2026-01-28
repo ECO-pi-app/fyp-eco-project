@@ -5,13 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:file_selector/file_selector.dart';
-
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
+
 
 class ProductDetailForm extends ConsumerStatefulWidget {
   final String productId;
@@ -81,28 +82,7 @@ class _ProductDetailFormState
     );
   }
 
-Future<String?> _showSaveDialog(
-  String filename,
-  String extension,
-  String label,
-) async {
-  final typeGroup = XTypeGroup(
-    label: label,
-    extensions: [extension],
-  );
-
-  final FileSaveLocation? location = await getSaveLocation(
-    suggestedName: filename,
-    acceptedTypeGroups: [typeGroup],
-  );
-
-  return location?.path;
-}
-
-
-  // ===================== EXCEL EXPORT =====================
-
-  Future<void> _exportExcelWithPicker() async {
+  Future<void> _exportExcel() async {
     final part = ref.read(activePartProvider);
     if (part == null) return;
 
@@ -183,25 +163,22 @@ Future<String?> _showSaveDialog(
     final bytes = excel.encode();
     if (bytes == null) return;
 
-    final path = await _showSaveDialog(
-      'Product_${widget.productId}.xlsx',
-      'xlsx',
-      'Excel Files',
+    final dir = await getDownloadsDirectory();
+    if (dir == null) return;
+
+    final file = File(
+      '${dir.path}/Product_${widget.productId}.xlsx',
     );
 
-    if (path == null) return;
-
-    final file = File(path);
     await file.writeAsBytes(bytes);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Excel saved successfully')),
+      SnackBar(content: Text('Excel saved to Downloads')),
     );
   }
 
-  // ===================== PDF EXPORT =====================
 
-  Future<void> _exportPdfWithPicker() async {
+  Future<void> _exportPdf() async {
     final part = ref.read(activePartProvider);
     if (part == null) return;
 
@@ -255,14 +232,11 @@ Future<String?> _showSaveDialog(
 
           labelRow('Product ID', widget.productId),
           labelRow('Description', _descriptionController.text),
-          labelRow(
-              'Functional Unit', _functionalUnitController.text),
+          labelRow('Functional Unit', _functionalUnitController.text),
           labelRow('Declarations', _declarationsController.text),
           labelRow(
             'Allocation',
-            allocationApplied
-                ? 'NOT ALIGNED WITH STANDARD'
-                : 'None',
+            allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None',
           ),
 
           pw.Divider(),
@@ -274,15 +248,11 @@ Future<String?> _showSaveDialog(
 
           emissionRow('Scope 1', 0),
           emissionRow('Scope 2', emissionTotals.machining),
-          emissionRow(
-              'Purchased Goods', emissionTotals.material),
-          emissionRow(
-              'Transport', emissionTotals.transport),
+          emissionRow('Purchased Goods', emissionTotals.material),
+          emissionRow('Transport', emissionTotals.transport),
           emissionRow('Waste', emissionTotals.waste),
-          emissionRow(
-              'Use Phase', emissionTotals.usageCycle),
-          emissionRow(
-              'End of Life', emissionTotals.endofLife),
+          emissionRow('Use Phase', emissionTotals.usageCycle),
+          emissionRow('End of Life', emissionTotals.endofLife),
 
           pw.Divider(),
           pw.Text('Materials',
@@ -294,8 +264,7 @@ Future<String?> _showSaveDialog(
           ...List.generate(materialRows.length, (i) {
             final r = materialRows[i];
             return pw.Row(
-              mainAxisAlignment:
-                  pw.MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text('Material ${i + 1}'),
                 pw.Text(
@@ -308,21 +277,9 @@ Future<String?> _showSaveDialog(
       ),
     );
 
-    final bytes = await pdf.save();
-
-    final path = await _showSaveDialog(
-      'Product_${widget.productId}.pdf',
-      'pdf',
-      'PDF Files',
-    );
-
-    if (path == null) return;
-
-    final file = File(path);
-    await file.writeAsBytes(bytes);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('PDF saved successfully')),
+    await Printing.layoutPdf(
+      name: 'Product_${widget.productId}.pdf',
+      onLayout: (_) async => pdf.save(),
     );
   }
 
@@ -377,9 +334,9 @@ Future<String?> _showSaveDialog(
           ),
           const SizedBox(height: 8),
 
-          _emissionRow('Scope 1', 0),
+          _emissionRow('Scope 1', emissionTotals.machining),
           _emissionRow(
-              'Scope 2', emissionTotals.machining),
+              'Scope 2', 0),
           _emissionRow(
               'Purchased Goods',
               emissionTotals.material +
@@ -411,7 +368,7 @@ Future<String?> _showSaveDialog(
                     foregroundColor:
                         Apptheme.textclrdark,
                   ),
-                  onPressed: _exportExcelWithPicker,
+                  onPressed: _exportExcel,
                 ),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.picture_as_pdf),
@@ -422,7 +379,7 @@ Future<String?> _showSaveDialog(
                     foregroundColor:
                         Apptheme.textclrdark,
                   ),
-                  onPressed: _exportPdfWithPicker,
+                  onPressed: _exportPdf,
                 ),
               ],
             ),
