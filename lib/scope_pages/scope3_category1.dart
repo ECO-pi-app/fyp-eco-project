@@ -12,6 +12,8 @@ import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
+import 'package:open_file/open_file.dart';
+
 
 
 class ProductDetailForm extends ConsumerStatefulWidget {
@@ -177,34 +179,28 @@ class _ProductDetailFormState
     );
   }
 
+Future<void> _exportPdf() async {
+  final allParts = ref.read(partsProvider);
+  if (allParts.isEmpty) {
+    debugPrint("[_exportPdf] No parts to export.");
+    return;
+  }
 
-  Future<void> _exportPdf() async {
-    final part = ref.read(activePartProvider);
-    if (part == null) return;
+  final pdf = pw.Document();
 
-    final emissionTotals =
-        ref.read(emissionTotalsProvider((widget.productId, part)));
-    final materialRows =
-        ref.read(emissionRowsProvider((widget.productId, part)));
-
-    final pdf = pw.Document();
-
-    pw.Widget labelRow(String label, String value) {
-      return pw.Padding(
+  // ---------------- HELPERS ----------------
+  pw.Widget labelRow(String label, String value) => pw.Padding(
         padding: const pw.EdgeInsets.symmetric(vertical: 4),
         child: pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text(label,
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             pw.Text(value),
           ],
         ),
       );
-    }
 
-    pw.Widget emissionRow(String label, double value) {
-      return pw.Padding(
+  pw.Widget emissionRow(String label, double value) => pw.Padding(
         padding: const pw.EdgeInsets.symmetric(vertical: 2),
         child: pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -214,53 +210,126 @@ class _ProductDetailFormState
           ],
         ),
       );
-    }
+
+  // ---------------- SIMPLE PIE CHART ----------------
+pw.Widget pieChart(Map<String, double> data, {double size = 150}) {
+  final total = data.values.fold<double>(0, (sum, v) => sum + v);
+  if (total == 0) return pw.Container(width: size, height: size);
+
+  final colors = [
+    PdfColors.blue,
+    PdfColors.green,
+    PdfColors.orange,
+    PdfColors.red,
+    PdfColors.purple,
+    PdfColors.yellow,
+  ];
+
+  double startAngle = -90; // start at top
+  int colorIndex = 0;
+
+  // We draw arcs using pw.Circle + pw.Transform.rotate
+  final slices = <pw.Widget>[];
+  data.forEach((label, value) {
+    final sweep = value / total * 360;
+
+    slices.add(
+      pw.Transform.rotate(
+        angle: startAngle * 3.14159265 / 180,
+        child: pw.Container(
+          width: size,
+          height: size,
+          decoration: pw.BoxDecoration(
+            color: colors[colorIndex % colors.length],
+            shape: pw.BoxShape.circle,
+          ),
+        ),
+      ),
+    );
+
+    startAngle += sweep;
+    colorIndex++;
+  });
+
+  return pw.Stack(
+    alignment: pw.Alignment.center,
+    children: slices,
+  );
+}
+
+  // ---------------- GENERAL SUMMARY ----------------
+  final totalEmissions = <String, double>{};
+
+  for (final part in allParts) {
+    final totals = ref.read(emissionTotalsProvider((widget.productId, part)));
+    final partTotal = totals.machining +
+        totals.material +
+        totals.transport +
+        totals.waste +
+        totals.usageCycle +
+        totals.endofLife;
+    totalEmissions[part] = partTotal;
+    debugPrint("[_exportPdf] Total emission for $part: $partTotal");
+  }
+
+  pdf.addPage(
+    pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(32),
+      build: (context) => [
+        pw.Text('Product Emissions Summary',
+            style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 16),
+        labelRow('Product ID', widget.productId),
+        labelRow('Description', _descriptionController.text),
+        labelRow('Functional Unit', _functionalUnitController.text),
+        labelRow('Declarations', _declarationsController.text),
+        labelRow(
+            'Allocation', allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None'),
+        pw.Divider(),
+        pw.Text('Total Emissions by Part (kg CO₂e)',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 8),
+        pieChart(totalEmissions),
+      ],
+    ),
+  );
+
+  // ---------------- PER-PART DETAILS ----------------
+  for (final part in allParts) {
+    final totals = ref.read(emissionTotalsProvider((widget.productId, part)));
+    final materialRows = ref.read(emissionRowsProvider((widget.productId, part)));
+
+    final breakdown = {
+      'Scope 1': 0.0,
+      'Scope 2': totals.machining,
+      'Purchased Goods': totals.material,
+      'Transport': totals.transport,
+      'Waste': totals.waste,
+      'Use Phase': totals.usageCycle,
+      'End of Life': totals.endofLife,
+    };
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (context) => [
-          pw.Text(
-            'Product Emissions Summary',
-            style: pw.TextStyle(
-              fontSize: 22,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
+          pw.Text('Part: $part',
+              style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 12),
+          pw.Text('Total Emissions (kg CO₂e)',
+              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 8),
+          emissionRow('Total', breakdown.values.fold(0.0, (a, b) => a + b)),
           pw.SizedBox(height: 16),
-
-          labelRow('Product ID', widget.productId),
-          labelRow('Description', _descriptionController.text),
-          labelRow('Functional Unit', _functionalUnitController.text),
-          labelRow('Declarations', _declarationsController.text),
-          labelRow(
-            'Allocation',
-            allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None',
-          ),
-
-          pw.Divider(),
-          pw.Text('Emissions (kg CO₂e)',
-              style: pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold)),
+          pw.Text('Emission Breakdown by Life Cycle Stage',
+              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 8),
-
-          emissionRow('Scope 1', 0),
-          emissionRow('Scope 2', emissionTotals.machining),
-          emissionRow('Purchased Goods', emissionTotals.material),
-          emissionRow('Transport', emissionTotals.transport),
-          emissionRow('Waste', emissionTotals.waste),
-          emissionRow('Use Phase', emissionTotals.usageCycle),
-          emissionRow('End of Life', emissionTotals.endofLife),
-
+          pieChart(breakdown),
           pw.Divider(),
-          pw.Text('Materials',
-              style: pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold)),
+          pw.Text('Materials', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 8),
-
           ...List.generate(materialRows.length, (i) {
             final r = materialRows[i];
             return pw.Row(
@@ -268,20 +337,22 @@ class _ProductDetailFormState
               children: [
                 pw.Text('Material ${i + 1}'),
                 pw.Text(
-                  'Normal: ${r.materialNormal.toStringAsFixed(2)} | Custom: ${r.material.toStringAsFixed(2)}',
-                ),
+                    'Normal: ${r.materialNormal.toStringAsFixed(2)} | Custom: ${r.material.toStringAsFixed(2)}'),
               ],
             );
           }),
         ],
       ),
     );
-
-    await Printing.layoutPdf(
-      name: 'Product_${widget.productId}.pdf',
-      onLayout: (_) async => pdf.save(),
-    );
   }
+
+  // ---------------- SAVE PDF ----------------
+  final pdfBytes = await pdf.save();
+  final file = File('Product_${widget.productId}.pdf');
+  await file.writeAsBytes(pdfBytes);
+  debugPrint('PDF saved to ${file.path}');
+  await OpenFile.open(file.path);
+}
 
   // ===================== UI =====================
 
