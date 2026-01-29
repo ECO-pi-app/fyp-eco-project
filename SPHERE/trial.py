@@ -178,6 +178,7 @@ sheet22 = book['Usage']
 sheet23 = book['End-of-Life']
 sheet24 = book['Assembly']
 sheet25 = book['Waste']
+sheet26 = book['Roku Roku']
 
 # Helper functions to read values from Excel columns
 def extract_selection_list(cells):
@@ -316,12 +317,15 @@ YCM_sub_spindle_cells               = sheet14['C2':'C999']
 
 Amada_machine_model_cells           = sheet15['A2':'A999']
 Amada_main_spindle_cells            = sheet15['B2':'B999']
-Amada_secondary_spindle_cells             = sheet15['C2':'C999']
+Amada_secondary_spindle_cells       = sheet15['C2':'C999']
 
 Mazak_machine_model_cells           = sheet16['A2':'A999']
 Mazak_main_spindle_cells            = sheet16['B2':'B999']
 Mazak_secondary_spindle_cells       = sheet16['C2':'C999']
 Mazak_second_spindle_cells          = sheet16['D2':'D999']
+
+Roku_Roku_model_cells               = sheet26['A2':'A999']
+Roku_Roku_main_spindle_cells        = sheet26['B2':'B999']
 
 metal_recycling_types_cells    = sheet5['A2':'A999']
 metal_recycling_emission_cells = sheet5['B2':'B999']
@@ -388,7 +392,6 @@ van_diesel_list   = extract_list(van_diesel_cells)
 van_petrol_list   = extract_list(van_petrol_cells)
 van_battery_list  = extract_list(van_battery_cells)
 
-# (note: we’re loading the HGV/ship/flight/etc. lists too in case you expand modes later)
 HGV_diesel_list     = extract_list(HGV_diesel_cells)
 HGV_0_diesel_list   = extract_list(HGV_0_diesel_cells)
 HGV_50_diesel_list  = extract_list(HGV_50_diesel_cells)
@@ -453,12 +456,15 @@ YCM_sub_spindle                  = extract_selection_list(YCM_sub_spindle_cells)
 
 Amada_machine_model              = extract_selection_list(Amada_machine_model_cells)
 Amada_main_spindle               = extract_selection_list(Amada_main_spindle_cells)
-Amada_secondary_spindle                = extract_selection_list(Amada_secondary_spindle_cells)
+Amada_secondary_spindle          = extract_selection_list(Amada_secondary_spindle_cells)
 
 Mazak_machine_model              = extract_selection_list(Mazak_machine_model_cells)
 Mazak_main_spindle               = extract_selection_list(Mazak_main_spindle_cells)
 Mazak_secondary_spindle          = extract_selection_list(Mazak_secondary_spindle_cells)
 Mazak_second_spindle             = extract_selection_list(Mazak_second_spindle_cells)
+
+Roku_Roku_model                  = extract_selection_list(Roku_Roku_model_cells)
+Roku_Roku_main_spindle           = extract_selection_list(Roku_Roku_main_spindle_cells)
 
 metal_recycling_types_list    = extract_selection_list(metal_recycling_types_cells)
 metal_recycling_emission_list = extract_emission_list(metal_recycling_emission_cells)
@@ -1034,6 +1040,7 @@ def get_options():
         "YCM_types":YCM_machine_model,
         "Amada_types":Amada_machine_model,
         "Mazak_types":Mazak_machine_model,
+        "Roku_Roku_types":Roku_Roku_model,
         "Van_mode":van_mode_list,
         "Van_emissions":van_emission_list,
         "HGV_mode":HGV_mode_list,
@@ -1500,6 +1507,38 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
     main_spindle_kw = float(Mazak_main_spindle[midx])  # kW
 
     power_drawed = main_spindle_kw                 # only main spindle for now
+    time_operated = req.time_operated_hr          # hours
+    emissions = power_drawed * grid_intensity * time_operated
+
+    return {
+        "country": req.country,
+        "machine_model": req.machine_model,
+        "time_operated_hr": time_operated,
+        "power_drawed_kw": power_drawed,
+        "grid_intensity": grid_intensity,
+        "emissions": emissions,       # kg CO2e
+    }
+
+@app.post("/calculate/machine_power_emission_Roku")
+def calculate_machine_power_emission(req:MachineEmissionsReq):
+    if req.country not in country_list:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Country '{req.country}' not found in grid intensity list."
+        )
+    cidx = country_list.index(req.country)
+    grid_intensity = float(electricity_list[cidx])  # kg CO2e per kWh 
+
+    # 2) Get Roku main spindle power from selected machine
+    if req.machine_model not in Roku_Roku_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Roku Roku machine '{req.machine_model}' not found."
+        )
+    midx = Roku_Roku_model.index(req.machine_model)
+    main_spindle_kw = float(Roku_Roku_main_spindle[midx])  # kW
+
+    power_drawed = main_spindle_kw                # only main spindle for now
     time_operated = req.time_operated_hr          # hours
     emissions = power_drawed * grid_intensity * time_operated
 
