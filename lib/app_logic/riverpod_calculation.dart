@@ -106,15 +106,15 @@ class EmissionResults {
 
 
   double get total =>
-      (materialNormal ?? 0) +
-      (material ?? 0) +
-      (transport ?? 0) +
-      (machining ?? 0) +
-      (fugitive ?? 0) +
-      (productionTransport ?? 0) +
-      (waste ?? 0) +
-      (usageCycle ?? 0) +
-      (endofLife ?? 0);
+      (materialNormal ?? 0.0) +
+      (material ?? 0.0) +
+      (transport ?? 0.0) +
+      (machining ?? 0.0) +
+      (fugitive ?? 0.0) +
+      (productionTransport ?? 0.0) +
+      (waste ?? 0.0) +
+      (usageCycle ?? 0.0) +
+      (endofLife ?? 0.0);
 }
 
 
@@ -160,15 +160,13 @@ final emissionRowsProvider =
 );
 
 final emissionTotalsProvider =
-    Provider.family<EmissionResults, (String, String)>(
-  (ref, args) {
-    final (productId, partId) = args;
-    return ref
-            .watch(emissionCalculatorProvider(productId))
-            .totalsByPart[partId] ??
-        EmissionResults.empty();
-  },
-);
+    Provider.family<EmissionResults, (String, String)>((ref, args) {
+  final (productId, partId) = args;
+  final calc = ref.watch(emissionCalculatorProvider(productId));
+  debugPrint("[emissionTotalsProvider] totalsByPart keys: ${calc.totalsByPart.keys}");
+  return calc.totalsByPart[partId] ?? EmissionResults.empty();
+});
+
 
 final timelineTotalProvider = Provider.family<double, (String product, String timeline)>(
   (ref, args) {
@@ -429,6 +427,7 @@ class EmissionCalculator
       'endpoint':
           'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
       'apiKeys': {
+        "Brand": "machine_brand",
         "Machine": "machine_model",
         "Country": "country",
         "Time of operation (hr)": "time_operated_hr",
@@ -517,7 +516,7 @@ class EmissionCalculator
 
   final Map<String, String> _machinesBrandEndpoints = {
     'Amada': 'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
-    'YCM': 'http://127.0.0.1:8000/calculate/machine_power_emission_YCM',
+    'YCM': 'http://127.0.0.1:8000/calculate/machine_power_emission_ycm',
     'Mazak': 'http://127.0.0.1:8000/calculate/machine_power_emission_mazak',
   };
 

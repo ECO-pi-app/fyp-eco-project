@@ -359,12 +359,14 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
 // ---------------- MACHINING STATE ----------------
 
 class MachiningTableState {
+  final List<String?> brands;
   final List<String?> machines;
   final List<String?> countries;
   final List<String?> times;
   final List<String?> machiningAllocationValues; 
 
   MachiningTableState({
+    required this.brands,
     required this.machines,
     required this.countries,
     required this.times,
@@ -372,12 +374,14 @@ class MachiningTableState {
   });
 
   MachiningTableState copyWith({
+    List<String?>? brands,
     List<String?>? machines,
     List<String?>? countries,
     List<String?>? times,
     List<String?>? machiningAllocationValues,
   }) {
     return MachiningTableState(
+      brands: brands ?? this.brands,
       machines: machines ?? this.machines,
       countries: countries ?? this.countries,
       times: times ?? this.times,
@@ -390,6 +394,7 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
   MachiningTableNotifier()
   : super(
     MachiningTableState(
+      brands: [''],
       machines: [''],
       countries: [''],
       times: [''],
@@ -399,6 +404,7 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
 
   void addRow() {
     state = state.copyWith(
+      brands: [...state.brands, ''],
       machines: [...state.machines, ''],
       countries: [...state.countries, ''],
       times: [...state.times, ''],
@@ -409,6 +415,7 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
   void removeRow() {
     if (state.machines.length > 1) {
       state = state.copyWith(
+        brands: state.brands.sublist(0, state.brands.length - 1),
         machines: state.machines.sublist(0, state.machines.length - 1),
         countries: state.countries.sublist(0, state.countries.length - 1),
         times: state.times.sublist(0, state.times.length - 1),
@@ -422,12 +429,16 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
     required String column,
     required String? value,
   }) {
+    final brands = [...state.brands];
     final machines = [...state.machines];
     final countries = [...state.countries];
     final times = [...state.times];
     final machiningAllocationValues = [...state.machiningAllocationValues];
 
     switch (column) {
+      case 'Brand':
+        brands[row] = value;
+        break;
       case 'Machine':
         machines[row] = value;
         break;
@@ -444,6 +455,7 @@ class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
     }
 
     state = state.copyWith(
+      brands: brands,
       machines: machines,
       countries: countries,
       times: times,
