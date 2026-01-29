@@ -258,7 +258,7 @@ class CurrentPageIndicator extends ConsumerWidget {
     // Map index to page name
     final pageNames = [
       'ECO-pi',
-      'Attributes',
+      'Part Analysis',
       'Assembly (BETA TEST)',
       'Sustainability News',
       'About',
