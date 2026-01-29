@@ -359,7 +359,7 @@ for (int i = 0; i < rowCount; i++) {
                         children: [
                           const SizedBox(width: 4),
                           Textsinsidewidgets(
-                            words: widget.profileName, 
+                            words: part ?? 'No Part Selected',
                             color: Apptheme.textclrlight,
                             fontsize: 17,
                             fontweight: FontWeight.w600,

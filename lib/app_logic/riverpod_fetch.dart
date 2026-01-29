@@ -532,12 +532,16 @@ final classOptionsProvider = Provider.family<List<String>, String>((ref, vehicle
   }
 });
 
-final brandOptionsProvider = Provider.family<List<String>, String>((ref, vehicle) {
-  switch (vehicle) {
-    case 'Van':
-      return ref.watch(vanModeProvider);
-    case 'HGV (Diesel)':
-      return ref.watch(hgvModeProvider);
+final brandOptionsProvider = Provider.family<List<String>, String>((ref, machinebrand) {
+  switch (machinebrand) {
+    case 'Mazak':
+      return ref.watch(mazakTypesProvider);
+    case 'Amada':
+      return ref.watch(amadaTypesProvider);
+    case 'YCM':
+      return ref.watch(ycmTypesProvider);
+    case '' :
+      return ref.watch(machineTypeProvider);
     default:
       return [];
   }

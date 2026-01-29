@@ -297,6 +297,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsProvider);
     final product = ref.watch(activeProductProvider);
+    final username = ref.watch(usernameProvider);
 
     return Container(
       height: double.infinity,
@@ -322,7 +323,11 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 25),
                         child: Titletext(
-                          title: 'Your Projects',
+                          title: username.when(
+                            data: (name) => 'Welcome $name',
+                            loading: () => 'Welcome...',
+                            error: (_, __) => 'Welcome',
+                          ),
                           color: Apptheme.textclrdark,
                         ),
                       ),
@@ -344,6 +349,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                                     RootScaffold.of(context)?.goToHomePageWithArgs(product.name);
                                   },
                                   child: ChoiceChip(
+                                    showCheckmark: false,
                                     selectedColor: Apptheme.widgetsecondaryclr,
                                     backgroundColor: Apptheme.widgettertiaryclr,
                                     selected: activeName == product.name, // compare strings

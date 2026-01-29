@@ -104,7 +104,7 @@ final barChartProvider =
 );
 
 /// ===============================================================
-/// 5️⃣ PARTS STATE (VALUES DERIVED FROM EMISSIONS)
+/// PARTS STATE (VALUES DERIVED FROM EMISSIONS)
 /// ===============================================================
 
 typedef PieKey = ({String product, String timeline});
@@ -154,7 +154,6 @@ final partsProvider = Provider<List<String>>((ref) {
 
 final emissionResultsProvider = Provider.family<EmissionResults, PieKey>(
   (ref, key) {
-    // Replace with your calculation logic
     return EmissionResults(
       material: 5,
       transport: 3,
@@ -168,7 +167,6 @@ final emissionResultsProvider = Provider.family<EmissionResults, PieKey>(
   },
 );
 
-/// Pie chart values now automatically derived from emissions
 final pieValuesProvider = Provider.family<List<double>, PieKey>((ref, key) {
   final emission = ref.watch(emissionResultsProvider(key));
   return [

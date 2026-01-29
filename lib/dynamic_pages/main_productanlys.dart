@@ -1034,15 +1034,16 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(machiningTableProvider(key));
     final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
-    final machines = ref.watch(amadaTypesProvider);
+    final brands = ref.watch(machinesProvider);
     final countries = ref.watch(countriesProvider);
 
     List<RowFormat> rows = List.generate(
-      tableState.machines.length,
+      tableState.brands.length,
       (i) => RowFormat(
-        columnTitles: ['Machine', 'Country', 'Time of operation (hr)'],
-        isTextFieldColumn: [false, false, true],
+        columnTitles: ['Brand','Machine', 'Country', 'Time of operation (hr)'],
+        isTextFieldColumn: [false, false, false, true],
         selections: [
+          tableState.brands[i],
           tableState.machines[i],
           tableState.countries[i],
           tableState.times[i],
@@ -1069,9 +1070,20 @@ class MachiningAttributesMenu extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumn(
+                        title: 'Brand',
+                        values: tableState.brands,
+                        items: brands,
+                        onChanged: (row, value) =>
+                            tableNotifier.updateCell(row: row, column: 'Brand', value: value),
+                      ),
+                      const SizedBox(width: 10),
+                      buildDynamicColumn(
                         title: 'Machine',
                         values: tableState.machines,
-                        items: machines,
+                        itemsPerRow: List.generate(tableState.brands.length, (i) {
+                          final selectedBrand = tableState.brands[i] ?? '';
+                          return ref.watch(brandOptionsProvider(selectedBrand));
+                        }),
                         onChanged: (row, value) =>
                             tableNotifier.updateCell(row: row, column: 'Machine', value: value),
                       ),

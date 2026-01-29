@@ -65,6 +65,18 @@
       "data": {
         "sample": "test"
       }
+    },
+    "Assem 2": {
+      "description": "Second case study for verification",
+      "data": {
+        "sample": "test"
+      }
+    },
+    "New": {
+      "description": "yaydad",
+      "data": {
+        "sample": "test"
+      }
     }
   }
 }

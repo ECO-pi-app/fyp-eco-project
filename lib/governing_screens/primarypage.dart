@@ -144,22 +144,10 @@ void initState() {
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 5),
                             child: Center(
-                              child: username.when(
-                                data: (username) => Bigfocusedtext(
-                                  title: 'Welcome $username',
-                                  fontsize: 23,
-                                  color: Apptheme.textclrlight,
-                                ),
-                                loading: () => const Bigfocusedtext(
-                                  title: 'Loading...',
-                                  fontsize: 23,
-                                  color: Apptheme.textclrlight,
-                                ),
-                                error: (e, _) => const Bigfocusedtext(
-                                  title: 'Error',
-                                  fontsize: 23,
-                                  color: Apptheme.textclrlight,
-                                ),
+                              child: Bigfocusedtext(
+                                title: widget.profileName,
+                                fontsize: 23,
+                                color: Apptheme.textclrlight,
                               ),
                             ),
                           ),
@@ -271,7 +259,7 @@ class CurrentPageIndicator extends ConsumerWidget {
     final pageNames = [
       'ECO-pi',
       'Attributes',
-      'Allocation',
+      'Assembly (BETA TEST)',
       'Sustainability News',
       'About',
       'Debug',

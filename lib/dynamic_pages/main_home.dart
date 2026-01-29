@@ -33,6 +33,7 @@ class Dynamichome extends ConsumerStatefulWidget {
 }
 
 class _DynamichomeState extends ConsumerState<Dynamichome> {
+  final pieKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -497,49 +498,52 @@ Future<Map<String, String>?> _showTimelineDialog() async {
                     // ---------------- Pie Chart ----------------
                     Expanded(
                       flex: 2,
-                      child: PieChart(
-                        PieChartData(
-                          sections: List.generate(
-                            parts.length,
-                            (i) {
-                              // Define a color palette
-                              const colors = [
-                                Apptheme.piechart1,
-                                Apptheme.piechart2,
-                                Apptheme.piechart3,
-                                Apptheme.piechart4,
-                                Apptheme.piechart5,
-                                Apptheme.piechart6,
-                                Apptheme.piechart7,
-                                Apptheme.piechart8,
-                                Apptheme.piechart9,
-                                Apptheme.piechart10,
-                                Apptheme.piechart11,
-                                Apptheme.piechart12,
-                                Apptheme.piechart13,
-                                Apptheme.piechart14,
-                                Apptheme.piechart15,
-                                Apptheme.piechart16,
-                                Apptheme.piechart17,
-                              ];
-                              final color = colors[i % colors.length]; // cycle if more parts than colors
-
-                              return PieChartSectionData(
-                                value: (results[i] as EmissionResults).total, // <--- use .total
-                                title: parts[i] as String,
-                                color: color,
-                                radius: 120,
-                                titleStyle: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              );
-
-                            },
+                      child: RepaintBoundary(
+                        key: pieKey,
+                        child: PieChart(
+                          PieChartData(
+                            sections: List.generate(
+                              parts.length,
+                              (i) {
+                                // Define a color palette
+                                const colors = [
+                                  Apptheme.piechart1,
+                                  Apptheme.piechart2,
+                                  Apptheme.piechart3,
+                                  Apptheme.piechart4,
+                                  Apptheme.piechart5,
+                                  Apptheme.piechart6,
+                                  Apptheme.piechart7,
+                                  Apptheme.piechart8,
+                                  Apptheme.piechart9,
+                                  Apptheme.piechart10,
+                                  Apptheme.piechart11,
+                                  Apptheme.piechart12,
+                                  Apptheme.piechart13,
+                                  Apptheme.piechart14,
+                                  Apptheme.piechart15,
+                                  Apptheme.piechart16,
+                                  Apptheme.piechart17,
+                                ];
+                                final color = colors[i % colors.length]; // cycle if more parts than colors
+                        
+                                return PieChartSectionData(
+                                  value: (results[i] as EmissionResults).total, // <--- use .total
+                                  title: parts[i] as String,
+                                  color: color,
+                                  radius: 120,
+                                  titleStyle: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                );
+                        
+                              },
+                            ),
+                            sectionsSpace: 2, // space between slices
+                            centerSpaceRadius: 0, // no hole in the center
                           ),
-                          sectionsSpace: 2, // space between slices
-                          centerSpaceRadius: 0, // no hole in the center
                         ),
                       ),
                     ),
