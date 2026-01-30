@@ -8,6 +8,7 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
+import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.dart';
 
 /// ---------------- ACTIVE PART PROVIDER ----------------
 class ActivePartNotifier extends StateNotifier<String?> {
@@ -46,7 +47,7 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
   }
 
   /// ---------- TIMELINE DIALOG ----------
-Future<Map<String, String>?> _showTimelineDialog() async {
+  Future<Map<String, String>?> _showTimelineDialog() async {
   final nameController = TextEditingController();
 
   const months = [
@@ -62,15 +63,27 @@ Future<Map<String, String>?> _showTimelineDialog() async {
     builder: (context) => StatefulBuilder(
       builder: (_, setState) {
         return AlertDialog(
-          title: const Text("Add Timeline"),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Add Timeline"),
+              InfoIconPopupDark(
+                text: 'Define the time period of the study',
+                iconSize: 20,
+              )
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Timeline name
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: "Timeline Name"),
+                SizedBox(
+                  width: 250,
+                  child: TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: "Timeline Name"),
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -148,7 +161,6 @@ Future<Map<String, String>?> _showTimelineDialog() async {
     "end": selectedEndMonth!,
   };
 }
-
 
   Future<void> _addTimeline() async {
     final product = ref.read(activeProductProvider);
@@ -242,11 +254,7 @@ Future<Map<String, String>?> _showTimelineDialog() async {
                 .toDouble() *
             1.2;
 
-
-
-
     debugPrint('Active part: $activePart, All parts: $parts');
-
 
     return PrimaryPages(
       backgroundcolor: Apptheme.widgetclrlight,

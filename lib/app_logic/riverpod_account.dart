@@ -205,7 +205,7 @@ final signUpProvider =
     "password": req.password,
   });
 
-  print("Sign up payload: $payload");
+  debugPrint("Sign up payload: $payload");
 
   final response = await http.post(
     Uri.parse('http://127.0.0.1:8000/auth/signup'),
