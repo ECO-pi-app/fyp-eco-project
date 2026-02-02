@@ -239,6 +239,13 @@ cement_cells         = sheet['E2':'E999']
 electricity_cells    = sheet['F2':'F999']
 plastic_cells        = sheet['G2':'G999']
 carbon_fiber_cells   = sheet['H2':'H999']
+PET_cells            = sheet['I2':'I999']
+HDPE_cells           = sheet['J2':'J999']
+LDPE_cells           = sheet['K2':'K999']
+PP_cells             = sheet['L2':'L999']
+PS_cells             = sheet['M2':'M999']
+PVC_cells            = sheet['N2':'N999']
+
 materials_cells      = sheet7['A2':'A999']
 
 Transport_cells      = sheet2['A2':'A999']
@@ -376,13 +383,19 @@ Energy_Related_Waste_ef_cells    = sheet25["B45":"B47"]
 
 # turn into lists
 country_list      = extract_selection_list(country_cells)
-distance_list     = extract_list(distance_cells)
-steel_list        = extract_list(steel_cells)
-aluminium_list    = extract_list(aluminium_cells)
-cement_list       = extract_list(cement_cells)
+distance_list     = extract_selection_list(distance_cells)
+steel_list        = extract_selection_list(steel_cells)
+aluminium_list    = extract_selection_list(aluminium_cells)
+cement_list       = extract_selection_list(cement_cells)
 electricity_list  = extract_selection_list(electricity_cells)
-plastic_list      = extract_list(plastic_cells)
-carbon_fiber_list = extract_list(carbon_fiber_cells)
+plastic_list      = extract_selection_list(plastic_cells)
+carbon_fiber_list = extract_selection_list(carbon_fiber_cells)
+PET_list          = extract_selection_list(PET_cells)
+HDPE_list         = extract_selection_list(HDPE_cells)
+LDPE_list         = extract_selection_list(LDPE_cells)
+PP_list           = extract_selection_list(PP_cells)
+PS_list           = extract_selection_list(PS_cells)
+PVC_list          = extract_selection_list(PVC_cells)
 material_list     = extract_material_list(materials_cells)
 
 transport_list    = extract_transport_list(Transport_cells)
@@ -1272,7 +1285,13 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "Aluminum":aluminium_list,
         "Cement":cement_list,
         "Plastic":plastic_list,
-        "Carbon Fiber":carbon_fiber_list
+        "Carbon Fiber":carbon_fiber_list,
+        "PET":PET_list,
+        "HDPE":HDPE_list,
+        "LDPE":LDPE_list,
+        "PP":PP_list,
+        "PS":PS_list,
+        "PVC":PVC_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400,detail="Material not supported for calculation")
@@ -1299,7 +1318,13 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "Aluminum": aluminium_list,
         "Cement": cement_list,
         "Plastic": plastic_list,
-        "Carbon Fiber": carbon_fiber_list
+        "Carbon Fiber": carbon_fiber_list,
+        "PET":PET_list,
+        "HDPE":HDPE_list,
+        "LDPE":LDPE_list,
+        "PP":PP_list,
+        "PS":PS_list,
+        "PVC":PVC_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400, detail="Material not supported for calculation")
