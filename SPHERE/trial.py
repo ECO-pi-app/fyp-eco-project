@@ -1284,7 +1284,7 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "Steel":steel_list,
         "Aluminum":aluminium_list,
         "Cement":cement_list,
-        "Plastic":plastic_list,
+        "Plastic (Average)":plastic_list,
         "Carbon Fiber":carbon_fiber_list,
         "PET":PET_list,
         "HDPE":HDPE_list,

@@ -1178,8 +1178,7 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
     "Glass can be recycled endlessly without losing quality.",
     "Food waste in landfills produces methane, a gas 25x stronger than CO₂.",
     "LED bulbs use up to 75% less energy than traditional bulbs.",
-    "You can fit triangles in circles",
-    "gay",
+  
   ];
 
   @override
