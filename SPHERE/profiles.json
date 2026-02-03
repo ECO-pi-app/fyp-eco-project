@@ -332,16 +332,20 @@
               "Support Part 2": {
                 "normal_materials": {
                   "materials": [
-                    "Aluminum"
+                    "Aluminum",
+                    "Carbon Fiber"
                   ],
                   "countries": [
-                    "Albania"
+                    "Albania",
+                    "Azerbaijan"
                   ],
                   "masses": [
-                    "12"
+                    "12",
+                    "34"
                   ],
                   "allocation_values": [
-                    "10"
+                    "10",
+                    ""
                   ]
                 },
                 "materials": {
