@@ -24,8 +24,9 @@ class _HoverSidebarWithNestedState extends State<HoverSidebarWithNested>
     final shortcuts = [
       _drawerTile(Icons.home, "Home" ,() => widget.onSelectPage(0)),
       _drawerTile((Icons.calculate),"Part Analysis", () => widget.onSelectPage(1)),
-      _drawerTile((Icons.assessment),"Assembly", () => widget.onSelectPage(2)),
-      _drawerTile((Icons.laptop),"Debug Page", () => widget.onSelectPage(5)),
+      _drawerTile(Icons.numbers, "Scope Analysis", () => widget.onSelectPage(2)),
+
+      _drawerTile((Icons.assessment),"Assembly", () => widget.onSelectPage(3)),
     ];
 
     // --- Bookmarks / Categories (now as submenu) ---
