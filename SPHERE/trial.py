@@ -1193,7 +1193,7 @@ def get_machinetypes_YCM():
     return{
         "Machine Model": Amada_machine_model,
         "main_spindle": Amada_main_spindle,
-        "Sub Spindle": Amada_sub_spindle
+        "Sub Spindle": Amada_secondary_spindle
     }
 
 @app.get("/meta/Mazak_model")
@@ -1955,20 +1955,32 @@ def login_user(req: UserLoginRequest):
     bucket = all_profiles.get(req.username, {})
     return {"status": "ok","username": req.username,"profiles": list(bucket.keys())}
 
-@app.post("/excel/update_cell")
-def excel_update_cell(req: ExcelUpdateCellRequest):
-    if req.row < 1 or req.col < 1:
-        raise HTTPException(status_code=400, detail="row/col must be >= 1")
+@app.get("/excel/sheets")
+def excel_list_sheets():
+    # load fresh workbook so edits show up immediately
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+    return {"sheets": wb.sheetnames}
 
-    with portalocker.Lock(LOCK_PATH, timeout=10):
-        wb = load_workbook(EXCEL_PATH, data_only=False)  # must be False for writing
-        if req.sheet not in wb.sheetnames:
-            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
-        ws = wb[req.sheet]
-        ws.cell(row=req.row, column=req.col).value = req.value
-        _atomic_save_workbook(wb, EXCEL_PATH)
+@app.get("/excel/sheet/{sheet_name}")
+def excel_read_sheet(sheet_name: str, max_rows: int = 200, max_cols: int = 50):
+    """
+    Returns a sheet as rows[][] so React can display it in a grid.
+    """
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+    if sheet_name not in wb.sheetnames:
+        raise HTTPException(status_code=404, detail="Sheet not found")
 
-    return {"status": "ok"}
+    ws = wb[sheet_name]
+
+    rows = []
+    for r in range(1, max_rows + 1):
+        row_vals = []
+        for c in range(1, max_cols + 1):
+            v = ws.cell(row=r, column=c).value
+            row_vals.append("" if v is None else v)
+        rows.append(row_vals)
+
+    return {"sheet": sheet_name, "rows": rows, "max_rows": max_rows, "max_cols": max_cols}
 
 @app.post("/excel/update_cells")
 def excel_update_cells(req: ExcelUpdateCellsRequest):

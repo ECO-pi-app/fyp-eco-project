@@ -13,6 +13,8 @@ import Dashboard from "./components/pages/Dashboard";
 import Profiles from "./components/pages/Profiles";
 import ProfileView from "./components/pages/ProfileView";
 import HowItWorks from './components/pages/HowItWorks';
+import ExcelEditor from "./components/pages/ExcelEditor";
+
 
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
           <Route path="/profiles" exact component={Profiles} />
           <Route path="/profiles/:name" component={ProfileView} />
           <Route path='/how-it-works' component={HowItWorks} />
+          <Route path="/excel" component={ExcelEditor} />
         </Switch>
       </Router>
     </>
