@@ -1,0 +1,22 @@
+.excelPage {
+  padding: 18px;
+}
+
+.excelTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.excelControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.excelControls select {
+  padding: 6px 10px;
+  border-radius: 8px;
+}

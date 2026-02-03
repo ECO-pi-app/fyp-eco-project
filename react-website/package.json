@@ -2,12 +2,16 @@
   "name": "react-website",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://Lohithroshan45.github.io/fyp-eco-project",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
+    "@handsontable/react": "^16.2.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^13.5.0",
+    "gh-pages": "^6.3.0",
+    "handsontable": "^16.2.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
@@ -20,6 +24,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
