@@ -136,8 +136,6 @@ Future<void> _showAddAssemblyDialog() async {
 
   if (result != true) return;
 
-  final selectedProcessValue = ref.read(selectedAssemblyProcessProvider);
-  final timeTakenValue = ref.read(assemblyTimeProvider);
   final assemblyNameValue = ref.read(assemblyNameProvider);
 
   // Add the compound part

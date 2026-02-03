@@ -10,16 +10,14 @@ import 'package:test_app/dynamic_pages/main_productanlys.dart';
 import 'package:test_app/dynamic_pages/main_sustainabilitynews.dart';
 import 'package:test_app/dynamic_pages/main_scopeanalysis.dart';
 import 'package:test_app/app_logic/river_controls.dart';
-import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/scope_pages/scope3_category1.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 
 
 class HomeScreen extends ConsumerStatefulWidget {
   final String profileName;
-  final String productID; // <-- add this
+  final String productID;
 
   const HomeScreen({
     super.key,

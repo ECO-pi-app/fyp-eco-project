@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.dart';
@@ -9,7 +10,6 @@ import 'package:test_app/app_logic/river_controls.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_fetch.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
-import 'package:test_app/dynamic_pages/main_scopeanalysis.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
 
 class Dynamicprdanalysis extends ConsumerStatefulWidget {
@@ -723,7 +723,24 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material', rows);
+                  await ref.read(emissionCalculatorProvider(productID).notifier)
+                      .calculate(part, 'material', rows);
+
+                  final username = await ref.read(usernameProvider.future);
+                  final key = (product: productID, part: part);
+
+                  final activeProduct = ref.read(activeProductProvider);
+                  final activePart = ref.read(activePartProvider);
+
+
+
+                  await saveProfile(
+                    ref,
+                    "$activeProduct",  
+                    "Mock description",  
+                    "$username",     
+                    key,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,

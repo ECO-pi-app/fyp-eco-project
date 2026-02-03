@@ -2,9 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/dynamic_pages/main_home.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 
-/// ===============================================================
-/// 1️⃣ ACTIVE SELECTION CONTEXT
-/// ===============================================================
 
 final activeProductProvider = StateProvider<String?>((ref) => null);
 final activeTimelineProvider = StateProvider<String?>((ref) => null);
@@ -17,9 +14,6 @@ final productTimelineResetProvider = Provider<void>((ref) {
   );
 });
 
-/// ===============================================================
-/// 2️⃣ TIMELINE STATE (PER PRODUCT)
-/// ===============================================================
 
 class TimelineState {
   final List<String> timelines; // only names
@@ -45,9 +39,6 @@ final timelineProvider =
   (ref, product) => TimelineNotifier(),
 );
 
-/// ===============================================================
-/// 3️⃣ TIMELINE DURATION (START/END)
-/// ===============================================================
 
 class TimelineDurationNotifier
     extends StateNotifier<Map<String, Map<String, String>>> {
@@ -67,9 +58,6 @@ final timelineDurationProvider = StateNotifierProvider.family<
   (ref, product) => TimelineDurationNotifier(),
 );
 
-/// ===============================================================
-/// 4️⃣ BAR CHART STATE (per product)
-/// ===============================================================
 
 class BarChartState {
   final List<String> timelineNames;
@@ -103,9 +91,6 @@ final barChartProvider =
   (ref, product) => BarChartNotifier(),
 );
 
-/// ===============================================================
-/// PARTS STATE (VALUES DERIVED FROM EMISSIONS)
-/// ===============================================================
 
 typedef PieKey = ({String product, String timeline});
 
@@ -188,12 +173,6 @@ final activePartProvider = StateNotifierProvider<ActivePartNotifier, String?>(
   },
 );
 
-
-
-
-/// ===============================================================
-/// 6️⃣ DEBUG
-/// ===============================================================
 
 final debugSelectionProvider = Provider<String>((ref) {
   final product = ref.watch(activeProductProvider);

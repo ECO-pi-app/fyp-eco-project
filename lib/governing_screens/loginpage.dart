@@ -31,8 +31,6 @@ void dispose() {
 
   @override
   Widget build(BuildContext context) {
-    
-    final productsAsync = ref.watch(productsProvider);
 
     final dynamicfield = showLogin ? const LoginField() : const SignUpField();
     final factsfield = RandomFactsWidget();

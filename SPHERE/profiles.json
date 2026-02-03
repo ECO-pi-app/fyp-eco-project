@@ -1,83 +1,494 @@
 {
-  "Lohithh": {
-    "Boom": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    },
-    "Another one": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    },
-    "New Project": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    }
-  },
-  "Htoo": {
-    "Testing": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    },
-    "Product 1": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    },
-    "Product 2": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    }
-  },
-  "FYP": {
-    "NEW": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    }
-  },
-  "DEMO": {
-    "Aluminium Cup": {
-      "description": "Mock description",
-      "data": {
-        "sample": "test"
-      }
-    },
+  "HTOO": {
     "Test": {
-      "description": "535555343",
+      "description": "Mock description",
       "data": {
-        "sample": "test"
-      }
-    },
-    "Assem 2": {
-      "description": "Second case study for verification",
-      "data": {
-        "sample": "test"
-      }
-    },
-    "New": {
-      "description": "yaydad",
-      "data": {
-        "sample": "test"
-      }
-    }
-  },
-  "TEST": {
-    "NEW": {
-      "description": "3f,q3gq3",
-      "data": {
-        "sample": "test"
+        "product": "Test",
+        "timelines": {
+          "2025": {
+            "start_month": "January",
+            "end_month": "November",
+            "parts": {
+              "Support 1": {
+                "normal_materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "custom_ef": [
+                    ""
+                  ],
+                  "internal_ef": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "upstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "production_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "downstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "machining": {
+                  "brands": [
+                    ""
+                  ],
+                  "machines": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "times": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "wastes": {
+                  "types": [
+                    ""
+                  ],
+                  "wastes": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "fugitive_leaks": {
+                  "ghg": [
+                    ""
+                  ],
+                  "total_charge": [
+                    ""
+                  ],
+                  "remaining_charge": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "usage_cycle": {
+                  "categories": [
+                    ""
+                  ],
+                  "product_types": [
+                    ""
+                  ],
+                  "frequencies": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "end_of_life": {
+                  "options": [
+                    ""
+                  ],
+                  "total_mass": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                }
+              },
+              "Support 2": {
+                "normal_materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "custom_ef": [
+                    ""
+                  ],
+                  "internal_ef": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "upstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "production_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "downstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "machining": {
+                  "brands": [
+                    ""
+                  ],
+                  "machines": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "times": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "wastes": {
+                  "types": [
+                    ""
+                  ],
+                  "wastes": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "fugitive_leaks": {
+                  "ghg": [
+                    ""
+                  ],
+                  "total_charge": [
+                    ""
+                  ],
+                  "remaining_charge": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "usage_cycle": {
+                  "categories": [
+                    ""
+                  ],
+                  "product_types": [
+                    ""
+                  ],
+                  "frequencies": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "end_of_life": {
+                  "options": [
+                    ""
+                  ],
+                  "total_mass": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                }
+              }
+            }
+          },
+          "2026": {
+            "start_month": "February",
+            "end_month": "July",
+            "parts": {
+              "Support Part 2": {
+                "normal_materials": {
+                  "materials": [
+                    "Aluminum"
+                  ],
+                  "countries": [
+                    "Albania"
+                  ],
+                  "masses": [
+                    "12"
+                  ],
+                  "allocation_values": [
+                    "10"
+                  ]
+                },
+                "materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "custom_ef": [
+                    ""
+                  ],
+                  "internal_ef": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "upstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "production_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "downstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "machining": {
+                  "brands": [
+                    ""
+                  ],
+                  "machines": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "times": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "wastes": {
+                  "types": [
+                    ""
+                  ],
+                  "wastes": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "fugitive_leaks": {
+                  "ghg": [
+                    ""
+                  ],
+                  "total_charge": [
+                    ""
+                  ],
+                  "remaining_charge": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "usage_cycle": {
+                  "categories": [
+                    ""
+                  ],
+                  "product_types": [
+                    ""
+                  ],
+                  "frequencies": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "end_of_life": {
+                  "options": [
+                    ""
+                  ],
+                  "total_mass": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

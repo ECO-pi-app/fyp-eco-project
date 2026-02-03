@@ -34,10 +34,6 @@ void dispose() {
 
   @override
   Widget build(BuildContext context) {
-    
-    final productsAsync = ref.watch(productsProvider);
-
-    final dynamicfield = showLogin ? const LoginField() : const SignUpField();
     final factsfield = RandomFactsWidget();
 
     return Scaffold(
@@ -296,7 +292,6 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsProvider);
-    final product = ref.watch(activeProductProvider);
     final username = ref.watch(usernameProvider);
 
     return Container(

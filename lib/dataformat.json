@@ -6,7 +6,8 @@
 
         "timeline1": {
             "year": 2020, 
-            "month": 12,
+            "month": "January",
+            "end month": "December",
             "components": {
                 "component_1": {
                     "material_acquisition": {

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:test_app/design/apptheme/colors.dart';
@@ -491,13 +490,6 @@ Widget build(BuildContext context) {
   if (part == null) return const SizedBox();
 
   final emissionTotals = ref.watch(emissionTotalsProvider((widget.productId, part)));
-
-  final totalByPart = emissionTotals.machining +
-      emissionTotals.material +
-      emissionTotals.transport +
-      emissionTotals.waste +
-      emissionTotals.usageCycle +
-      emissionTotals.endofLife;
 
   return SingleChildScrollView(
     padding: const EdgeInsets.all(16),
