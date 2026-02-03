@@ -174,7 +174,7 @@ class Titletext extends StatelessWidget {
     return Text(title,
       style: TextStyle(
         color: color,
-        fontSize: 30,
+        fontSize: fontsize,
         fontWeight: FontWeight.bold,
       ),
       textAlign: TextAlign.left,

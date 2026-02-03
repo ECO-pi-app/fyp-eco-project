@@ -5,16 +5,15 @@ import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/app_logic/riverpod_statemanagement.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
-import 'dart:math';
 
-class DynamicAllocation extends ConsumerStatefulWidget {
-  const DynamicAllocation({super.key});
+class DynamicAssembly extends ConsumerStatefulWidget {
+  const DynamicAssembly({super.key});
 
   @override
-  ConsumerState<DynamicAllocation> createState() => _DynamicAllocationState();
+  ConsumerState<DynamicAssembly> createState() => _DynamicAssemblyState();
 }
 
-class _DynamicAllocationState extends ConsumerState<DynamicAllocation> {
+class _DynamicAssemblyState extends ConsumerState<DynamicAssembly> {
   final Set<String> selectedBasicParts = {};
 
   final ScrollController _partsScrollController = ScrollController();

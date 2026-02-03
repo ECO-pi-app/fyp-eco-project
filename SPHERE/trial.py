@@ -1284,14 +1284,14 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "Steel":steel_list,
         "Aluminum":aluminium_list,
         "Cement":cement_list,
-        "Plastic":plastic_list,
+        "Plastic (Average)":plastic_list,
         "Carbon Fiber":carbon_fiber_list,
-        "PET":PET_list,
-        "HDPE":HDPE_list,
-        "LDPE":LDPE_list,
-        "PP":PP_list,
-        "PS":PS_list,
-        "PVC":PVC_list
+        "PET (Polyethylene Terephthalate)":PET_list,
+        "HDPE (High-Density Polyethylene)":HDPE_list,
+        "LDPE (Low-Density Polyethylene / LLDPE)":LDPE_list,
+        "PP (Polypropylene)":PP_list,
+        "PS (Polystyrene, general purpose)":PS_list,
+        "PVC (Polyvinyl Chloride)":PVC_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400,detail="Material not supported for calculation")

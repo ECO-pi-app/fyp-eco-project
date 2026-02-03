@@ -46,6 +46,7 @@ dependencies:
   path_provider: ^2.1.5
   file_selector: ^1.1.0
   open_file: ^3.5.11
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

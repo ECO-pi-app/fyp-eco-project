@@ -9,18 +9,17 @@ import 'package:test_app/app_logic/river_controls.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_fetch.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
-import 'package:test_app/dynamic_pages/main_scopeanalysis.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
 
-class Dynamicprdanalysis extends ConsumerStatefulWidget {
+class Scopeanalysis extends ConsumerStatefulWidget {
   final String productID;
-  const Dynamicprdanalysis({super.key, required this.productID});
+  const Scopeanalysis({super.key, required this.productID});
 
   @override
-  ConsumerState<Dynamicprdanalysis> createState() => _DynamicprdanalysisState();
+  ConsumerState<Scopeanalysis> createState() => ScopeanalysisState();
 }
 
-class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
+class ScopeanalysisState extends ConsumerState<Scopeanalysis> {
 
   bool showThreePageTabs = true;
 
