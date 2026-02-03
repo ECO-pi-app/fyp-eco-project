@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:test_app/design/apptheme/colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InfoIconPopup extends StatefulWidget {
   final String text;
@@ -170,3 +171,45 @@ class _InfoIconPopupDarkState extends State<InfoIconPopupDark> {
     );
   }
 }
+
+
+//-----GOOGLE MAPS HYPERLINK ICON-----
+class GoogleMapsIconButton extends StatelessWidget {
+  final double size;
+  final Color color;
+  final String? searchQuery; // optional: open a specific place
+
+  const GoogleMapsIconButton({
+    super.key,
+    this.size = 24,
+    this.color = Colors.blue,
+    this.searchQuery,
+  });
+
+  Future<void> _openMaps() async {
+    final Uri url = Uri.parse(
+      searchQuery == null
+          ? 'https://www.google.com/maps'
+          : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(searchQuery!)}',
+    );
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch Google Maps';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.map),
+      iconSize: size,
+      color: color,
+      onPressed: _openMaps,
+      tooltip: 'Open Google Maps',
+    );
+  }
+}
+
+
+
+

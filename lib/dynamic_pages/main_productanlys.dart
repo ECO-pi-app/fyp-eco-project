@@ -182,7 +182,6 @@ for (int i = 0; i < rowCount; i++) {
         ref.read(endOfLifeTableProvider(key).notifier);
 
     final List<Widget> widgetofpage1 = [
-      
       Labels(
         title: 'Primary Inputs',
         color: Apptheme.textclrdark,
@@ -242,8 +241,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       MaterialAttributesMenu(productID: widget.productID),
-
-
       Labels(
         title: 'Secondary Inputs',
         color: Apptheme.textclrdark,
@@ -261,6 +258,8 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
+              GoogleMapsIconButton(
+              ),
               sectionRow(
                 title: "Upstream Transport",
                 tooltip: "Adjust upstream transport allocation",
@@ -320,15 +319,12 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       MachiningAttributesMenu(productID: widget.productID),
-
-
       Labels(
-        title: 'Secondary Processes',
+        title: 'Optional Processes',
         color: Apptheme.textclrdark,
         toppadding: 30,
         fontsize: 22,
       ),
-
       //--ROW 2: Fugitive leaks--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -359,7 +355,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       FugitiveLeaksAttributesMenu(productID: widget.productID),
-
       //-Row 3: Production Transport --
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,6 +366,8 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
+              GoogleMapsIconButton(
+              ),
               sectionRow(
                 title: "Production Transport",
                 tooltip: "Adjust production transport allocation",
@@ -390,7 +387,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       ProductionTransportAttributesMenu(productID: widget.productID),
-
       //-Row 4: Waste --
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -424,7 +420,7 @@ for (int i = 0; i < rowCount; i++) {
     ];
 
     final List<Widget> widgetofpage3 = [
-      //--ROW 2: Upstream Transportation--
+      //--ROW 1: Upstream Transportation--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -434,6 +430,8 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
+              GoogleMapsIconButton(
+              ),
               sectionRow(
                 title: "Downstream Transportation",
                 tooltip: "Adjust downstream transport allocation",
@@ -454,7 +452,7 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       DownstreamTransportAttributesMenu(productID: widget.productID),
-      //--ROW 1: Downstream Distribution--
+      //--ROW 2: Downstream Distribution--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -483,9 +481,7 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       UsageCycleAttributesMenu(productID: widget.productID),
-
-
-      //--ROW 2: End of Life--
+      //--ROW 3: End of Life--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

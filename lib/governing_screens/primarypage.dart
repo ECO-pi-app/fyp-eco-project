@@ -4,7 +4,7 @@ import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/governing_screens/background_drawer.dart';
 import 'package:test_app/dynamic_pages/main_aboutus.dart';
-import 'package:test_app/dynamic_pages/main_allocation.dart';
+import 'package:test_app/dynamic_pages/main_assembly.dart';
 import 'package:test_app/dynamic_pages/main_home.dart';
 import 'package:test_app/dynamic_pages/main_productanlys.dart';
 import 'package:test_app/dynamic_pages/main_sustainabilitynews.dart';
@@ -52,7 +52,7 @@ void initState() {
     ),
     KeyedSubtree(
       key: ValueKey('allocation'),
-      child: DynamicAllocation(),
+      child: DynamicAssembly(),
     ),
     KeyedSubtree(
       key: ValueKey('news'),
@@ -90,8 +90,6 @@ void initState() {
     final double listWidth = min(340, screenwidth);
 
     final selectedIndex = ref.watch(currentPageProvider);
-
-    final username = ref.watch(usernameProvider);
 
 
     return Scaffold(
