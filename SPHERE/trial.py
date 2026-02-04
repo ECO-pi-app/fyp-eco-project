@@ -1267,7 +1267,16 @@ def get_profile(profile_name: str, username: str):
     if profile_name not in bucket:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    return bucket[profile_name]
+
+    profile = bucket[profile_name]  # assign so we can debug
+
+    # 🔹 Debug print BEFORE returning
+    import json
+    print(f"[DEBUG] Returning profile for {username} / {profile_name}:")
+    print(json.dumps(profile, indent=2))  # pretty-printed JSON
+
+    return profile
+
 
 @app.get("/profiles")
 def list_profiles(username: str):

@@ -37,6 +37,7 @@ class Product {
 Future<List<Product>> fetchProducts(String username) async {
   final url = Uri.parse('http://127.0.0.1:8000/profiles?username=$username');
   debugPrint("[fetchProducts] Fetching products for username: $username");
+  debugPrint("[fetchProducts] URL: $url"); // 👈 ADDED
 
   final response = await http.get(
     url,
@@ -106,6 +107,53 @@ Future<List<Product>> fetchProducts(String username) async {
   debugPrint("[fetchProducts] Unknown profiles format: ${profiles.runtimeType}");
   throw Exception("Unexpected profiles format from backend");
 }
+
+
+Future<Product> fetchProductDetail(String username, String productName) async {
+  final url = Uri.parse(
+    'http://127.0.0.1:8000/profiles/$productName?username=$username',
+  );
+
+  debugPrint("[fetchProductDetail] URL: $url");
+
+  final response = await http.get(url);
+
+  debugPrint("[fetchProductDetail] Status: ${response.statusCode}");
+  debugPrint("[fetchProductDetail] Body: ${response.body}");
+
+  if (response.statusCode != 200) {
+    throw Exception("Failed to load product detail");
+  }
+
+  final decoded = jsonDecode(response.body);
+  return Product.fromJson(productName, decoded);
+}
+
+
+final activeProductLoaderProvider = Provider<void>((ref) {
+  ref.listen<String?>(
+    activeProductProvider,
+    (prev, next) async {
+      if (next == null) return;
+
+      final username = ref.read(usernameProvider).value;
+      if (username == null) return;
+
+      debugPrint("[activeProductLoader] Loading full product: $next");
+
+      try {
+        final product =
+            await fetchProductDetail(username, next);
+
+        debugPrint("[activeProductLoader] Loaded product data: ${product.data.keys}");
+
+        // TODO: hydrate your timeline + parts providers here
+      } catch (e) {
+        debugPrint("[activeProductLoader] Failed: $e");
+      }
+    },
+  );
+});
 
 
 
