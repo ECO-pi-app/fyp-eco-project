@@ -57,7 +57,7 @@ String getPercentageTitle(double value, double total) {
     double totalEndOfLife = 0;
 
     if (product != null && part != null) {
-      final key = (product: product, part: part);
+      final key = (product: product.name, part: part);
 
       // Get each table individually
       final normalMaterialTable = ref.watch(normalMaterialTableProvider(key));
@@ -88,34 +88,34 @@ String getPercentageTitle(double value, double total) {
       // Loop through each row and sum the converted emissions
 for (int i = 0; i < rowCount; i++) {
   final normal = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.materialNormal, i))
   );
   final material = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.material, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.material, i))
   );
   final transport = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.transportUpstream, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportUpstream, i))
   );
   final machining = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.machining, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.machining, i))
   );
   final fugitive = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.fugitive, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.fugitive, i))
   );
   final prodTransport = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.productionTransport, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.productionTransport, i))
   );
   final downstream = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.transportDownstream, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportDownstream, i))
   );
   final waste = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.waste, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.waste, i))
   );
   final usage = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.usageCycle, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.usageCycle, i))
   );
   final endOfLife = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.endOfLife, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.endOfLife, i))
   );
 
   totalNormalMaterial += normal.materialNormal;

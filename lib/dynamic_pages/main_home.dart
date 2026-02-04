@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
@@ -33,16 +34,41 @@ class Dynamichome extends ConsumerStatefulWidget {
 
 class _DynamichomeState extends ConsumerState<Dynamichome> {
   final pieKey = GlobalKey();
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.productName != null) {
-        ref.read(activeProductProvider.notifier).state = widget.productName;
-        print('InitState: Active product set to ${widget.productName}');
+@override
+void initState() {
+  super.initState();
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final username = ref.read(usernameProvider).value;
+    if (widget.productName != null && username != null) {
+      // 1️⃣ Fetch full product
+      final product = await fetchProductDetail(username, widget.productName!);
+      ref.read(activeProductProvider.notifier).state = product;
+
+      hydrateTimelines(ref, product);
+
+      final timelines = (product.data["timelines"] as Map<String, dynamic>?)?.keys.toList();
+      if (timelines != null && timelines.isNotEmpty) {
+        final firstTimeline = timelines.first;
+        ref.read(activeTimelineProvider.notifier).state = firstTimeline;
+
+        final pieNotifier = ref.read(
+          pieChartProvider((product: product, timeline: firstTimeline)).notifier,
+        );
+        pieNotifier.clear();
+
+        final partsMap = product.data["timelines"]?[firstTimeline]?["parts"] as Map<String, dynamic>?;
+
+        if (partsMap != null) {
+          for (var partName in partsMap.keys) {
+            pieNotifier.addPart(partName, 0);
+          }
+        }
       }
-    });
-  }
+    }
+  });
+}
+
 
   /// ---------- TIMELINE DIALOG ----------
   Future<Map<String, String>?> _showTimelineDialog() async {
@@ -171,10 +197,10 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
     final start = result["start"]!;
     final end = result["end"]!;
 
-    ref.read(timelineProvider(product).notifier).addTimeline(timelineName);
+    ref.read(timelineProvider(product.name).notifier).addTimeline(timelineName);
     ref.read(activeTimelineProvider.notifier).state = timelineName;
-    ref.read(timelineDurationProvider(product).notifier).state = {
-      ...ref.read(timelineDurationProvider(product).notifier).state,
+    ref.read(timelineDurationProvider(product.name).notifier).state = {
+      ...ref.read(timelineDurationProvider(product.name).notifier).state,
       timelineName: {"start": start, "end": end},
     };
   }
@@ -222,21 +248,17 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
   Widget build(BuildContext context) {
     ref.watch(productTimelineResetProvider);
 
+
     final product = ref.watch(activeProductProvider);
     final activeTimeline = ref.watch(activeTimelineProvider);
     final activePart = ref.watch(activePartProvider);
-    final timelines = product != null ? ref.watch(timelineProvider(product)) : null;
-    final timelineValues = product != null ? ref.watch(timelineDurationProvider(product)) : {};
+    final timelines = product != null ? ref.watch(timelineProvider(product.name)) : null;
+    final timelineValues = product != null ? ref.watch(timelineDurationProvider(product.name)) : {};
 
-    final parts = (product != null && activeTimeline != null)
-        ? ref.watch(pieChartProvider((product: product, timeline: activeTimeline))).parts
-        : [];
-
+    final parts = ref.watch(partsProvider);
     final results = List.generate(parts.length, (i) {
       final partName = parts[i];
-      return product != null
-          ? ref.watch(convertedEmissionsTotalProvider((product, partName)))
-          : null;
+      return ref.watch(convertedEmissionsTotalProvider((ref.watch(activeProductProvider)!, partName)));
     });
 
     final timelineTotals = (product != null && timelines != null)
@@ -564,31 +586,24 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List.generate(parts.length, (index) {
-                            final part = parts[index];
-                            final result = results[index] as EmissionResults; // <-- use index
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: ChoiceChip(
+                            children: List.generate(parts.length, (index) {
+                              final part = parts[index];
+                              final result = results[index];
+
+                              return ChoiceChip(
                                 selectedColor: Apptheme.widgetsecondaryclr,
                                 backgroundColor: Apptheme.widgettertiaryclr,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                showCheckmark: false,
                                 label: Textsinsidewidgetsdrysafe(
-                                  words: "$part = ${result.total.toStringAsFixed(2)}",
+                                  words: "$part = ${result?.total.toStringAsFixed(2) ?? 0}",
                                   color: Apptheme.textclrdark,
                                   toppadding: 0,
                                 ),
-                                selected: activePart == part,
+                                selected: ref.watch(activePartProvider) == part,
                                 onSelected: (_) {
                                   ref.read(activePartProvider.notifier).setPart(part);
                                 },
-                              ),
-                            );
-
-                          }),
+                              );
+                            }),
                         ),
                       ),
                     ),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/buttons_and_icons.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/hover_drawer.dart';
@@ -19,6 +22,25 @@ class BackgroundDrawer extends ConsumerStatefulWidget {
 }
 
 class _BackgroundDrawerState extends ConsumerState<BackgroundDrawer> {
+  Timer? _autoSaveTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Save every 10 seconds
+    _autoSaveTimer = Timer.periodic(Duration(seconds: 600), (_) async {
+      await triggerSave(ref);
+      debugPrint("Auto-saved profile at ${DateTime.now()}");
+    });
+  }
+
+    @override
+  void dispose() {
+    _autoSaveTimer?.cancel();
+    super.dispose();
+  }
+
 
   double getShortcutCountAsDouble(List<Widget> shortcuts) => shortcuts.length.toDouble();
   double getBookmarkCountAsDouble(List<Widget> bookmarks) => bookmarks.length.toDouble();

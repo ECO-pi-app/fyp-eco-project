@@ -1,19 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/dynamic_pages/main_home.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 
 
-final activeProductProvider = StateProvider<String?>((ref) => null);
+final activeProductProvider = StateProvider<Product?>((ref) => null);
 final activeTimelineProvider = StateProvider<String?>((ref) => null);
 
 /// Reset timeline when product changes
 final productTimelineResetProvider = Provider<void>((ref) {
-  ref.listen<String?>(
+  ref.listen<Product?>(
     activeProductProvider,
     (_, __) => ref.read(activeTimelineProvider.notifier).state = null,
   );
 });
-
 
 class TimelineState {
   final List<String> timelines; // only names
@@ -34,12 +34,6 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
   void clear() => state = TimelineState();
 }
 
-final timelineProvider =
-    StateNotifierProvider.family<TimelineNotifier, TimelineState, String>(
-  (ref, product) => TimelineNotifier(),
-);
-
-
 class TimelineDurationNotifier
     extends StateNotifier<Map<String, Map<String, String>>> {
   TimelineDurationNotifier() : super({});
@@ -51,6 +45,11 @@ class TimelineDurationNotifier
   void clear() => state = {};
 }
 
+final timelineProvider =
+    StateNotifierProvider.family<TimelineNotifier, TimelineState, String>(
+  (ref, product) => TimelineNotifier(),
+);
+
 final timelineDurationProvider = StateNotifierProvider.family<
     TimelineDurationNotifier,
     Map<String, Map<String, String>>,
@@ -58,7 +57,28 @@ final timelineDurationProvider = StateNotifierProvider.family<
   (ref, product) => TimelineDurationNotifier(),
 );
 
+void hydrateTimelines(WidgetRef ref, Product product) {
+  final timelineNames = (product.data["timelines"] as Map<String, dynamic>?)?.keys.toList() ?? [];
+  final timelineNotifier = ref.read(timelineProvider(product.name).notifier);
+  final timelineDurationNotifier = ref.read(timelineDurationProvider(product.name).notifier);
 
+  timelineNotifier.clear();
+  for (var t in timelineNames) {
+    timelineNotifier.addTimeline(t);
+  }
+
+  timelineDurationNotifier.clear();
+  for (var t in timelineNames) {
+    final timelineData = product.data["timelines"][t] as Map<String, dynamic>? ?? {};
+    final start = timelineData["start_month"] ?? "";
+    final end = timelineData["end_month"] ?? "";
+    timelineDurationNotifier.setDuration(t, start, end);
+  }
+}
+
+
+
+// ------------------- BAR CHART PROVIDER -------------------
 class BarChartState {
   final List<String> timelineNames;
   final List<double> values;
@@ -87,12 +107,12 @@ class BarChartNotifier extends StateNotifier<BarChartState> {
 }
 
 final barChartProvider =
-    StateNotifierProvider.family<BarChartNotifier, BarChartState, String>(
+    StateNotifierProvider.family<BarChartNotifier, BarChartState, Product>(
   (ref, product) => BarChartNotifier(),
 );
 
 
-typedef PieKey = ({String product, String timeline});
+typedef PieKey = ({Product product, String timeline});
 
 class PieChartState {
   final List<String> parts;
@@ -136,7 +156,30 @@ final partsProvider = Provider<List<String>>((ref) {
   return pieState.parts;
 });
 
+void hydrateParts(WidgetRef ref, Product product, String timeline) {
+  final timelineData =
+      product.data["timelines"]?[timeline] as Map<String, dynamic>?;
 
+  if (timelineData == null) return;
+
+  final partsMap = timelineData["parts"] as Map<String, dynamic>?;
+
+  if (partsMap == null) return;
+
+  final pieNotifier =
+      ref.read(pieChartProvider((product: product, timeline: timeline)).notifier);
+
+  pieNotifier.clear();
+
+  for (var partName in partsMap.keys) {
+    pieNotifier.addPart(partName, 0); // default value 0
+  }
+}
+
+
+
+
+//------------------- RESULTS PROVIDER -------------------
 final emissionResultsProvider = Provider.family<EmissionResults, PieKey>(
   (ref, key) {
     return EmissionResults(

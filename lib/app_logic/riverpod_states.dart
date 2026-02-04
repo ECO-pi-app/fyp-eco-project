@@ -129,14 +129,14 @@ class NormalMaterialNotifier extends StateNotifier<NormalMaterialState> {
 }
 
 
-// --------------- MATERIAL STATE -----------------
+// -------------------- MATERIAL --------------------
 class MaterialTableState {
   final List<String?> materials;
   final List<String?> countries;
   final List<String?> masses;
   final List<String?> customEF;
   final List<String?> internalEF;
-  final List<String?> materialAllocationValues; 
+  final List<String?> materialAllocationValues;
 
   MaterialTableState({
     required this.materials,
@@ -160,7 +160,7 @@ class MaterialTableState {
       countries: countries ?? this.countries,
       masses: masses ?? this.masses,
       customEF: customEF ?? this.customEF,
-      internalEF : internalEF ?? this.internalEF,
+      internalEF: internalEF ?? this.internalEF,
       materialAllocationValues: materialAllocationValues ?? this.materialAllocationValues,
     );
   }
@@ -184,7 +184,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
       materials: [...state.materials, ''],
       countries: [...state.countries, ''],
       masses: [...state.masses, ''],
-      customEF : [...state.customEF, ''],
+      customEF: [...state.customEF, ''],
       internalEF: [...state.internalEF, ''],
       materialAllocationValues: [...state.materialAllocationValues, ''],
     );
@@ -205,7 +205,7 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
 
   void updateCell({
     required int row,
-    required String column, // 'Material', 'Country', 'Mass', 'Notes'
+    required String column,
     required String? value,
   }) {
     final materials = [...state.materials];
@@ -241,18 +241,19 @@ class MaterialTableNotifier extends StateNotifier<MaterialTableState> {
       countries: countries,
       masses: masses,
       customEF: customEF,
+      internalEF: internalEF,
       materialAllocationValues: materialAllocationValues,
     );
   }
 }
 
-// --------------- UPSTREAM TRANSPORT STATE -----------------
+// -------------------- UPSTREAM TRANSPORT --------------------
 class UpstreamTransportTableState {
   final List<String?> vehicles;
   final List<String?> classes;
   final List<String?> distances;
   final List<String?> masses;
-  final List<String?> transportAllocationValues; // NEW COLUMN
+  final List<String?> transportAllocationValues;
 
   UpstreamTransportTableState({
     required this.vehicles,
@@ -286,8 +287,8 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
             vehicles: [''],
             classes: [''],
             distances: [''],
-            masses: [''], 
-            transportAllocationValues: [''], // NEW
+            masses: [''],
+            transportAllocationValues: [''],
           ),
         );
 
@@ -307,7 +308,7 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
         vehicles: state.vehicles.sublist(0, state.vehicles.length - 1),
         classes: state.classes.sublist(0, state.classes.length - 1),
         distances: state.distances.sublist(0, state.distances.length - 1),
-        masses: state.masses.sublist(0, state.masses.length - 1), 
+        masses: state.masses.sublist(0, state.masses.length - 1),
         transportAllocationValues: state.transportAllocationValues.sublist(0, state.transportAllocationValues.length - 1),
       );
     }
@@ -352,14 +353,13 @@ class UpstreamTransportTableNotifier extends StateNotifier<UpstreamTransportTabl
   }
 }
 
-// ---------------- MACHINING STATE ----------------
-
+// -------------------- MACHINING --------------------
 class MachiningTableState {
   final List<String?> brands;
   final List<String?> machines;
   final List<String?> countries;
   final List<String?> times;
-  final List<String?> machiningAllocationValues; 
+  final List<String?> machiningAllocationValues;
 
   MachiningTableState({
     required this.brands,
@@ -388,15 +388,15 @@ class MachiningTableState {
 
 class MachiningTableNotifier extends StateNotifier<MachiningTableState> {
   MachiningTableNotifier()
-  : super(
-    MachiningTableState(
-      brands: [''],
-      machines: [''],
-      countries: [''],
-      times: [''],
-      machiningAllocationValues: [''],
-    ),
-  );
+      : super(
+          MachiningTableState(
+            brands: [''],
+            machines: [''],
+            countries: [''],
+            times: [''],
+            machiningAllocationValues: [''],
+          ),
+        );
 
   void addRow() {
     state = state.copyWith(

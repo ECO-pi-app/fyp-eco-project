@@ -141,7 +141,7 @@ Future<void> _showAddAssemblyDialog() async {
   // Add the compound part
   ref
       .read(
-        compoundPartsProvider((product: product, timeline: timeline)).notifier,
+        compoundPartsProvider((product: product.name, timeline: timeline)).notifier,
       )
       .addCompound(assemblyNameValue, selectedBasicParts.toList());
 
@@ -157,7 +157,7 @@ Future<void> _showAddHigherCompoundDialog() async {
   if (product == null || timeline == null) return;
 
   final compounds =
-      ref.read(compoundPartsProvider((product: product, timeline: timeline))).compounds;
+      ref.read(compoundPartsProvider((product: product.name, timeline: timeline))).compounds;
 
   if (compounds.isEmpty) return;
 
@@ -225,7 +225,7 @@ Future<void> _showAddHigherCompoundDialog() async {
 
   ref
       .read(
-        higherCompoundPartsProvider((product: product, timeline: timeline))
+        higherCompoundPartsProvider((product: product.name, timeline: timeline))
             .notifier,
       )
       .addHigherCompound(result, selected.toList());
@@ -248,11 +248,11 @@ void dispose() {
     final timeline = ref.watch(activeTimelineProvider);
 
     final compoundParts = (product != null && timeline != null)
-        ? ref.watch(compoundPartsProvider((product: product, timeline: timeline))).compounds
+        ? ref.watch(compoundPartsProvider((product: product.name, timeline: timeline))).compounds
         : <CompoundPart>[];
 
     final higherCompounds = (product != null && timeline != null)
-        ? ref.watch(higherCompoundPartsProvider((product: product, timeline: timeline))).compounds
+        ? ref.watch(higherCompoundPartsProvider((product: product.name, timeline: timeline))).compounds
         : <HigherCompoundPart>[];
 
     final filteredParts = basicParts

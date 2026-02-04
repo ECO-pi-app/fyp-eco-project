@@ -232,7 +232,7 @@ class _SelectedProductInfoWidgetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Titletext(
-                  title: productName,
+                  title: productName.name,
                   color: Apptheme.textclrdark,
                 ),
                 const SizedBox(height: 8),
@@ -253,7 +253,7 @@ class _SelectedProductInfoWidgetState
                   onChanged: (value) {
                     ref
                         .read(productDescriptionProvider.notifier)
-                        .setDescription(productName, value);
+                        .setDescription(productName.name, value);
 
                     debugPrint(
                       "[SelectedProductInfoWidget] Updated '$productName' -> '$value'",
@@ -349,7 +349,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                                     backgroundColor: Apptheme.widgettertiaryclr,
                                     selected: activeName == product.name, // compare strings
                                     onSelected: (_) {
-                                      ref.read(activeProductProvider.notifier).state = product.name;
+                                      ref.read(activeProductProvider.notifier).state = product;
                                     },
                                     label: Row(
                                       children: [

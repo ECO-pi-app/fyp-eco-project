@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:test_app/app_logic/river_controls.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/app_logic/riverpod_states.dart';
 
@@ -167,7 +168,7 @@ final emissionTotalsProvider =
 });
 
 
-final timelineTotalProvider = Provider.family<double, (String product, String timeline)>(
+final timelineTotalProvider = Provider.family<double, (Product product, String timeline)>(
   (ref, args) {
     final (product, timeline) = args;
 
@@ -360,7 +361,7 @@ final convertedEmissionRowProvider = Provider.family<
 
 
 final convertedEmissionsTotalProvider =
-    Provider.family<EmissionResults, (String, String)>(
+    Provider.family<EmissionResults, (Product, String)>(
   (ref, args) {
     final (productId, partId) = args;
 
@@ -371,7 +372,7 @@ final convertedEmissionsTotalProvider =
       while (true) {
         final row = ref.watch(
           convertedEmissionRowProvider(
-            (productId, partId, cat, i),
+            (productId.name, partId, cat, i),
           ),
         );
 
@@ -665,10 +666,33 @@ double _toDouble(String? value) => double.tryParse(value ?? '0') ?? 0.0;
 
 /// ---------------- NORMAL MATERIAL ----------------
 final normalMaterialTableProvider = StateNotifierProvider.family<
-    NormalMaterialNotifier,
-    NormalMaterialState,
-    TableKey>((ref, key) {
-  return NormalMaterialNotifier();
+    NormalMaterialNotifier, NormalMaterialState, TableKey>((ref, key) {
+  final notifier = NormalMaterialNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+
+    final normalMaterials = partData?["normal_materials"]?["materials"] as List<dynamic>? ?? [];
+    final countries = partData?["normal_materials"]?["countries"] as List<dynamic>? ?? [];
+    final masses = partData?["normal_materials"]?["masses"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["normal_materials"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = NormalMaterialState(
+      normalMaterials: normalMaterials.cast<String?>(),
+      countries: countries.cast<String?>(),
+      masses: masses.cast<String?>(),
+      materialAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
 });
 
 final normalMaterialAllocationSumProvider =
@@ -681,10 +705,36 @@ final normalMaterialAllocationSumProvider =
 
 /// ---------------- MATERIAL ----------------
 final materialTableProvider = StateNotifierProvider.family<
-    MaterialTableNotifier,
-    MaterialTableState,
-    TableKey>((ref, key) {
-  return MaterialTableNotifier();
+    MaterialTableNotifier, MaterialTableState, TableKey>((ref, key) {
+  final notifier = MaterialTableNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final materials = partData?["materials"]?["materials"] as List<dynamic>? ?? [];
+    final countries = partData?["materials"]?["countries"] as List<dynamic>? ?? [];
+    final masses = partData?["materials"]?["masses"] as List<dynamic>? ?? [];
+    final customEF = partData?["materials"]?["customEF"] as List<dynamic>? ?? [];
+    final internalEF = partData?["materials"]?["internalEF"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["materials"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = MaterialTableState(
+      materials: materials.cast<String?>(),
+      countries: countries.cast<String?>(),
+      masses: masses.cast<String?>(),
+      customEF: customEF.cast<String?>(),
+      internalEF: internalEF.cast<String?>(),
+      materialAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
 });
 
 final materialAllocationSumProvider =
@@ -695,13 +745,39 @@ final materialAllocationSumProvider =
       .fold(0.0, (a, b) => a + b);
 });
 
-
 /// ---------------- UPSTREAM TRANSPORT ----------------
 final upstreamTransportTableProvider =
-    StateNotifierProvider.family<UpstreamTransportTableNotifier, UpstreamTransportTableState, TableKey>(
-        (ref, key) => UpstreamTransportTableNotifier());
+    StateNotifierProvider.family<UpstreamTransportTableNotifier, UpstreamTransportTableState, TableKey>((ref, key) {
+  final notifier = UpstreamTransportTableNotifier();
 
-final transportAllocationSumProvider =
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final vehicles = partData?["upstream_transport"]?["vehicles"] as List<dynamic>? ?? [];
+    final classes = partData?["upstream_transport"]?["classes"] as List<dynamic>? ?? [];
+    final distances = partData?["upstream_transport"]?["distances"] as List<dynamic>? ?? [];
+    final masses = partData?["upstream_transport"]?["masses"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["upstream_transport"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = UpstreamTransportTableState(
+      vehicles: vehicles.cast<String?>(),
+      classes: classes.cast<String?>(),
+      distances: distances.cast<String?>(),
+      masses: masses.cast<String?>(),
+      transportAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
+
+final upstreamTransportAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(upstreamTransportTableProvider(key));
   return table.transportAllocationValues
@@ -709,12 +785,37 @@ final transportAllocationSumProvider =
       .fold(0.0, (a, b) => a + b);
 });
 
-
 /// ---------------- MACHINING ----------------
 final machiningTableProvider =
-    StateNotifierProvider.family<MachiningTableNotifier, MachiningTableState, TableKey>(
-  (ref, key) => MachiningTableNotifier(),
-);
+    StateNotifierProvider.family<MachiningTableNotifier, MachiningTableState, TableKey>((ref, key) {
+  final notifier = MachiningTableNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final brands = partData?["machining"]?["brands"] as List<dynamic>? ?? [];
+    final machines = partData?["machining"]?["machines"] as List<dynamic>? ?? [];
+    final countries = partData?["machining"]?["countries"] as List<dynamic>? ?? [];
+    final times = partData?["machining"]?["times"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["machining"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = MachiningTableState(
+      brands: brands.cast<String?>(),
+      machines: machines.cast<String?>(),
+      countries: countries.cast<String?>(),
+      times: times.cast<String?>(),
+      machiningAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
 
 final machiningAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
@@ -724,14 +825,37 @@ final machiningAllocationSumProvider =
       .fold(0.0, (a, b) => a + b);
 });
 
-
 /// ---------------- WASTE ----------------
 final wastesProvider =
-    StateNotifierProvider.family<WastesTableNotifier, WastesTableState, TableKey>(
-  (ref, key) => WastesTableNotifier(),
-);
+    StateNotifierProvider.family<WastesTableNotifier, WastesTableState, TableKey>((ref, key) {
+  final notifier = WastesTableNotifier();
 
-final wastesAllocationSumProvider =
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final wasteType = partData?["waste"]?["wasteType"] as List<dynamic>? ?? [];
+    final waste = partData?["waste"]?["waste"] as List<dynamic>? ?? [];
+    final mass = partData?["waste"]?["mass"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["waste"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = WastesTableState(
+      wasteType: wasteType.cast<String?>(),
+      waste: waste.cast<String?>(),
+      mass: mass.cast<String?>(),
+      wasteAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
+
+final wasteAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(wastesProvider(key));
   return table.wasteAllocationValues
@@ -739,12 +863,35 @@ final wastesAllocationSumProvider =
       .fold(0.0, (a, b) => a + b);
 });
 
-
-/// ---------------- FUGITIVE LEAKS ----------------
+/// ---------------- FUGITIVE ----------------
 final fugitiveLeaksTableProvider =
-    StateNotifierProvider.family<FugitiveLeaksTableNotifier, FugitiveLeaksTableState, TableKey>(
-  (ref, key) => FugitiveLeaksTableNotifier(),
-);
+    StateNotifierProvider.family<FugitiveLeaksTableNotifier, FugitiveLeaksTableState, TableKey>((ref, key) {
+  final notifier = FugitiveLeaksTableNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final ghg = partData?["fugitive"]?["ghg"] as List<dynamic>? ?? [];
+    final totalCharge = partData?["fugitive"]?["totalCharge"] as List<dynamic>? ?? [];
+    final remainingCharge = partData?["fugitive"]?["remainingCharge"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["fugitive"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = FugitiveLeaksTableState(
+      ghg: ghg.cast<String?>(),
+      totalCharge: totalCharge.cast<String?>(),
+      remainingCharge: remainingCharge.cast<String?>(),
+      fugitiveAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
 
 final fugitiveAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
@@ -754,13 +901,39 @@ final fugitiveAllocationSumProvider =
       .fold(0.0, (a, b) => a + b);
 });
 
-
 /// ---------------- PRODUCTION TRANSPORT ----------------
 final productionTransportTableProvider =
-    StateNotifierProvider.family<ProductionTransportTableNotifier, ProductionTransportTableState, TableKey>(
-        (ref, key) => ProductionTransportTableNotifier());
+    StateNotifierProvider.family<ProductionTransportTableNotifier, ProductionTransportTableState, TableKey>((ref, key) {
+  final notifier = ProductionTransportTableNotifier();
 
-final productionTransportTableAllocationSumProvider =
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final vehicles = partData?["production_transport"]?["vehicles"] as List<dynamic>? ?? [];
+    final classes = partData?["production_transport"]?["classes"] as List<dynamic>? ?? [];
+    final distances = partData?["production_transport"]?["distances"] as List<dynamic>? ?? [];
+    final masses = partData?["production_transport"]?["masses"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["production_transport"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = ProductionTransportTableState(
+      vehicles: vehicles.cast<String?>(),
+      classes: classes.cast<String?>(),
+      distances: distances.cast<String?>(),
+      masses: masses.cast<String?>(),
+      transportAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
+
+final productionTransportAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(productionTransportTableProvider(key));
   return table.transportAllocationValues
@@ -770,10 +943,37 @@ final productionTransportTableAllocationSumProvider =
 
 /// ---------------- DOWNSTREAM TRANSPORT ----------------
 final downstreamTransportTableProvider =
-    StateNotifierProvider.family<DownstreamTransportTableNotifier, DownstreamTransportTableState, TableKey>(
-        (ref, key) => DownstreamTransportTableNotifier());
+    StateNotifierProvider.family<DownstreamTransportTableNotifier, DownstreamTransportTableState, TableKey>((ref, key) {
+  final notifier = DownstreamTransportTableNotifier();
 
-final downstreamTransportTableAllocationSumProvider =
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final vehicles = partData?["downstream_transport"]?["vehicles"] as List<dynamic>? ?? [];
+    final classes = partData?["downstream_transport"]?["classes"] as List<dynamic>? ?? [];
+    final distances = partData?["downstream_transport"]?["distances"] as List<dynamic>? ?? [];
+    final masses = partData?["downstream_transport"]?["masses"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["downstream_transport"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = DownstreamTransportTableState(
+      vehicles: vehicles.cast<String?>(),
+      classes: classes.cast<String?>(),
+      distances: distances.cast<String?>(),
+      masses: masses.cast<String?>(),
+      transportAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
+
+final downstreamTransportAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(downstreamTransportTableProvider(key));
   return table.transportAllocationValues
@@ -783,31 +983,76 @@ final downstreamTransportTableAllocationSumProvider =
 
 /// ---------------- USAGE CYCLE ----------------
 final usageCycleTableProvider =
-    StateNotifierProvider.family<UsageCycleNotifier, UsageCycleState, TableKey>(
-  (ref, key) => UsageCycleNotifier(),
-);
+    StateNotifierProvider.family<UsageCycleNotifier, UsageCycleState, TableKey>((ref, key) {
+  final notifier = UsageCycleNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final categories = partData?["usage_cycle"]?["categories"] as List<dynamic>? ?? [];
+    final productTypes = partData?["usage_cycle"]?["productTypes"] as List<dynamic>? ?? [];
+    final usageFrequencies = partData?["usage_cycle"]?["usageFrequencies"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["usage_cycle"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = UsageCycleState(
+      categories: categories.cast<String?>(),
+      productTypes: productTypes.cast<String?>(),
+      usageFrequencies: usageFrequencies.cast<String?>(),
+      usageCycleAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
 
 final usageCycleAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(usageCycleTableProvider(key));
   return table.usageCycleAllocationValues
       .map(_toDouble)
-      .fold(0.0, (a, b) => a + b); 
+      .fold(0.0, (a, b) => a + b);
 });
-
 
 /// ---------------- END OF LIFE ----------------
 final endOfLifeTableProvider =
-    StateNotifierProvider.family<EndOfLifeTableNotifier, EndOfLifeTableState, TableKey>(
-  (ref, key) => EndOfLifeTableNotifier(),
-);
+    StateNotifierProvider.family<EndOfLifeTableNotifier, EndOfLifeTableState, TableKey>((ref, key) {
+  final notifier = EndOfLifeTableNotifier();
+
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+  if (product == null || timeline == null) return notifier;
+
+  final timelineData = product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+  final partsMap = timelineData?["parts"] as Map<String, dynamic>?;
+
+  if (partsMap != null) {
+    final partData = partsMap[key.part] as Map<String, dynamic>?;
+    final endOfLifeOptions = partData?["end_of_life"]?["endOfLifeOptions"] as List<dynamic>? ?? [];
+    final totalMass = partData?["end_of_life"]?["totalMass"] as List<dynamic>? ?? [];
+    final allocationValues = partData?["end_of_life"]?["allocation_values"] as List<dynamic>? ?? [];
+
+    notifier.state = EndOfLifeTableState(
+      endOfLifeOptions: endOfLifeOptions.cast<String?>(),
+      endOfLifeTotalMass: totalMass.cast<String?>(),
+      endOfLifeAllocationValues: allocationValues.cast<String?>(),
+    );
+  }
+
+  return notifier;
+});
 
 final endOfLifeAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
   final table = ref.watch(endOfLifeTableProvider(key));
   return table.endOfLifeAllocationValues
       .map(_toDouble)
-      .fold(0.0, (a, b) => a + b); 
+      .fold(0.0, (a, b) => a + b);
 });
 
 

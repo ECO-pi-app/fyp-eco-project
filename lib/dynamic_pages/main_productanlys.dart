@@ -41,7 +41,7 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
     double totalEndOfLife = 0;
 
     if (product != null && part != null) {
-      final key = (product: product, part: part);
+      final key = (product: product.name, part: part);
 
       // Get each table individually
       final normalMaterialTable = ref.watch(normalMaterialTableProvider(key));
@@ -73,34 +73,34 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
       // Loop through each row and sum the converted emissions
 for (int i = 0; i < rowCount; i++) {
   final normal = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.materialNormal, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.materialNormal, i))
   );
   final material = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.material, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.material, i))
   );
   final transport = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.transportUpstream, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportUpstream, i))
   );
   final machining = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.machining, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.machining, i))
   );
   final fugitive = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.fugitive, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.fugitive, i))
   );
   final prodTransport = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.productionTransport, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.productionTransport, i))
   );
   final downstream = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.transportDownstream, i))
+    convertedEmissionRowProvider((product.name , part, EmissionCategory.transportDownstream, i))
   );
   final waste = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.waste, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.waste, i))
   );
   final usage = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.usageCycle, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.usageCycle, i))
   );
   final endOfLife = ref.watch(
-    convertedEmissionRowProvider((product, part, EmissionCategory.endOfLife, i))
+    convertedEmissionRowProvider((product.name, part, EmissionCategory.endOfLife, i))
   );
 
   totalNormalMaterial += normal.materialNormal;
@@ -120,7 +120,7 @@ for (int i = 0; i < rowCount; i++) {
       return const SizedBox();
     }
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
 
     /// ---------------- MATERIAL ----------------
     final normalMaterialState =
@@ -645,7 +645,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
       return const Text('Select a part');
     }
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(normalMaterialTableProvider(key));
 
     final tableNotifier = ref.read(normalMaterialTableProvider(key).notifier);
@@ -731,15 +731,13 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                   final key = (product: productID, part: part);
 
                   final activeProduct = ref.read(activeProductProvider);
-                  final activePart = ref.read(activePartProvider);
-
 
 
                   await saveProfile(
                     ref,
-                    "$activeProduct",  
+                    activeProduct!.name,  
                     "Mock description",  
-                    "$username",     
+                    username!,     
                     key,
                   );
                 },
@@ -798,7 +796,7 @@ class MaterialAttributesMenu extends ConsumerWidget {
       return const Text('Select a part');
     }
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(materialTableProvider(key));
 
     final tableNotifier = ref.read(materialTableProvider(key).notifier);
@@ -925,7 +923,7 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(upstreamTransportTableProvider(key));
     final tableNotifier = ref.read(upstreamTransportTableProvider(key).notifier);
 
@@ -1044,7 +1042,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(machiningTableProvider(key));
     final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
@@ -1166,7 +1164,7 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(fugitiveLeaksTableProvider(key));
     final tableNotifier = ref.read(fugitiveLeaksTableProvider(key).notifier);
 
@@ -1275,7 +1273,7 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(productionTransportTableProvider(key));
     final tableNotifier = ref.read(productionTransportTableProvider(key).notifier);
 
@@ -1396,7 +1394,7 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(wastesProvider(key));
     final tableNotifier = ref.read(wastesProvider(key).notifier);
 
@@ -1507,7 +1505,7 @@ class DownstreamTransportAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(downstreamTransportTableProvider(key));
     final tableNotifier = ref.read(downstreamTransportTableProvider(key).notifier);
 
@@ -1628,7 +1626,7 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(usageCycleTableProvider(key));
     final tableNotifier = ref.read(usageCycleTableProvider(key).notifier);
 
@@ -1746,7 +1744,7 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
     final part = ref.watch(activePartProvider);
     if (product == null || part == null) return const SizedBox();
 
-    final key = (product: product, part: part);
+    final key = (product: product.name, part: part);
     final tableState = ref.watch(endOfLifeTableProvider(key));
     final tableNotifier = ref.read(endOfLifeTableProvider(key).notifier);
 

@@ -1,7 +1,7 @@
 {
   "HTOO": {
     "Test": {
-      "description": "Mock description",
+      "description": "Auto-save description",
       "data": {
         "product": "Test",
         "timelines": {
@@ -9,8 +9,26 @@
             "start_month": "January",
             "end_month": "August",
             "parts": {
-              "BBBB": {
+              "Base": {
                 "normal_materials": {
+                  "materials": [
+                    "Aluminum",
+                    "Carbon Fiber"
+                  ],
+                  "countries": [
+                    "Bangladesh",
+                    "Azerbaijan"
+                  ],
+                  "masses": [
+                    "12",
+                    "45"
+                  ],
+                  "allocation_values": [
+                    "80",
+                    "78"
+                  ]
+                },
+                "materials": {
                   "materials": [
                     ""
                   ],
@@ -20,9 +38,150 @@
                   "masses": [
                     ""
                   ],
+                  "custom_ef": [
+                    ""
+                  ],
+                  "internal_ef": [
+                    ""
+                  ],
                   "allocation_values": [
                     ""
                   ]
+                },
+                "upstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "production_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "downstream_transport": {
+                  "vehicles": [
+                    ""
+                  ],
+                  "classes": [
+                    ""
+                  ],
+                  "distances": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "machining": {
+                  "brands": [
+                    ""
+                  ],
+                  "machines": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "times": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "wastes": {
+                  "types": [
+                    ""
+                  ],
+                  "wastes": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "fugitive_leaks": {
+                  "ghg": [
+                    ""
+                  ],
+                  "total_charge": [
+                    ""
+                  ],
+                  "remaining_charge": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "usage_cycle": {
+                  "categories": [
+                    ""
+                  ],
+                  "product_types": [
+                    ""
+                  ],
+                  "frequencies": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "end_of_life": {
+                  "options": [
+                    ""
+                  ],
+                  "total_mass": [
+                    ""
+                  ],
+                  "allocation_values": [
+                    ""
+                  ]
+                }
+              }
+            }
+          },
+          "Small": {
+            "start_month": "January",
+            "end_month": "July",
+            "parts": {
+              "Base": {
+                "normal_materials": {
+                  "materials": [],
+                  "countries": [],
+                  "masses": [],
+                  "allocation_values": []
                 },
                 "materials": {
                   "materials": [

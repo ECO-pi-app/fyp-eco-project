@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
+import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'dart:math';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
@@ -258,6 +260,7 @@ void _showPageGuide() {
                         Row(
                           children: [
                             _titlebaricons(Icons.newspaper,() => _onPageSelected(4)),
+                            SaveProfileButton(),
                             GuideIconButton(
                               onTap: _showPageGuide,
                             )
@@ -483,4 +486,48 @@ Widget _titlebaricons(IconData icon,  VoidCallback onTap) {
   );
 }
 
+class SaveProfileButton extends ConsumerWidget {
+  final String description; // optional custom description
+
+  const SaveProfileButton({super.key, this.description = "Auto-save description"});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.save),
+      label: const Text("Save"),
+      onPressed: () async {
+        final activeProduct = ref.read(activeProductProvider);
+        final activePart = ref.read(activePartProvider);
+        final username = await ref.read(usernameProvider.future);
+
+        if (activeProduct == null || activePart == null || username == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Nothing to save!")),
+          );
+          return;
+        }
+
+        final key = (product: activeProduct.name, part: activePart);
+
+        try {
+          await saveProfile(
+            ref,
+            activeProduct.name,
+            description,
+            username,
+            key,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile saved successfully!")),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error saving profile: $e")),
+          );
+        }
+      },
+    );
+  }
+}
 

@@ -359,7 +359,7 @@ Future<void> _exportPdf() async {
   final totalEmissions = <String, double>{};
 
   for (final part in allParts) {
-    final totals = ref.read(emissionTotalsProvider((product, part)));
+    final totals = ref.read(emissionTotalsProvider((product.name, part)));
 
     final partTotal = totals.machining +
         totals.material +
@@ -392,7 +392,7 @@ Future<void> _exportPdf() async {
           style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 16),
-        labelRow('Product ID', product),
+        labelRow('Product ID', product.name),
         labelRow('Description', _descriptionController.text),
         labelRow('Functional Unit', _functionalUnitController.text),
         labelRow('Declarations', _declarationsController.text),
@@ -416,7 +416,7 @@ Future<void> _exportPdf() async {
   // ---------------- PER PART PAGES ----------------
 
   for (final part in allParts) {
-    final totals = ref.read(emissionTotalsProvider((product, part)));
+    final totals = ref.read(emissionTotalsProvider((product.name, part)));
 
     final breakdown = {
       'Scope 1': totals.machining,
@@ -457,7 +457,7 @@ pdf.addPage(
 
       buildPartTables(
         ref,
-        (product: product, part: part)
+        (product: product.name, part: part)
       ),
     ],
   ),

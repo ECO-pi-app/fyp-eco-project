@@ -7,6 +7,24 @@ import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'dart:convert';
 import 'package:test_app/app_logic/riverpod_states.dart';
 
+Future<void> triggerSave(WidgetRef ref) async {
+  final activeProduct = ref.read(activeProductProvider);
+  final activePart = ref.read(activePartProvider);
+  final username = await ref.read(usernameProvider.future);
+
+  if (activeProduct == null || activePart == null || username == null) return;
+
+  final key = (product: activeProduct.name, part: activePart);
+
+  await saveProfile(
+    ref,
+    activeProduct.name,
+    "Auto-save description",
+    username,
+    key,
+  );
+}
+
 // ------------------- PRODUCT MODEL -------------------
 class Product {
   final String name;
@@ -140,7 +158,7 @@ Future<Product> fetchProductDetail(String username, String productName) async {
 
 // ------------------- PRODUCTS PROVIDER -------------------
 final activeProductLoaderProvider = Provider<void>((ref) {
-  ref.listen<String?>(
+  ref.listen<Product?>(
     activeProductProvider,
     (prev, next) async {
       if (next == null) return;
@@ -152,7 +170,7 @@ final activeProductLoaderProvider = Provider<void>((ref) {
 
       try {
         final product =
-            await fetchProductDetail(username, next);
+            await fetchProductDetail(username, next.name);
 
         debugPrint("[activeProductLoader] Loaded product data: ${product.data.keys}");
 
@@ -209,8 +227,8 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
   if (product == null) return {};
 
   // timelines and durations
-  final timelineNames = ref.read(timelineProvider(product)).timelines;
-  final allDurations = ref.read(timelineDurationProvider(product));
+  final timelineNames = ref.read(timelineProvider(product.name)).timelines;
+  final allDurations = ref.read(timelineDurationProvider(product.name));
 
   final Map<String, dynamic> timelineData = {};
 
@@ -223,7 +241,7 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
     final Map<String, dynamic> partsData = {};
 
     for (var partName in partsList) {
-      final partKey = (product: product, part: partName); // record literal
+      final partKey = (product: product.name, part: partName); // record literal
 
       partsData[partName] = {
         "normal_materials": {
@@ -303,7 +321,7 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
   }
 
   return {
-    "product": product,
+    "product": product.name,
     "timelines": timelineData,
   };
 }
