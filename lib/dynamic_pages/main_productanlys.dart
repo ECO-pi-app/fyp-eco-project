@@ -628,6 +628,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(activeProductLoaderProvider);
 
     final horizontalController = ScrollController();
 
@@ -1047,7 +1048,7 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(machiningTableProvider(key));
     final tableNotifier = ref.read(machiningTableProvider(key).notifier);
 
-    final brands = ref.watch(machinesProvider);
+    final brands = ref.watch(machineTypeProvider);
     final countries = ref.watch(countriesProvider);
 
     List<RowFormat> rows = List.generate(
