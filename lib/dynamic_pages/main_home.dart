@@ -379,42 +379,44 @@ class _DynamichomeState extends ConsumerState<Dynamichome> {
                       child: Wrap(
                         spacing: 6,
                         runSpacing: 6,
-                        children: List.generate(
-                          timelines?.timelines.length ?? 0,
-                          (index) {
-                            final t = timelines!.timelines[index];
-                            final start = timelineValues[t]?["start"] ?? "";
-                            final end = timelineValues[t]?["end"] ?? "";
+                          children: List.generate(
+                            timelines?.timelines.length ?? 0,
+                            (index) {
+                              final t = timelines!.timelines[index];
+                              final start = timelineValues[t]?["start"] ?? "";
+                              final end = timelineValues[t]?["end"] ?? "";
 
-                            return ChoiceChip(
-                              selectedColor: Apptheme.widgetsecondaryclr,
-                              backgroundColor: Apptheme.widgettertiaryclr,
-                              showCheckmark: false,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
-                              label: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Textsinsidewidgetsdrysafe(
-                                    words: t, 
-                                    color: Apptheme.textclrdark,
-                                    toppadding: 0,
-                                  ),
-                                  if (start.isNotEmpty || end.isNotEmpty) 
-                                  Textsinsidewidgetsdrysafe(
-                                    words: "$start → $end", 
-                                    color: Apptheme.textclrdark, 
-                                    fontsize: 10,
-                                    toppadding: 1,
-                                  ),
-                                ],
-                              ),
-                              selected: activeTimeline == t,
-                              onSelected: (_) {
-                                ref.read(activeTimelineProvider.notifier).state = t;
-                              },
-                            );
-                          },
-                        ),
+                              return ChoiceChip(
+                                selectedColor: Apptheme.widgetsecondaryclr,
+                                backgroundColor: Apptheme.widgettertiaryclr,
+                                showCheckmark: false,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                label: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Textsinsidewidgetsdrysafe(
+                                      words: t,
+                                      color: Apptheme.textclrdark,
+                                      toppadding: 0,
+                                    ),
+                                    if (start.isNotEmpty || end.isNotEmpty)
+                                      Textsinsidewidgetsdrysafe(
+                                        words: "$start → $end",
+                                        color: Apptheme.textclrdark,
+                                        fontsize: 10,
+                                        toppadding: 1,
+                                      ),
+                                  ],
+                                ),
+                                selected: activeTimeline == t,
+                                onSelected: (_) {
+                                  ref.read(activeTimelineProvider.notifier).state = t;
+                                },
+                              );
+                            },
+                          ),
                       ),
                     ),
                   ),

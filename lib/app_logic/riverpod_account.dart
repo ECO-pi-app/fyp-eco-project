@@ -110,26 +110,35 @@ Future<List<Product>> fetchProducts(String username) async {
 
 
 Future<Product> fetchProductDetail(String username, String productName) async {
+  // Include username as a query parameter
   final url = Uri.parse(
     'http://127.0.0.1:8000/profiles/$productName?username=$username',
   );
 
   debugPrint("[fetchProductDetail] URL: $url");
 
-  final response = await http.get(url);
+  final response = await http.get(
+    url,
+    headers: {"Content-Type": "application/json"},
+  );
 
   debugPrint("[fetchProductDetail] Status: ${response.statusCode}");
   debugPrint("[fetchProductDetail] Body: ${response.body}");
 
   if (response.statusCode != 200) {
-    throw Exception("Failed to load product detail");
+    throw Exception(
+        "Failed to load product detail: ${response.statusCode} ${response.reasonPhrase}");
   }
 
   final decoded = jsonDecode(response.body);
+
+  debugPrint("[fetchProductDetail] Decoded JSON: $decoded");
+
   return Product.fromJson(productName, decoded);
 }
 
 
+// ------------------- PRODUCTS PROVIDER -------------------
 final activeProductLoaderProvider = Provider<void>((ref) {
   ref.listen<String?>(
     activeProductProvider,
@@ -155,9 +164,6 @@ final activeProductLoaderProvider = Provider<void>((ref) {
   );
 });
 
-
-
-// ------------------- PRODUCTS PROVIDER -------------------
 final productsProvider = FutureProvider<List<Product>>((ref) async {
   final username = await ref.watch(usernameProvider.future);
   debugPrint("[productsProvider] Username loaded from provider: $username");

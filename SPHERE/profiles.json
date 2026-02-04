@@ -5,23 +5,23 @@
       "data": {
         "product": "Test",
         "timelines": {
-          "afaf": {
-            "start_month": "April",
-            "end_month": "September",
+          "Big": {
+            "start_month": "January",
+            "end_month": "August",
             "parts": {
-              "waffw": {
+              "BBBB": {
                 "normal_materials": {
                   "materials": [
-                    "Aluminum"
+                    ""
                   ],
                   "countries": [
-                    "Argentina"
+                    ""
                   ],
                   "masses": [
-                    "1.3"
+                    ""
                   ],
                   "allocation_values": [
-                    "100"
+                    ""
                   ]
                 },
                 "materials": {
