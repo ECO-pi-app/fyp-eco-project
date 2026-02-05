@@ -83,32 +83,52 @@ void initState() {
 
   final Map<int, Widget> _pageGuides = {
     0: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         Textsinsidewidgetsdrysafe(words: "Welcome to ECO-pi", color: Apptheme.textclrlight, fontsize: 20, fontweight: FontWeight.bold,),
-        SizedBox(height: 8),
-        Textsinsidewidgetsdrysafe(words: "Example Text 1", color: Apptheme.textclrlight, leftpadding: 5,),
-        Textsinsidewidgetsdrysafe(words: "Example Text 2", color: Apptheme.textclrlight, leftpadding: 5,),
+        Textsinsidewidgetsdrysafe(words: 
+        "This is the home page. This is where the user can see define the duration of the LCA analysis, define the parts involved in a project and see the data visualisations of emissions associated with each part.", 
+        color: Apptheme.textclrlight, leftpadding: 5,),
+        SizedBox(height: 15),
+        Textsinsidewidgetsdrysafe(words: 
+        "First, click on the + icon on the right of 'Timeline' to define the analysis duration. Next, click on the + icon on the right of 'Parts' to add parts to your project. Once parts are added, you can view their emissions data visualisations in the pie chart on the left.",
+        color: Apptheme.textclrlight, leftpadding: 5,),
+        Textsinsidewidgetsdrysafe(words: 
+        "Each timeline has a list of parts. Select a timeline from the list on the top right to view its associated parts and their emissions data. You can also cycle through the list of parts to see their individual data visualisations in the pie chart on their left. A timeline and a part must be first defined before proceeding to the analysis pages to start the LCA analysis.", 
+        color: Apptheme.textclrlight, leftpadding: 5,),
       ],
     ),
     1: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        Textsinsidewidgets(words: "Part Analysis Guide", color: Apptheme.textclrlight, fontsize: 18, fontweight: FontWeight.bold,),
-        SizedBox(height: 8),
-        Textsinsidewidgets(words: "• Analyze each part individually.", color: Apptheme.textclrlight, leftpadding: 5,),
-        Textsinsidewidgets(words: "• Check material composition and emissions.", color: Apptheme.textclrlight, leftpadding: 5,),
-        Textsinsidewidgets(words: "• Hover over tiles for details.", color: Apptheme.textclrlight, leftpadding: 5,),
+        Textsinsidewidgetsdrysafe(words: "Activity Analysis Guide", color: Apptheme.textclrlight, fontsize: 20, fontweight: FontWeight.bold,),
+        Textsinsidewidgetsdrysafe(words: 
+        "This is the Activity Analysis page. This and the Scope Analysis page are where the user can enter the parameters of the products being analysed. Activity Analysis categorises emissions based on activities involved throughout the product lifecycle from material extraction to disposal.", 
+        color: Apptheme.textclrlight, leftpadding: 5, maxLines: 50,),
+        SizedBox(height: 15),
+        Textsinsidewidgetsdrysafe(words: 
+        "Upstream, Production and Downstream activities are split into three tabs. The definition of each is as follows:\n\n• Upstream: Activities before the product reaches the manufacturer (e.g., raw material extraction, transportation to factory).\n\n• Production: Activities during the manufacturing process (e.g., assembly, energy use in factory).\n\n• Downstream: Activities after the product leaves the manufacturer (e.g., distribution, usage, end-of-life disposal).",
+        color: Apptheme.textclrlight, leftpadding: 5, maxLines: 50,),
+        SizedBox(height: 15),
+        Textsinsidewidgetsdrysafe(words: 
+        "Each activity has to be first defined with its parameters (e.g., distance, energy consumption) before the emissions can be calculated and visualised in the pie chart on the left. \n\n• First, click the + - button found next to the 'Calculate Emissions' button. \n\n• For a brand new project, it will be empty. Click on the plus sign to add a new column. \n\n• Click the fine tune button next to the info (i) icon at each of the activity title (e.g. Material Input | 0.00 kg CO2) to define the factor for each row. This factor is in place in case users want to adjust the default values using a ratio (e.g. Load factor for machines) improving accuracy without the user having to manually calculate each value. \n\n• Scroll to the right to see all parameter fields.", 
+        color: Apptheme.textclrlight, leftpadding: 5,maxLines: 50,),
       ],
     ),
     2: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        Textsinsidewidgets(words: "Scope Analysis Guide", color: Apptheme.textclrlight, fontsize: 18, fontweight: FontWeight.bold,),
-        SizedBox(height: 8),
-        Textsinsidewidgets(words: "• Scope 1, 2, 3 emissions explained.", color: Apptheme.textclrlight, leftpadding: 5,),
-        Textsinsidewidgets(words: "• Visualizations show total impact per category.", color: Apptheme.textclrlight, leftpadding: 5,),
-        Textsinsidewidgets(words: "• Use the side menu to navigate.", color: Apptheme.textclrlight, leftpadding: 5,),
+        Textsinsidewidgetsdrysafe(words: "Scope Analysis Guide", color: Apptheme.textclrlight, fontsize: 20, fontweight: FontWeight.bold,),
+        Textsinsidewidgetsdrysafe(words: 
+        "This is the Scope Analysis page. This and the Activity Analysis page are where the user can enter the parameters of the products being analysed. Scope Analysis categorises emissions based on the 15 categories defined by the GHG Protocol for project level emissions.", 
+        color: Apptheme.textclrlight, leftpadding: 5, maxLines: 50,),
+        SizedBox(height: 15),
+        Textsinsidewidgetsdrysafe(words: 
+        "Main and Scope 3 emissions are split into two tabs. The definition of each is as follows:\n\n• Main: Direct emissions from owned or controlled sources (Scope 1) and indirect emissions from the generation of purchased electricity, steam, heating, and cooling consumed by the reporting company (Scope 2).\n\n• Scope 3: All other indirect emissions that occur in a company’s value chain (e.g., purchased goods and services, business travel, waste disposal).\n\nNote: This app currently focuses on Scope 3 for detailed analysis. Though it covers manufacturing emissions, Scope 1 and 2 are not detailed here.",
+        color: Apptheme.textclrlight, leftpadding: 5, maxLines: 50,),
+        SizedBox(height: 15),
+        Textsinsidewidgetsdrysafe(words: 
+        "Each activity has to be first defined with its parameters (e.g., distance, energy consumption) before the emissions can be calculated and visualised in the pie chart on the left. \n\n• First, click the + - button found next to the 'Calculate Emissions' button. \n\n• For a brand new project, it will be empty. Click on the plus sign to add a new column. \n\n• Click the fine tune button next to the activity title (e.g. Material Input | 0.00 kg CO2) to define the factor for each row. This factor is in place in case users want to adjust the default values using a ratio (e.g. Load factor for machines) improving accuracy without the user having to manually calculate each value. \n\n• Scroll to the right to see all parameter fields.", 
+        color: Apptheme.textclrlight, leftpadding: 5,maxLines: 50,),
       ],
     ),
     3: Column(
@@ -260,7 +280,7 @@ void _showPageGuide() {
                         Row(
                           children: [
                             _titlebaricons(Icons.newspaper,() => _onPageSelected(4)),
-                            SaveProfileButton(),
+                            SaveProfileIconButton(),
                             GuideIconButton(
                               onTap: _showPageGuide,
                             )
@@ -347,7 +367,7 @@ class CurrentPageIndicator extends ConsumerWidget {
     // Map index to page name
     final pageNames = [
       'ECO-pi',
-      'Part Analysis',
+      'Activity Analysis',
       'Scope Analysis',
       'Assembly (BETA TESTING)',
       'Sustainability News',
@@ -468,7 +488,6 @@ class PageGuideDialog extends StatelessWidget {
   }
 }
 
-
 Widget _titlebaricons(IconData icon,  VoidCallback onTap) {
   return Padding(
     padding: EdgeInsets.only(right: 35),
@@ -486,47 +505,96 @@ Widget _titlebaricons(IconData icon,  VoidCallback onTap) {
   );
 }
 
-class SaveProfileButton extends ConsumerWidget {
-  final String description; // optional custom description
+class SaveProfileIconButton extends ConsumerStatefulWidget {
+  final String description;
+  final String tooltip;
 
-  const SaveProfileButton({super.key, this.description = "Auto-save description"});
+  const SaveProfileIconButton({
+    super.key,
+    this.description = "Auto-save description",
+    this.tooltip = "Save profile",
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.save),
-      label: const Text("Save"),
-      onPressed: () async {
-        final activeProduct = ref.read(activeProductProvider);
-        final activePart = ref.read(activePartProvider);
-        final username = await ref.read(usernameProvider.future);
+  ConsumerState<SaveProfileIconButton> createState() =>
+      _SaveProfileIconButtonState();
+}
 
-        if (activeProduct == null || activePart == null || username == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Nothing to save!")),
-          );
-          return;
-        }
+class _SaveProfileIconButtonState
+    extends ConsumerState<SaveProfileIconButton> {
+  bool _hovered = false;
 
-        final key = (product: activeProduct.name, part: activePart);
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: widget.tooltip,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.only(right: 35),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: _hovered
+                ? Apptheme.header.withOpacity(0.85)
+                : Apptheme.header.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: [
+              if (_hovered)
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(6),
+            onTap: () async {
+              final activeProduct = ref.read(activeProductProvider);
+              final activePart = ref.read(activePartProvider);
+              final username = await ref.read(usernameProvider.future);
 
-        try {
-          await saveProfile(
-            ref,
-            activeProduct.name,
-            description,
-            username,
-            key,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile saved successfully!")),
-          );
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error saving profile: $e")),
-          );
-        }
-      },
+              if (activeProduct == null ||
+                  activePart == null ||
+                  username == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Nothing to save!")),
+                );
+                return;
+              }
+
+              final key = (product: activeProduct.name, part: activePart);
+
+              try {
+                await saveProfile(
+                  ref,
+                  activeProduct.name,
+                  widget.description,
+                  username,
+                  key,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Profile saved successfully!"),
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error saving profile: $e")),
+                );
+              }
+            },
+            child: Icon(
+              Icons.save,
+              size: 20,
+              color: Apptheme.iconslight,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

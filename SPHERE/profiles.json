@@ -13,161 +13,89 @@
                 "normal_materials": {
                   "materials": [
                     "Aluminum",
-                    "Carbon Fiber"
+                    "Plastic (Average)"
                   ],
                   "countries": [
-                    "Bangladesh",
-                    "Azerbaijan"
+                    "Azerbaijan",
+                    "Belgium"
                   ],
                   "masses": [
                     "12",
-                    "45"
+                    "44"
                   ],
                   "allocation_values": [
-                    "80",
-                    "78"
+                    "66",
+                    "80"
                   ]
                 },
                 "materials": {
-                  "materials": [
-                    ""
-                  ],
-                  "countries": [
-                    ""
-                  ],
-                  "masses": [
-                    ""
-                  ],
-                  "custom_ef": [
-                    ""
-                  ],
-                  "internal_ef": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "materials": [],
+                  "countries": [],
+                  "masses": [],
+                  "custom_ef": [],
+                  "internal_ef": [],
+                  "allocation_values": []
                 },
                 "upstream_transport": {
                   "vehicles": [
-                    ""
+                    "Freight Flights"
                   ],
                   "classes": [
-                    ""
+                    "Belly Freight Flights>1500km"
                   ],
                   "distances": [
-                    ""
+                    "1233"
                   ],
                   "masses": [
-                    ""
+                    "33"
                   ],
                   "allocation_values": [
-                    ""
+                    "100"
                   ]
                 },
                 "production_transport": {
-                  "vehicles": [
-                    ""
-                  ],
-                  "classes": [
-                    ""
-                  ],
-                  "distances": [
-                    ""
-                  ],
-                  "masses": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "vehicles": [],
+                  "classes": [],
+                  "distances": [],
+                  "masses": [],
+                  "allocation_values": []
                 },
                 "downstream_transport": {
-                  "vehicles": [
-                    ""
-                  ],
-                  "classes": [
-                    ""
-                  ],
-                  "distances": [
-                    ""
-                  ],
-                  "masses": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "vehicles": [],
+                  "classes": [],
+                  "distances": [],
+                  "masses": [],
+                  "allocation_values": []
                 },
                 "machining": {
-                  "brands": [
-                    ""
-                  ],
-                  "machines": [
-                    ""
-                  ],
-                  "countries": [
-                    ""
-                  ],
-                  "times": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "brands": [],
+                  "machines": [],
+                  "countries": [],
+                  "times": [],
+                  "allocation_values": []
                 },
                 "wastes": {
-                  "types": [
-                    ""
-                  ],
-                  "wastes": [
-                    ""
-                  ],
-                  "masses": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "types": [],
+                  "wastes": [],
+                  "masses": [],
+                  "allocation_values": []
                 },
                 "fugitive_leaks": {
-                  "ghg": [
-                    ""
-                  ],
-                  "total_charge": [
-                    ""
-                  ],
-                  "remaining_charge": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "ghg": [],
+                  "total_charge": [],
+                  "remaining_charge": [],
+                  "allocation_values": []
                 },
                 "usage_cycle": {
-                  "categories": [
-                    ""
-                  ],
-                  "product_types": [
-                    ""
-                  ],
-                  "frequencies": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "categories": [],
+                  "product_types": [],
+                  "frequencies": [],
+                  "allocation_values": []
                 },
                 "end_of_life": {
-                  "options": [
-                    ""
-                  ],
-                  "total_mass": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "options": [],
+                  "total_mass": [],
+                  "allocation_values": []
                 }
               }
             }
@@ -193,12 +121,8 @@
                   "masses": [
                     ""
                   ],
-                  "custom_ef": [
-                    ""
-                  ],
-                  "internal_ef": [
-                    ""
-                  ],
+                  "custom_ef": [],
+                  "internal_ef": [],
                   "allocation_values": [
                     ""
                   ]
@@ -272,55 +196,233 @@
                   ]
                 },
                 "wastes": {
-                  "types": [
-                    ""
-                  ],
-                  "wastes": [
-                    ""
-                  ],
-                  "masses": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "types": [],
+                  "wastes": [],
+                  "masses": [],
+                  "allocation_values": []
                 },
                 "fugitive_leaks": {
-                  "ghg": [
-                    ""
-                  ],
-                  "total_charge": [
-                    ""
-                  ],
-                  "remaining_charge": [
-                    ""
-                  ],
-                  "allocation_values": [
-                    ""
-                  ]
+                  "ghg": [],
+                  "total_charge": [],
+                  "remaining_charge": [],
+                  "allocation_values": []
                 },
                 "usage_cycle": {
                   "categories": [
                     ""
                   ],
-                  "product_types": [
-                    ""
-                  ],
-                  "frequencies": [
-                    ""
-                  ],
+                  "product_types": [],
+                  "frequencies": [],
                   "allocation_values": [
                     ""
                   ]
                 },
                 "end_of_life": {
-                  "options": [
+                  "options": [],
+                  "total_mass": [],
+                  "allocation_values": [
                     ""
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "CNC Case Study 1": {
+      "description": "Auto-save description",
+      "data": {
+        "product": "CNC Case Study 1",
+        "timelines": {
+          "2025": {
+            "start_month": "January",
+            "end_month": "December",
+            "parts": {
+              "Part 1": {
+                "normal_materials": {
+                  "materials": [
+                    "Aluminum"
                   ],
-                  "total_mass": [
-                    ""
+                  "countries": [
+                    "Algeria"
+                  ],
+                  "masses": [
+                    "3.68995129"
                   ],
                   "allocation_values": [
+                    "100"
+                  ]
+                },
+                "materials": {
+                  "materials": [
+                    ""
+                  ],
+                  "countries": [
+                    ""
+                  ],
+                  "masses": [
+                    ""
+                  ],
+                  "custom_ef": [],
+                  "internal_ef": [],
+                  "allocation_values": [
+                    ""
+                  ]
+                },
+                "upstream_transport": {
+                  "vehicles": [
+                    "HGV (Diesel)",
+                    "Freight Flights",
+                    "HGV (Diesel)"
+                  ],
+                  "classes": [
+                    "HGV Rigid (> 3500kg to 7500kg) (0% Laden)",
+                    "International with RF",
+                    "HGV Rigid (> 3500kg to 7500kg) (0% Laden)"
+                  ],
+                  "distances": [
+                    "59",
+                    "3700",
+                    "6"
+                  ],
+                  "masses": [
+                    "3.6899512",
+                    "3.6899512",
+                    "3.6899512"
+                  ],
+                  "allocation_values": [
+                    "100",
+                    "100",
+                    "100"
+                  ]
+                },
+                "production_transport": {
+                  "vehicles": [],
+                  "classes": [],
+                  "distances": [],
+                  "masses": [],
+                  "allocation_values": []
+                },
+                "downstream_transport": {
+                  "vehicles": [
+                    "HGV (Diesel)"
+                  ],
+                  "classes": [
+                    "HGV Articulated ( >33000kg) (0% Laden)"
+                  ],
+                  "distances": [
+                    "6"
+                  ],
+                  "masses": [
+                    "2.59297"
+                  ],
+                  "allocation_values": [
+                    "100"
+                  ]
+                },
+                "machining": {
+                  "brands": [
+                    "YCM",
+                    "YCM",
+                    "YCM",
+                    "Amada",
+                    "YCM",
+                    "YCM",
+                    "YCM",
+                    "Amada",
+                    "YCM",
+                    "YCM",
+                    "YCM"
+                  ],
+                  "machines": [
+                    "TCV 2000A",
+                    "TCV 2000A",
+                    "TCV 3000A",
+                    "TECHSTER 84",
+                    "TCV 2000A",
+                    "TCV 3000A",
+                    "TV116B",
+                    "TECHSTER 84",
+                    "TV116B",
+                    "TV116B",
+                    "TCV 3000A"
+                  ],
+                  "countries": [
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore",
+                    "Singapore"
+                  ],
+                  "times": [
+                    "1",
+                    "2.5",
+                    "6",
+                    "1",
+                    "2.5",
+                    "6",
+                    "1.5",
+                    "23",
+                    "2",
+                    "52",
+                    "1.5"
+                  ],
+                  "allocation_values": [
+                    "30",
+                    "30",
+                    "30",
+                    "70",
+                    "30",
+                    "30",
+                    "30",
+                    "70",
+                    "30",
+                    "30",
+                    "30"
+                  ]
+                },
+                "wastes": {
+                  "types": [],
+                  "wastes": [],
+                  "masses": [],
+                  "allocation_values": []
+                },
+                "fugitive_leaks": {
+                  "ghg": [],
+                  "total_charge": [],
+                  "remaining_charge": [],
+                  "allocation_values": []
+                },
+                "usage_cycle": {
+                  "categories": [
+                    "Electronics"
+                  ],
+                  "product_types": [
+                    "Semiconductors"
+                  ],
+                  "frequencies": [
+                    "4"
+                  ],
+                  "allocation_values": [
+                    "100"
+                  ]
+                },
+                "end_of_life": {
+                  "options": [
+                    "Aluminium Recycling"
+                  ],
+                  "total_mass": [
+                    "1.11"
+                  ],
+                  "allocation_values": [
+                    "100",
                     ""
                   ]
                 }

@@ -325,36 +325,6 @@ for (int i = 0; i < rowCount; i++) {
         toppadding: 30,
         fontsize: 22,
       ),
-      //--ROW 2: Fugitive leaks--
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Labels(
-            title: 'Fugitive leaks |  ${totalFugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
-            fontsize: 17,
-          ),
-          Row(
-            children: [
-              sectionRow(
-                title: "Fugitive Leaks",
-                tooltip: "Adjust fugitive emissions allocation",
-                popupContent: buildFugitiveLeaksTable(
-                  leaksState,
-                  leaksNotifier,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      FugitiveLeaksAttributesMenu(productID: widget.productID),
       //-Row 3: Production Transport --
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -452,6 +422,36 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       DownstreamTransportAttributesMenu(productID: widget.productID),
+            //--ROW 2: Fugitive leaks--
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Fugitive leaks |  ${totalFugitive.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+          Row(
+            children: [
+              sectionRow(
+                title: "Fugitive Leaks",
+                tooltip: "Adjust fugitive emissions allocation",
+                popupContent: buildFugitiveLeaksTable(
+                  leaksState,
+                  leaksNotifier,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InfoIconPopupDark(
+                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      FugitiveLeaksAttributesMenu(productID: widget.productID),
       //--ROW 2: Downstream Distribution--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -650,16 +650,29 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
 
     final tableNotifier = ref.read(normalMaterialTableProvider(key).notifier);
 
+    final rowCount = [
+      tableState.normalMaterials.length,
+      tableState.countries.length,
+      tableState.masses.length,
+    ].reduce((a, b) => a > b ? a : b);
+
+    final safeRowCount = rowCount == 0 ? 1 : rowCount;
 
     List<RowFormat> rows = List.generate(
-      tableState.normalMaterials.length,
+      safeRowCount,
       (i) => RowFormat(
         columnTitles: ['Material', 'Country', 'Mass (kg)'],
         isTextFieldColumn: [false, false, true],
         selections: [
-          tableState.normalMaterials[i],
-          tableState.countries[i],
-          tableState.masses[i],
+          i < tableState.normalMaterials.length
+              ? tableState.normalMaterials[i]
+              : '',
+          i < tableState.countries.length
+              ? tableState.countries[i]
+              : '',
+          i < tableState.masses.length
+              ? tableState.masses[i]
+              : '',
         ],
       ),
     );
@@ -726,20 +739,6 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'material', rows);
-
-                  final username = await ref.read(usernameProvider.future);
-                  final key = (product: productID, part: part);
-
-                  final activeProduct = ref.read(activeProductProvider);
-
-
-                  await saveProfile(
-                    ref,
-                    activeProduct!.name,  
-                    "Mock description",  
-                    username!,     
-                    key,
-                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -802,18 +801,33 @@ class MaterialAttributesMenu extends ConsumerWidget {
     final tableNotifier = ref.read(materialTableProvider(key).notifier);
 
 
-    List<RowFormat> rows = List.generate(
-      tableState.materials.length,
-      (i) => RowFormat(
-        columnTitles: ['Material','Mass (kg)', 'Custom Emission Factor'],
-        isTextFieldColumn: [false, true, true],
-        selections: [
-          tableState.materials[i],
-          tableState.masses[i],
-          tableState.customEF[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.materials.length,
+  tableState.masses.length,
+  tableState.customEF.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Material', 'Mass (kg)', 'Custom Emission Factor'],
+    isTextFieldColumn: [false, true, true],
+    selections: [
+      i < tableState.materials.length
+          ? tableState.materials[i]
+          : '',
+      i < tableState.masses.length
+          ? tableState.masses[i]
+          : '',
+      i < tableState.customEF.length
+          ? tableState.customEF[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -927,19 +941,37 @@ class UpstreamTransportAttributesMenu extends ConsumerWidget {
     final tableState = ref.watch(upstreamTransportTableProvider(key));
     final tableNotifier = ref.read(upstreamTransportTableProvider(key).notifier);
 
-    List<RowFormat> rows = List.generate(
-      tableState.vehicles.length,
-      (i) => RowFormat(
-        columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
-        isTextFieldColumn: [false, false, true, true],
-        selections: [
-          tableState.vehicles[i],
-          tableState.classes[i],
-          tableState.distances[i],
-          tableState.masses[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.vehicles.length,
+  tableState.classes.length,
+  tableState.distances.length,
+  tableState.masses.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
+    isTextFieldColumn: [false, false, true, true],
+    selections: [
+      i < tableState.vehicles.length
+          ? tableState.vehicles[i]
+          : '',
+      i < tableState.classes.length
+          ? tableState.classes[i]
+          : '',
+      i < tableState.distances.length
+          ? tableState.distances[i]
+          : '',
+      i < tableState.masses.length
+          ? tableState.masses[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1049,19 +1081,37 @@ class MachiningAttributesMenu extends ConsumerWidget {
     final brands = ref.watch(machineTypeProvider);
     final countries = ref.watch(countriesProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.brands.length,
-      (i) => RowFormat(
-        columnTitles: ['Brand','Machine', 'Country', 'Time of operation (hr)'],
-        isTextFieldColumn: [false, false, false, true],
-        selections: [
-          tableState.brands[i],
-          tableState.machines[i],
-          tableState.countries[i],
-          tableState.times[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.brands.length,
+  tableState.machines.length,
+  tableState.countries.length,
+  tableState.times.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Brand', 'Machine', 'Country', 'Time of operation (hr)'],
+    isTextFieldColumn: [false, false, false, true],
+    selections: [
+      i < tableState.brands.length
+          ? tableState.brands[i]
+          : '',
+      i < tableState.machines.length
+          ? tableState.machines[i]
+          : '',
+      i < tableState.countries.length
+          ? tableState.countries[i]
+          : '',
+      i < tableState.times.length
+          ? tableState.times[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1170,18 +1220,33 @@ class FugitiveLeaksAttributesMenu extends ConsumerWidget {
 
     final ghgList = ref.watch(ghgProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.ghg.length,
-      (i) => RowFormat(
-        columnTitles: ['GHG', 'Total Charge (kg)', 'Remaining Charge (kg)'],
-        isTextFieldColumn: [false, true, true],
-        selections: [
-          tableState.ghg[i],
-          tableState.totalCharge[i],
-          tableState.remainingCharge[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.ghg.length,
+  tableState.totalCharge.length,
+  tableState.remainingCharge.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['GHG', 'Total Charge (kg)', 'Remaining Charge (kg)'],
+    isTextFieldColumn: [false, true, true],
+    selections: [
+      i < tableState.ghg.length
+          ? tableState.ghg[i]
+          : '',
+      i < tableState.totalCharge.length
+          ? tableState.totalCharge[i]
+          : '',
+      i < tableState.remainingCharge.length
+          ? tableState.remainingCharge[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1279,19 +1344,37 @@ class ProductionTransportAttributesMenu extends ConsumerWidget {
 
     final vehicles = ref.watch(transportTypesProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.vehicles.length,
-      (i) => RowFormat(
-        columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
-        isTextFieldColumn: [false, false, true, true],
-        selections: [
-          tableState.vehicles[i],
-          tableState.classes[i],
-          tableState.distances[i],
-          tableState.masses[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.vehicles.length,
+  tableState.classes.length,
+  tableState.distances.length,
+  tableState.masses.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
+    isTextFieldColumn: [false, false, true, true],
+    selections: [
+      i < tableState.vehicles.length
+          ? tableState.vehicles[i]
+          : '',
+      i < tableState.classes.length
+          ? tableState.classes[i]
+          : '',
+      i < tableState.distances.length
+          ? tableState.distances[i]
+          : '',
+      i < tableState.masses.length
+          ? tableState.masses[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1400,18 +1483,33 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
 
     final wasteMaterials = ref.watch(wasteCategoryProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.wasteType.length,
-      (i) => RowFormat(
-        columnTitles: ['Waste Type', 'Waste Material', 'Mass (kg)'],
-        isTextFieldColumn: [false, false ,true],
-        selections: [
-          tableState.wasteType[i],
-          tableState.waste[i],
-          tableState.mass[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.wasteType.length,
+  tableState.waste.length,
+  tableState.mass.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Waste Type', 'Waste Material', 'Mass (kg)'],
+    isTextFieldColumn: [false, false, true],
+    selections: [
+      i < tableState.wasteType.length
+          ? tableState.wasteType[i]
+          : '',
+      i < tableState.waste.length
+          ? tableState.waste[i]
+          : '',
+      i < tableState.mass.length
+          ? tableState.mass[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1511,19 +1609,37 @@ class DownstreamTransportAttributesMenu extends ConsumerWidget {
 
     final vehicles = ref.watch(transportTypesProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.vehicles.length,
-      (i) => RowFormat(
-        columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
-        isTextFieldColumn: [false, false, true, true],
-        selections: [
-          tableState.vehicles[i],
-          tableState.classes[i],
-          tableState.distances[i],
-          tableState.masses[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.vehicles.length,
+  tableState.classes.length,
+  tableState.distances.length,
+  tableState.masses.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Vehicle', 'Class', 'Distance (km)', 'Mass (kg)'],
+    isTextFieldColumn: [false, false, true, true],
+    selections: [
+      i < tableState.vehicles.length
+          ? tableState.vehicles[i]
+          : '',
+      i < tableState.classes.length
+          ? tableState.classes[i]
+          : '',
+      i < tableState.distances.length
+          ? tableState.distances[i]
+          : '',
+      i < tableState.masses.length
+          ? tableState.masses[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1632,18 +1748,33 @@ class UsageCycleAttributesMenu extends ConsumerWidget {
 
     final usageCycleCategories = ref.watch(usageCycleCategoriesProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.usageCycleAllocationValues.length,
-      (i) => RowFormat(
-        columnTitles: ['Category', 'Product', 'Usage Frequency'],
-        isTextFieldColumn: [false, false, true],
-        selections: [
-          tableState.categories[i],
-          tableState.productTypes[i],
-          tableState.usageFrequencies[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.categories.length,
+  tableState.productTypes.length,
+  tableState.usageFrequencies.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['Category', 'Product', 'Usage Frequency'],
+    isTextFieldColumn: [false, false, true],
+    selections: [
+      i < tableState.categories.length
+          ? tableState.categories[i]
+          : '',
+      i < tableState.productTypes.length
+          ? tableState.productTypes[i]
+          : '',
+      i < tableState.usageFrequencies.length
+          ? tableState.usageFrequencies[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [
@@ -1750,17 +1881,29 @@ class EndofLifeAttributesMenu extends ConsumerWidget {
 
     final endOfLifeMethods = ref.watch(endOfLifeActivitiesProvider);
 
-    List<RowFormat> rows = List.generate(
-      tableState.endOfLifeOptions.length,
-      (i) => RowFormat(
-        columnTitles: ['End of Life Option', 'Total Mass'],
-        isTextFieldColumn: [false, true],
-        selections: [
-          tableState.endOfLifeOptions[i],
-          tableState.endOfLifeTotalMass[i],
-        ],
-      ),
-    );
+final rowCount = [
+  tableState.endOfLifeOptions.length,
+  tableState.endOfLifeTotalMass.length,
+].reduce((a, b) => a > b ? a : b);
+
+final safeRowCount = rowCount == 0 ? 1 : rowCount;
+
+List<RowFormat> rows = List.generate(
+  safeRowCount,
+  (i) => RowFormat(
+    columnTitles: ['End of Life Option', 'Total Mass'],
+    isTextFieldColumn: [false, true],
+    selections: [
+      i < tableState.endOfLifeOptions.length
+          ? tableState.endOfLifeOptions[i]
+          : '',
+      i < tableState.endOfLifeTotalMass.length
+          ? tableState.endOfLifeTotalMass[i]
+          : '',
+    ],
+  ),
+);
+
 
     return Column(
       children: [

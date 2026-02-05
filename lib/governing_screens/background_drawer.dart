@@ -29,7 +29,7 @@ class _BackgroundDrawerState extends ConsumerState<BackgroundDrawer> {
     super.initState();
 
     // Save every 10 seconds
-    _autoSaveTimer = Timer.periodic(Duration(seconds: 600), (_) async {
+    _autoSaveTimer = Timer.periodic(Duration(seconds: 60000000), (_) async {
       await triggerSave(ref);
       debugPrint("Auto-saved profile at ${DateTime.now()}");
     });

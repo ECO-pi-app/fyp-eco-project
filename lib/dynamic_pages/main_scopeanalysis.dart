@@ -182,113 +182,11 @@ for (int i = 0; i < rowCount; i++) {
 
     final List<Widget> widgetofpage1 = [
       Labels(
-        title: 'Primary Inputs',
+        title: 'Manufacturing',
         color: Apptheme.textclrdark,
         toppadding: 0,
         fontsize: 22,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Labels(
-            title: 'Material Input | ${totalNormalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
-            fontsize: 17,
-          ),
-          Row(
-            children: [
-              sectionRow(
-                title: "Material Acquisition",
-                tooltip: "Fine-tune raw material inputs",
-                popupContent: buildNormalMaterialTable(
-                  normalMaterialState,
-                  normalMaterialNotifier,
-                ),
-              ),
-              InfoIconPopupDark(
-                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
-              ),
-            ],
-          ),
-        ],
-      ),
-      NormalMaterialAttributesMenu(productID: widget.productID),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Labels(
-            title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
-            fontsize: 17,
-          ),
-
-          Row(
-            children: [
-              sectionRow(
-                title: "Recycled Material Acquisition",
-                tooltip: "Fine-tune recycled material inputs",
-                popupContent: buildMaterialTable(
-                  materialState,
-                  materialNotifier,
-                ),
-              ),
-              InfoIconPopupDark(
-                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
-              ),
-            ],
-          ),
-        ],
-      ),
-      MaterialAttributesMenu(productID: widget.productID),
-      Labels(
-        title: 'Secondary Inputs',
-        color: Apptheme.textclrdark,
-        toppadding: 30,
-        fontsize: 22,
-      ),
-      //--ROW 2: Upstream Transportation--
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Labels(
-            title: 'Upstream Transportation | ${totalTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
-            fontsize: 17,
-          ),
-          Row(
-            children: [
-              GoogleMapsIconButton(
-              ),
-              sectionRow(
-                title: "Upstream Transport",
-                tooltip: "Adjust upstream transport allocation",
-                popupContent: buildUpstreamTransportTable(
-                  upstreamTransportState,
-                  upstreamTransportNotifier,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
-                  
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      UpstreamTransportAttributesMenu(productID: widget.productID)
-    ];
-
-    final List<Widget> widgetofpage2 = [
-      Labels(
-        title: 'Primary Processes',
-        color: Apptheme.textclrdark,
-        toppadding: 0,
-        fontsize: 22,
-      ),
-      //--ROW 1: Machining--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -318,13 +216,13 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       MachiningAttributesMenu(productID: widget.productID),
+
       Labels(
         title: 'Optional Processes',
         color: Apptheme.textclrdark,
         toppadding: 30,
         fontsize: 22,
       ),
-      //--ROW 2: Fugitive leaks--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -354,7 +252,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       FugitiveLeaksAttributesMenu(productID: widget.productID),
-      //-Row 3: Production Transport --
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -386,7 +283,118 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       ProductionTransportAttributesMenu(productID: widget.productID),
-      //-Row 4: Waste --
+    ];
+
+    final List<Widget> widgetofpage2 = [
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 1 & 2',
+            color: Apptheme.textclrdark,
+            toppadding: 0,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Material Input | ${totalNormalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+          sectionRow(
+            title: "Material Acquisition",
+            tooltip: "Fine-tune raw material inputs",
+            popupContent: buildNormalMaterialTable(
+              normalMaterialState,
+              normalMaterialNotifier,
+            ),
+          ),
+        ],
+      ),
+      NormalMaterialAttributesMenu(productID: widget.productID),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+
+          sectionRow(
+            title: "Recycled Material Acquisition",
+            tooltip: "Fine-tune recycled material inputs",
+            popupContent: buildMaterialTable(
+              materialState,
+              materialNotifier,
+            ),
+          ),
+        ],
+      ),
+      MaterialAttributesMenu(productID: widget.productID),
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 4',
+            color: Apptheme.textclrdark,
+            toppadding: 30,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Transportation of materials purchased from it\'s origin to the production facility\'s gate.',
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Upstream Transportation | ${totalTransport.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            color: Apptheme.textclrdark,
+            fontsize: 17,
+          ),
+          Row(
+            children: [
+              GoogleMapsIconButton(
+              ),
+              sectionRow(
+                title: "Upstream Transport",
+                tooltip: "Adjust upstream transport allocation",
+                popupContent: buildUpstreamTransportTable(
+                  upstreamTransportState,
+                  upstreamTransportNotifier,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      UpstreamTransportAttributesMenu(productID: widget.productID),
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 5',
+            color: Apptheme.textclrdark,
+            toppadding: 30,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Wastes produced throughout the life cycle of the product that are generated during manufacturing processes.',
+          ),
+        ],
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -395,31 +403,32 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          Row(
-            children: [
-              sectionRow(
-                title: "Manufacturing Wastes",
-                tooltip: "Adjust waste mass allocation",
-                popupContent: buildWasteTable(
-                  wasteTransportState,
-                  wasteTransportNotifier,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Greenhouse Gases used by equipments as part of their functioning needs released into the atmosphere due to leak, damage or wear',
-                ),
-              ),
-            ],
+          sectionRow(
+            title: "Manufacturing Wastes",
+            tooltip: "Adjust waste mass allocation",
+            popupContent: buildWasteTable(
+              wasteTransportState,
+              wasteTransportNotifier,
+            ),
           ),
         ],
       ),
-      WasteMaterialAttributesMenu(productID: widget.productID)
-    ];
+      WasteMaterialAttributesMenu(productID: widget.productID),
 
-    final List<Widget> widgetofpage3 = [
-      //--ROW 1: Upstream Transportation--
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 9',
+            color: Apptheme.textclrdark,
+            toppadding: 30,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Transportation of finished products from the production facility to the end user.',
+          ),  
+        ],
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -439,19 +448,26 @@ for (int i = 0; i < rowCount; i++) {
                   downstreamTransportNotifier,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Transporting of materials purchased from it\'s origin to the production facility\'s gate.',
-                  
-                ),
-              ),
             ],
           ),
         ],
       ),
       DownstreamTransportAttributesMenu(productID: widget.productID),
-      //--ROW 2: Downstream Distribution--
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 11',
+            color: Apptheme.textclrdark,
+            toppadding: 30,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Emissions generated during the use phase of the product by the end user.',
+          ),
+        ],
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -469,18 +485,25 @@ for (int i = 0; i < rowCount; i++) {
                   usageCycleNotifier,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Emissions from the usage of the product by the end user.',
-                ),
-              ),
             ],
           ),
         ],
       ),
       UsageCycleAttributesMenu(productID: widget.productID),
-      //--ROW 3: End of Life--
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Labels(
+            title: 'Category 12',
+            color: Apptheme.textclrdark,
+            toppadding: 30,
+            fontsize: 22,
+          ),
+          InfoIconPopupDark(
+            text: 'Emissions from the disposal and treatment of the product at the end of its useful life.',
+          ),],
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -498,17 +521,14 @@ for (int i = 0; i < rowCount; i++) {
                   endOfLifeNotifier,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InfoIconPopupDark(
-                  text: 'Emissions from the disposal and treatment of the product at the end of its useful life.',
-                ),
-              ),
             ],
           ),
         ],
       ),
       EndofLifeAttributesMenu(productID: widget.productID),
+    ];
+
+    final List<Widget> widgetofpage3 = [
     ];
 
     return PrimaryPages(
@@ -518,11 +538,11 @@ for (int i = 0; i < rowCount; i++) {
             child: showThreePageTabs
                 ? ManualTab3pages(
                     backgroundcolor: Apptheme.transparentcheat,
-                    tab1: 'Upstream',
+                    tab1: 'Main',
                     tab1fontsize: 15,
-                    tab2: 'Production',
+                    tab2: 'Scope 3',
                     tab2fontsize: 15,
-                    tab3: 'Downstream',
+                    tab3: 'Disclaimer',
                     tab3fontsize: 15,
                     firstchildof1: ListView.builder(
                       shrinkWrap: true,
