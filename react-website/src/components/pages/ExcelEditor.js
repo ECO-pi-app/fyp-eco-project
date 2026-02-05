@@ -3,7 +3,7 @@ import { HotTable } from "@handsontable/react";
 import "handsontable/dist/handsontable.full.min.css";
 import "./ExcelEditor.css";
 
-const API = "http://127.0.0.1:8000"; // change if your FastAPI is hosted
+const API = "http://127.0.0.1:8000"; 
 
 export default function ExcelEditor() {
   const [sheets, setSheets] = useState([]);
