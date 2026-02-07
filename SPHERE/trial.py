@@ -239,13 +239,6 @@ cement_cells         = sheet['E2':'E999']
 electricity_cells    = sheet['F2':'F999']
 plastic_cells        = sheet['G2':'G999']
 carbon_fiber_cells   = sheet['H2':'H999']
-PET_cells            = sheet['I2':'I999']
-HDPE_cells           = sheet['J2':'J999']
-LDPE_cells           = sheet['K2':'K999']
-PP_cells             = sheet['L2':'L999']
-PS_cells             = sheet['M2':'M999']
-PVC_cells            = sheet['N2':'N999']
-
 materials_cells      = sheet7['A2':'A999']
 
 Transport_cells      = sheet2['A2':'A999']
@@ -383,19 +376,13 @@ Energy_Related_Waste_ef_cells    = sheet25["B45":"B47"]
 
 # turn into lists
 country_list      = extract_selection_list(country_cells)
-distance_list     = extract_selection_list(distance_cells)
-steel_list        = extract_selection_list(steel_cells)
-aluminium_list    = extract_selection_list(aluminium_cells)
-cement_list       = extract_selection_list(cement_cells)
+distance_list     = extract_list(distance_cells)
+steel_list        = extract_list(steel_cells)
+aluminium_list    = extract_list(aluminium_cells)
+cement_list       = extract_list(cement_cells)
 electricity_list  = extract_selection_list(electricity_cells)
-plastic_list      = extract_selection_list(plastic_cells)
-carbon_fiber_list = extract_selection_list(carbon_fiber_cells)
-PET_list          = extract_selection_list(PET_cells)
-HDPE_list         = extract_selection_list(HDPE_cells)
-LDPE_list         = extract_selection_list(LDPE_cells)
-PP_list           = extract_selection_list(PP_cells)
-PS_list           = extract_selection_list(PS_cells)
-PVC_list          = extract_selection_list(PVC_cells)
+plastic_list      = extract_list(plastic_cells)
+carbon_fiber_list = extract_list(carbon_fiber_cells)
 material_list     = extract_material_list(materials_cells)
 
 transport_list    = extract_transport_list(Transport_cells)
@@ -954,7 +941,10 @@ class UsageCalcReq(BaseModel):
 app = FastAPI(title="SPHERE Backend API (Flutter)")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://htoomyatlin05-hue.github.io"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -963,6 +953,31 @@ app.add_middleware(
 # --- NewsAPI configuration ---
 NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "adfd0f78d5304adea0d4490623f32aec")
 NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
+
+@app.get("/excel/sheets")
+def excel_list_sheets():
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+    return {"sheets": wb.sheetnames}
+
+
+@app.get("/excel/sheet/{sheet_name}")
+def excel_read_sheet(sheet_name: str, max_rows: int = 200, max_cols: int = 50):
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+
+    if sheet_name not in wb.sheetnames:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    ws = wb[sheet_name]
+
+    rows = []
+    for r in range(1, max_rows + 1):
+        row_vals = []
+        for c in range(1, max_cols + 1):
+            v = ws.cell(row=r, column=c).value
+            row_vals.append("" if v is None else v)
+        rows.append(row_vals)
+
+    return {"sheet": sheet_name, "rows": rows}
 
 @app.get("/meta/machines")
 def get_machinedata():
@@ -1193,7 +1208,7 @@ def get_machinetypes_YCM():
     return{
         "Machine Model": Amada_machine_model,
         "main_spindle": Amada_main_spindle,
-        "Sub Spindle": Amada_secondary_spindle
+        "Sub Spindle": Amada_sub_spindle
     }
 
 @app.get("/meta/Mazak_model")
@@ -1267,16 +1282,7 @@ def get_profile(profile_name: str, username: str):
     if profile_name not in bucket:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-
-    profile = bucket[profile_name]  # assign so we can debug
-
-    # 🔹 Debug print BEFORE returning
-    import json
-    print(f"[DEBUG] Returning profile for {username} / {profile_name}:")
-    print(json.dumps(profile, indent=2))  # pretty-printed JSON
-
-    return profile
-
+    return bucket[profile_name]
 
 @app.get("/profiles")
 def list_profiles(username: str):
@@ -1293,14 +1299,8 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "Steel":steel_list,
         "Aluminum":aluminium_list,
         "Cement":cement_list,
-        "Plastic (Average)":plastic_list,
-        "Carbon Fiber":carbon_fiber_list,
-        "PET (Polyethylene Terephthalate)":PET_list,
-        "HDPE (High-Density Polyethylene)":HDPE_list,
-        "LDPE (Low-Density Polyethylene / LLDPE)":LDPE_list,
-        "PP (Polypropylene)":PP_list,
-        "PS (Polystyrene, general purpose)":PS_list,
-        "PVC (Polyvinyl Chloride)":PVC_list
+        "Plastic":plastic_list,
+        "Carbon Fiber":carbon_fiber_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400,detail="Material not supported for calculation")
@@ -1327,13 +1327,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "Aluminum": aluminium_list,
         "Cement": cement_list,
         "Plastic": plastic_list,
-        "Carbon Fiber": carbon_fiber_list,
-        "PET":PET_list,
-        "HDPE":HDPE_list,
-        "LDPE":LDPE_list,
-        "PP":PP_list,
-        "PS":PS_list,
-        "PVC":PVC_list
+        "Carbon Fiber": carbon_fiber_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400, detail="Material not supported for calculation")
@@ -1964,32 +1958,20 @@ def login_user(req: UserLoginRequest):
     bucket = all_profiles.get(req.username, {})
     return {"status": "ok","username": req.username,"profiles": list(bucket.keys())}
 
-@app.get("/excel/sheets")
-def excel_list_sheets():
-    # load fresh workbook so edits show up immediately
-    wb = load_workbook(EXCEL_PATH, data_only=False)
-    return {"sheets": wb.sheetnames}
+@app.post("/excel/update_cell")
+def excel_update_cell(req: ExcelUpdateCellRequest):
+    if req.row < 1 or req.col < 1:
+        raise HTTPException(status_code=400, detail="row/col must be >= 1")
 
-@app.get("/excel/sheet/{sheet_name}")
-def excel_read_sheet(sheet_name: str, max_rows: int = 200, max_cols: int = 50):
-    """
-    Returns a sheet as rows[][] so React can display it in a grid.
-    """
-    wb = load_workbook(EXCEL_PATH, data_only=False)
-    if sheet_name not in wb.sheetnames:
-        raise HTTPException(status_code=404, detail="Sheet not found")
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)  # must be False for writing
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+        ws.cell(row=req.row, column=req.col).value = req.value
+        _atomic_save_workbook(wb, EXCEL_PATH)
 
-    ws = wb[sheet_name]
-
-    rows = []
-    for r in range(1, max_rows + 1):
-        row_vals = []
-        for c in range(1, max_cols + 1):
-            v = ws.cell(row=r, column=c).value
-            row_vals.append("" if v is None else v)
-        rows.append(row_vals)
-
-    return {"sheet": sheet_name, "rows": rows, "max_rows": max_rows, "max_cols": max_cols}
+    return {"status": "ok"}
 
 @app.post("/excel/update_cells")
 def excel_update_cells(req: ExcelUpdateCellsRequest):

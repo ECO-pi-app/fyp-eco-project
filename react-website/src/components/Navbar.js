@@ -17,6 +17,11 @@ const SEARCH_INDEX = [
       "services tools transport manufacturing materials reporting sustainability features breakdown categories",
   },
   {
+    title: "Excel Editor",
+    route: "/excel",
+    keywords: "excel spreadsheet workbook sheets edit emission data update cells grid editor",
+  },
+  {
     title: "About Us",
     route: "/about",
     keywords:
@@ -151,6 +156,7 @@ function Navbar() {
               </button>
               <ul className={openTools ? 'dropdown-menu show' : 'dropdown-menu'} onClick={(e) => e.stopPropagation()}>
                 <li><Link to="/methodology" className="dropdown-link" onClick={closeMobileMenu}>Methodology</Link></li>
+                <li><Link to="/excel" className="dropdown-link" onClick={closeMobileMenu}>Excel Editor</Link></li>
               </ul>
             </li>
 

@@ -40,7 +40,6 @@ function Cards() {
               ))
             }
 
-            {/* ✅ REAL cards after loading */}
             {!loading && articles.slice(0, 8).map((a, i) => (
               <CardItem
                 key={i}
