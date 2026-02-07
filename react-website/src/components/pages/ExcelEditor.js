@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { HotTable } from "@handsontable/react";
-import "handsontable/dist/handsontable.full.min.css";
+import "handsontable/styles/handsontable.min.css";
+import "handsontable/styles/ht-theme-main.min.css";
 import "./ExcelEditor.css";
 
-const API = "http://127.0.0.1:8000"; 
+const API = "http://127.0.0.1:8000";
 
 export default function ExcelEditor() {
   const [sheets, setSheets] = useState([]);
@@ -11,6 +12,12 @@ export default function ExcelEditor() {
   const [data, setData] = useState([[]]);
   const pending = useRef([]);
   const timer = useRef(null);
+
+  // ✅ keep the latest sheet value for the timer callback
+  const sheetRef = useRef("");
+  useEffect(() => {
+    sheetRef.current = sheet;
+  }, [sheet]);
 
   // load sheet names
   useEffect(() => {
@@ -26,10 +33,19 @@ export default function ExcelEditor() {
   // load selected sheet data
   useEffect(() => {
     if (!sheet) return;
-    fetch(`${API}/excel/sheet/${encodeURIComponent(sheet)}?max_rows=200&max_cols=50`)
+    fetch(
+      `${API}/excel/sheet/${encodeURIComponent(sheet)}?max_rows=200&max_cols=50`
+    )
       .then((r) => r.json())
       .then((j) => setData(j.rows || [[]]))
       .catch(console.error);
+
+    // ✅ clear pending updates when switching sheets
+    pending.current = [];
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
   }, [sheet]);
 
   function queueUpdates(changes) {
@@ -41,14 +57,15 @@ export default function ExcelEditor() {
       timer.current = null;
       if (!batch.length) return;
 
-      // use your existing backend endpoint:
+      const currentSheet = sheetRef.current;
+
       await fetch(`${API}/excel/update_cells`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sheet,
+          sheet: currentSheet,
           updates: batch.map((p) => ({
-            sheet,
+            sheet: currentSheet,
             row: p.r,
             col: p.c,
             value: p.v,
@@ -67,31 +84,43 @@ export default function ExcelEditor() {
           <label>Sheet</label>
           <select value={sheet} onChange={(e) => setSheet(e.target.value)}>
             {sheets.map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      <HotTable
-        data={data}
-        rowHeaders={true}
-        colHeaders={true}
-        width="100%"
-        height="75vh"
-        licenseKey="non-commercial-and-evaluation"
-        afterChange={(changes, source) => {
-          if (!changes || source === "loadData") return;
+      {/* ✅ apply theme class */}
+      <div className="ht-theme-main">
+        <HotTable
+          data={data}
+          rowHeaders={true}
+          colHeaders={true}
+          width="100%"
+          height="75vh"
+          licenseKey="non-commercial-and-evaluation"
 
-          const patches = changes.map(([row, col, oldVal, newVal]) => ({
-            r: row + 1,     // 1-based for backend
-            c: col + 1,
-            v: newVal ?? "",
-          }));
+          stretchH="all"              // ✅ fills available width
+          autoColumnSize={true}       // ✅ better auto sizing
+          manualColumnResize={true}   // ✅ drag column width like Excel
+          manualRowResize={true}      // ✅ drag row height like Excel
+          colWidths={160}             // ✅ default width so headers show more
 
-          queueUpdates(patches);
-        }}
-      />
+          afterChange={(changes, source) => {
+            if (!changes || source === "loadData") return;
+
+            const patches = changes.map(([row, col, oldVal, newVal]) => ({
+              r: row + 1,
+              c: col + 1,
+              v: newVal ?? "",
+            }));
+
+            queueUpdates(patches);
+          }}
+        />
+      </div>
     </div>
   );
 }
