@@ -20,3 +20,19 @@
   padding: 6px 10px;
   border-radius: 8px;
 }
+
+.ht-theme-main .handsontable td.excel-header-row {
+  background-color: #e2f0d9 !important;
+  font-weight: 700 !important;
+}
+
+.ht-theme-main .handsontable td.excel-title-col {
+  background-color: #f2f2f2 !important;
+  font-weight: 600 !important;
+}
+
+.ht-theme-main .handsontable td.excel-title-cell {
+  background-color: #c6e0b4 !important;
+  font-weight: 800 !important;
+}
+

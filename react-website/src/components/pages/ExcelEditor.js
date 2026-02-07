@@ -32,14 +32,13 @@ export default function ExcelEditor() {
   // load selected sheet data
   useEffect(() => {
     if (!sheet) return;
-    fetch(
-      `${API}/excel/sheet/${encodeURIComponent(sheet)}?max_rows=200&max_cols=50`
-    )
+
+    fetch(`${API}/excel/sheet/${encodeURIComponent(sheet)}?max_rows=200&max_cols=50`)
       .then((r) => r.json())
       .then((j) => setData(j.rows || [[]]))
       .catch(console.error);
 
-
+    // clear pending updates when switching sheets
     pending.current = [];
     if (timer.current) {
       clearTimeout(timer.current);
@@ -99,12 +98,20 @@ export default function ExcelEditor() {
           width="100%"
           height="75vh"
           licenseKey="non-commercial-and-evaluation"
+          stretchH="all"
+          autoColumnSize={{ useHeaders: true }}   // ✅ better auto-fit (includes headers)
+          manualColumnResize={true}
+          manualRowResize={true}
+          colWidths={160}
+          wordWrap={true}
 
-          stretchH="all"            
-          autoColumnSize={true}      
-          manualColumnResize={true}   
-          manualRowResize={true}     
-          colWidths={160}             
+          // ✅ “Excel-like coloured titles”: style first row + first column
+          cells={(row, col) => {
+            if (row === 0 && col === 0) return { className: "excel-title-cell" };
+            if (row === 0) return { className: "excel-header-row" };
+            if (col === 0) return { className: "excel-title-col" };
+            return {};
+          }}
 
           afterChange={(changes, source) => {
             if (!changes || source === "loadData") return;
