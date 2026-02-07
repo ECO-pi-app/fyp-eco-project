@@ -13,7 +13,6 @@ export default function ExcelEditor() {
   const pending = useRef([]);
   const timer = useRef(null);
 
-  // ✅ keep the latest sheet value for the timer callback
   const sheetRef = useRef("");
   useEffect(() => {
     sheetRef.current = sheet;
@@ -40,7 +39,7 @@ export default function ExcelEditor() {
       .then((j) => setData(j.rows || [[]]))
       .catch(console.error);
 
-    // ✅ clear pending updates when switching sheets
+
     pending.current = [];
     if (timer.current) {
       clearTimeout(timer.current);
@@ -92,7 +91,6 @@ export default function ExcelEditor() {
         </div>
       </div>
 
-      {/* ✅ apply theme class */}
       <div className="ht-theme-main">
         <HotTable
           data={data}
@@ -102,11 +100,11 @@ export default function ExcelEditor() {
           height="75vh"
           licenseKey="non-commercial-and-evaluation"
 
-          stretchH="all"              // ✅ fills available width
-          autoColumnSize={true}       // ✅ better auto sizing
-          manualColumnResize={true}   // ✅ drag column width like Excel
-          manualRowResize={true}      // ✅ drag row height like Excel
-          colWidths={160}             // ✅ default width so headers show more
+          stretchH="all"            
+          autoColumnSize={true}      
+          manualColumnResize={true}   
+          manualRowResize={true}     
+          colWidths={160}             
 
           afterChange={(changes, source) => {
             if (!changes || source === "loadData") return;
