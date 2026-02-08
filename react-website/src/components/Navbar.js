@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import './Navbar.css';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import "./Navbar.css";
+import { Link, useHistory } from "react-router-dom";
 
 /* 🔹 MOVE SEARCH INDEX OUTSIDE COMPONENT */
 const SEARCH_INDEX = [
@@ -19,13 +19,13 @@ const SEARCH_INDEX = [
   {
     title: "Excel Editor",
     route: "/excel",
-    keywords: "excel spreadsheet workbook sheets edit emission data update cells grid editor",
+    keywords:
+      "excel spreadsheet workbook sheets edit emission data update cells grid editor",
   },
   {
     title: "About Us",
     route: "/about",
-    keywords:
-      "about eco-pi project team mission sustainability final year fyp overview",
+    keywords: "about eco-pi project team mission sustainability final year fyp overview",
   },
   {
     title: "Contact",
@@ -49,10 +49,10 @@ function Navbar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
-  const handleClick = () => setClick((v) => !v); 
+  const handleClick = () => setClick((v) => !v);
 
   const closeMobileMenu = () => {
-    setClick(false);           
+    setClick(false);
     setOpenTools(false);
     setOpenAbout(false);
   };
@@ -63,8 +63,8 @@ function Navbar() {
 
   useEffect(() => {
     showButton();
-    window.addEventListener('resize', showButton);
-    return () => window.removeEventListener('resize', showButton);
+    window.addEventListener("resize", showButton);
+    return () => window.removeEventListener("resize", showButton);
   }, []);
 
   // close dropdowns when clicking outside
@@ -73,8 +73,8 @@ function Navbar() {
       setOpenTools(false);
       setOpenAbout(false);
     };
-    document.addEventListener('click', onDocClick);
-    return () => document.removeEventListener('click', onDocClick);
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
   }, []);
 
   /*  VS-CODE STYLE SEARCH (NO AUTO NAVIGATE) */
@@ -137,49 +137,136 @@ function Navbar() {
           <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
             <div className="logo-wrapper">
               <span className="logo-text">ECO-Pi</span>
-              <img src="/images/App_logo.svg" alt="ECO-Pi logo" className="navbar-logo-img" />
+
+              {/* ✅ Minimal change: use PUBLIC_URL so it works on GitHub Pages too */}
+              <img
+                src={`${process.env.PUBLIC_URL}/images/App_logo.svg`}
+                alt="ECO-Pi logo"
+                className="navbar-logo-img"
+              />
             </div>
           </Link>
 
           <div className="menu-icon" onClick={handleClick}>
-            <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
+            <i className={click ? "fas fa-times" : "fas fa-bars"} />
           </div>
 
-          <ul className={click ? 'nav-menu active' : 'nav-menu'} onClick={(e) => e.stopPropagation()}>
+          <ul
+            className={click ? "nav-menu active" : "nav-menu"}
+            onClick={(e) => e.stopPropagation()}
+          >
             <li className="nav-item">
-              <Link to="/" className="nav-links" onClick={closeMobileMenu}>Home</Link>
+              <Link to="/" className="nav-links" onClick={closeMobileMenu}>
+                Home
+              </Link>
             </li>
 
             <li className="nav-item dropdown">
-              <button type="button" className="nav-links nav-dropbtn" onClick={toggleTools}>
+              <button
+                type="button"
+                className="nav-links nav-dropbtn"
+                onClick={toggleTools}
+              >
                 Tools <i className="fas fa-caret-down" />
               </button>
-              <ul className={openTools ? 'dropdown-menu show' : 'dropdown-menu'} onClick={(e) => e.stopPropagation()}>
-                <li><Link to="/methodology" className="dropdown-link" onClick={closeMobileMenu}>Methodology</Link></li>
-                <li><Link to="/excel" className="dropdown-link" onClick={closeMobileMenu}>Excel Editor</Link></li>
+              <ul
+                className={openTools ? "dropdown-menu show" : "dropdown-menu"}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <li>
+                  <Link
+                    to="/methodology"
+                    className="dropdown-link"
+                    onClick={closeMobileMenu}
+                  >
+                    Methodology
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/excel"
+                    className="dropdown-link"
+                    onClick={closeMobileMenu}
+                  >
+                    Excel Editor
+                  </Link>
+                </li>
               </ul>
             </li>
 
             <li className="nav-item dropdown">
-              <button type="button" className="nav-links nav-dropbtn" onClick={toggleAbout}>
+              <button
+                type="button"
+                className="nav-links nav-dropbtn"
+                onClick={toggleAbout}
+              >
                 About <i className="fas fa-caret-down" />
               </button>
-              <ul className={openAbout ? 'dropdown-menu show' : 'dropdown-menu'} onClick={(e) => e.stopPropagation()}>
-                <li><Link to="/about" className="dropdown-link" onClick={closeMobileMenu}>About Us</Link></li>
-                <li><Link to='/how-it-works' className='dropdown-link' onClick={closeMobileMenu}>How it works</Link></li>
-                <li><Link to="/contact" className="dropdown-link" onClick={closeMobileMenu}>Contact</Link></li>
+              <ul
+                className={openAbout ? "dropdown-menu show" : "dropdown-menu"}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <li>
+                  <Link
+                    to="/about"
+                    className="dropdown-link"
+                    onClick={closeMobileMenu}
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/how-it-works"
+                    className="dropdown-link"
+                    onClick={closeMobileMenu}
+                  >
+                    How it works
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="dropdown-link"
+                    onClick={closeMobileMenu}
+                  >
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </li>
           </ul>
 
           {button && (
             <div className="nav-actions">
-              <button className="icon-btn" type="button" onClick={() => setShowSearch(true)}>
+              <button
+                className="icon-btn"
+                type="button"
+                onClick={() => setShowSearch(true)}
+              >
                 <i className="fas fa-search" />
               </button>
-              <Link to="/contact" className="nav-outline-btn" onClick={closeMobileMenu}>Contact us</Link>
-              <Link to="/sign-up" className="nav-primary-btn" onClick={closeMobileMenu}>Download</Link>
-              <Link to="/sign-in" className="nav-signin" onClick={closeMobileMenu}>Sign in</Link>
+              <Link
+                to="/contact"
+                className="nav-outline-btn"
+                onClick={closeMobileMenu}
+              >
+                Contact us
+              </Link>
+              <Link
+                to="/sign-up"
+                className="nav-primary-btn"
+                onClick={closeMobileMenu}
+              >
+                Download
+              </Link>
+              <Link
+                to="/sign-in"
+                className="nav-signin"
+                onClick={closeMobileMenu}
+              >
+                Sign in
+              </Link>
             </div>
           )}
         </div>

@@ -6,7 +6,13 @@ import './HeroSection.css';
 function HeroSection() {
   return (
     <div className='hero-container'>
-      <video src="/videos/nature.mp4" autoPlay loop muted />
+      <video
+        src={`${process.env.PUBLIC_URL}/videos/nature.mp4`}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
       <h1>SUSTAINABILITY</h1>
       <p>Small changes. Real impact.</p>
 
@@ -35,4 +41,3 @@ function HeroSection() {
 }
 
 export default HeroSection;
-
