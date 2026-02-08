@@ -53,11 +53,13 @@ function Footer() {
         </div>
         <section className='social-media'>
             <div className='social-media-wrap'>
-                <div className='footer-logo'>
-                    <Link to="/" className="social-logo">
-                    ECO-Pi <i className="fab fa-typo3"></i>
-                    </Link>
-                </div>
+                <Link to="/" className="social-logo">
+                    <img
+                        src={`${process.env.PUBLIC_URL}/images/App_logo.svg`}
+                        alt="ECO-Pi logo"
+                    />
+                    ECO-Pi
+                </Link>
                 <small className='website-rights'>ECO-Pi ©2025</small>
                 <div className="social-icons">
                 <Link className="social-icon-link facebook"

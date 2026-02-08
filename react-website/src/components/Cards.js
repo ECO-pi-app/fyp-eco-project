@@ -45,7 +45,6 @@ function Cards() {
             {!loading && articles.slice(0, 8).map((a, i) => (
               <CardItem
                 key={i}
-                // ✅ minimal change: handle missing/broken images properly
                 src={a.image_url && a.image_url.trim() ? a.image_url : FALLBACK_IMG}
                 text={a.title}
                 label={a.source || "News"}
