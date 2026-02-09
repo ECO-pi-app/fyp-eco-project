@@ -938,7 +938,7 @@ class UsageCalcReq(BaseModel):
 
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
-app = FastAPI(title="SPHERE Backend API (Flutter)")
+app = FastAPI(title="ECO-Pi Backend to Flutter json data conversion")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -987,6 +987,45 @@ def get_machinedata():
     return{
         "machines":machine_value_list
     } 
+
+@app.post("/calculate/recycling")
+def calculate_recycling_emission(req: RecyclingEmissionRequest):
+
+    # --- validate country ---
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail="Country not found")
+
+    country_index = country_list.index(req.country)
+    manufacturing_electricity = float(electricity_list[country_index])
+
+    # --- validate recycling type ---
+    normalized_types = [t.strip().lower() for t in metal_recycling_types_list]
+    selected = req.metal_type.strip().lower()
+
+    if selected not in normalized_types:
+        raise HTTPException(status_code=400, detail="Recycling type not supported")
+
+    idx = normalized_types.index(selected)
+    metal_emission = metal_recycling_emission_list[idx]
+
+    if metal_emission == "N/A":
+        raise HTTPException(status_code=400, detail="Emission factor not available")
+
+    metal_emission = float(metal_emission)
+
+    recycled_weight = float(req.recycled_weight_kg)
+
+    recycled_emission = (manufacturing_electricity / 0.3) * metal_emission * recycled_weight
+
+    return {
+        "category": "Recycling",
+        "country": req.country,
+        "metal_type": req.metal_type,
+        "recycled_weight_kg": recycled_weight,
+        "electricity_grid_intensity": manufacturing_electricity,
+        "recycling_emission_factor": metal_emission,
+        "recycled_emission_kgco2e": round(recycled_emission, 2)
+    }
     
 @app.get("/meta/material type")
 def get_materialdata():
@@ -1006,6 +1045,20 @@ def Grid_intensity_of_all_countries():
         "countries": country_list,
         "grid_intensity": electricity_list,
     }
+
+@app.delete("/profiles/delete/{username}/{profile_name}")
+def delete_profile(username: str, profile_name: str):
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(username, {})
+
+    if profile_name not in bucket:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    del bucket[profile_name]
+    all_profiles[username] = bucket
+    save_profiles(all_profiles)
+
+    return {"status": "deleted", "username": username, "profile_name": profile_name}
 
 @app.get("/meta/transport(cargotype)")
 def get_transport_types():
@@ -1112,45 +1165,6 @@ def get_options():
         "Material_specific_waste_ef": Material_specific_waste_ef,
         "Energy_Related_Waste": Energy_Related_Waste,
         "Energy_Related_Waste_ef": Energy_Related_Waste_ef,
-    }
-
-@app.post("/calculate/recycling")
-def calculate_recycling_emission(req: RecyclingEmissionRequest):
-
-    # --- validate country ---
-    if req.country not in country_list:
-        raise HTTPException(status_code=400, detail="Country not found")
-
-    country_index = country_list.index(req.country)
-    manufacturing_electricity = float(electricity_list[country_index])
-
-    # --- validate recycling type ---
-    normalized_types = [t.strip().lower() for t in metal_recycling_types_list]
-    selected = req.metal_type.strip().lower()
-
-    if selected not in normalized_types:
-        raise HTTPException(status_code=400, detail="Recycling type not supported")
-
-    idx = normalized_types.index(selected)
-    metal_emission = metal_recycling_emission_list[idx]
-
-    if metal_emission == "N/A":
-        raise HTTPException(status_code=400, detail="Emission factor not available")
-
-    metal_emission = float(metal_emission)
-
-    recycled_weight = float(req.recycled_weight_kg)
-
-    recycled_emission = (manufacturing_electricity / 0.3) * metal_emission * recycled_weight
-
-    return {
-        "category": "Recycling",
-        "country": req.country,
-        "metal_type": req.metal_type,
-        "recycled_weight_kg": recycled_weight,
-        "electricity_grid_intensity": manufacturing_electricity,
-        "recycling_emission_factor": metal_emission,
-        "recycled_emission_kgco2e": round(recycled_emission, 2)
     }
 
 @app.get("/meta/transport/config")
@@ -1895,20 +1909,6 @@ def save_profile(req: ProfileSaveRequest):
     save_profiles(all_profiles)
     return {"status": "ok", "saved_profile": req.profile_name, "username": req.username}
     
-@app.delete("/profiles/delete/{username}/{profile_name}")
-def delete_profile(username: str, profile_name: str):
-    all_profiles = load_profiles()
-    bucket = all_profiles.get(username, {})
-
-    if profile_name not in bucket:
-        raise HTTPException(status_code=404, detail="Profile not found")
-
-    del bucket[profile_name]
-    all_profiles[username] = bucket
-    save_profiles(all_profiles)
-
-    return {"status": "deleted", "username": username, "profile_name": profile_name}
-
 @app.post("/profiles/rename")
 def rename_profile(req: ProfileRenameRequest):
     all_profiles = load_profiles()
