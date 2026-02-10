@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query #http is used for get,post,put/delete-communication btw dart and python. #fastapi-talks from python to flutter using http
-from pydantic import BaseModel #input quality checker which makes sure no required fields r missing, is structured correctly and has the right types.
+from pydantic import BaseModel,EmailStr #input quality checker which makes sure no required fields r missing, is structured correctly and has the right types.
 import openpyxl #bridge that lets Python understand and extract data from Excel spreadsheets.
 import json #used to store text files like dictionaries or lists
 import os #lets python interact with operation systems. e.g.windows,macOS,Linux
@@ -936,6 +936,14 @@ class UsageCalcReq(BaseModel):
     usage_type: str
     amount: float
 
+# --- Mailchimp subscribe ---
+class SubscribeRequest(BaseModel):
+    email: EmailStr
+
+MAILCHIMP_API_KEY = "0eda0109aacbb32ff55713642e895286-us16"
+MAILCHIMP_AUDIENCE_ID = "cdfa0e4203"
+
+
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
 app = FastAPI(title="ECO-Pi Backend to Flutter json data conversion")
@@ -943,6 +951,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "https://htoomyatlin05-hue.github.io"
     ],
     allow_credentials=True,
@@ -1656,6 +1665,44 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "grid_intensity": grid_intensity,
         "emissions": emissions,       # kg CO2e
     }
+
+@app.post("/subscribe")
+def subscribe(req: SubscribeRequest):
+    api_key = MAILCHIMP_API_KEY
+    audience_id = MAILCHIMP_AUDIENCE_ID
+
+    if "-" not in api_key:
+        raise HTTPException(status_code=500, detail="Invalid Mailchimp API key format")
+
+    dc = api_key.split("-")[1]  # us16
+    email_lower = req.email.strip().lower()
+    member_hash = hashlib.md5(email_lower.encode("utf-8")).hexdigest()
+
+    url = f"https://{dc}.api.mailchimp.com/3.0/lists/{audience_id}/members/{member_hash}"
+
+    payload = {
+        "email_address": email_lower,
+        "status_if_new": "subscribed",  # change to "pending" for double opt-in
+    }
+
+    try:
+        r = requests.put(
+            url,
+            auth=("any", api_key),  # Mailchimp uses HTTP Basic auth
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=10,
+        )
+    except requests.RequestException:
+        raise HTTPException(status_code=502, detail="Unable to reach Mailchimp")
+
+    data = r.json() if r.content else {}
+
+    if r.status_code not in (200, 201):
+        msg = data.get("detail") or data.get("title") or "Mailchimp error"
+        raise HTTPException(status_code=400, detail=msg)
+
+    return {"ok": True}
 
 @app.post("/calculate/assembly")
 def calculate_assembly(req: AssemblyRequest):

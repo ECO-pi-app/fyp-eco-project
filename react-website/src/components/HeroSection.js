@@ -33,7 +33,7 @@ function HeroSection() {
             )
           }
         >
-          WATCH TRAILER <i className='far fa-play-circle' />
+          WATCH EMISSION SUMMARY <i className='far fa-play-circle' />
         </Button>
       </div>
     </div>
