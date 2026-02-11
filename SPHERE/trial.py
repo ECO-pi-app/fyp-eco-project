@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query #http is used for get,post,put/delete-communication btw dart and python. #fastapi-talks from python to flutter using http
-from pydantic import BaseModel #input quality checker which makes sure no required fields r missing, is structured correctly and has the right types.
+from pydantic import BaseModel,EmailStr #input quality checker which makes sure no required fields r missing, is structured correctly and has the right types.
 import openpyxl #bridge that lets Python understand and extract data from Excel spreadsheets.
 import json #used to store text files like dictionaries or lists
 import os #lets python interact with operation systems. e.g.windows,macOS,Linux
@@ -239,13 +239,6 @@ cement_cells         = sheet['E2':'E999']
 electricity_cells    = sheet['F2':'F999']
 plastic_cells        = sheet['G2':'G999']
 carbon_fiber_cells   = sheet['H2':'H999']
-PET_cells            = sheet['I2':'I999']
-HDPE_cells           = sheet['J2':'J999']
-LDPE_cells           = sheet['K2':'K999']
-PP_cells             = sheet['L2':'L999']
-PS_cells             = sheet['M2':'M999']
-PVC_cells            = sheet['N2':'N999']
-
 materials_cells      = sheet7['A2':'A999']
 
 Transport_cells      = sheet2['A2':'A999']
@@ -383,19 +376,13 @@ Energy_Related_Waste_ef_cells    = sheet25["B45":"B47"]
 
 # turn into lists
 country_list      = extract_selection_list(country_cells)
-distance_list     = extract_selection_list(distance_cells)
-steel_list        = extract_selection_list(steel_cells)
-aluminium_list    = extract_selection_list(aluminium_cells)
-cement_list       = extract_selection_list(cement_cells)
+distance_list     = extract_list(distance_cells)
+steel_list        = extract_list(steel_cells)
+aluminium_list    = extract_list(aluminium_cells)
+cement_list       = extract_list(cement_cells)
 electricity_list  = extract_selection_list(electricity_cells)
-plastic_list      = extract_selection_list(plastic_cells)
-carbon_fiber_list = extract_selection_list(carbon_fiber_cells)
-PET_list          = extract_selection_list(PET_cells)
-HDPE_list         = extract_selection_list(HDPE_cells)
-LDPE_list         = extract_selection_list(LDPE_cells)
-PP_list           = extract_selection_list(PP_cells)
-PS_list           = extract_selection_list(PS_cells)
-PVC_list          = extract_selection_list(PVC_cells)
+plastic_list      = extract_list(plastic_cells)
+carbon_fiber_list = extract_list(carbon_fiber_cells)
 material_list     = extract_material_list(materials_cells)
 
 transport_list    = extract_transport_list(Transport_cells)
@@ -949,12 +936,24 @@ class UsageCalcReq(BaseModel):
     usage_type: str
     amount: float
 
+# --- Mailchimp subscribe ---
+class SubscribeRequest(BaseModel):
+    email: EmailStr
+
+MAILCHIMP_API_KEY = "0eda0109aacbb32ff55713642e895286-us16"
+MAILCHIMP_AUDIENCE_ID = "cdfa0e4203"
+
+
 # --------- 6. FASTAPI APP + ENDPOINTS ---------------------------------------#
 
-app = FastAPI(title="SPHERE Backend API (Flutter)")
+app = FastAPI(title="ECO-Pi Backend to Flutter json data conversion")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://htoomyatlin05-hue.github.io"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -964,6 +963,31 @@ app.add_middleware(
 NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "adfd0f78d5304adea0d4490623f32aec")
 NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 
+@app.get("/excel/sheets")
+def excel_list_sheets():
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+    return {"sheets": wb.sheetnames}
+
+
+@app.get("/excel/sheet/{sheet_name}")
+def excel_read_sheet(sheet_name: str, max_rows: int = 200, max_cols: int = 50):
+    wb = load_workbook(EXCEL_PATH, data_only=False)
+
+    if sheet_name not in wb.sheetnames:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    ws = wb[sheet_name]
+
+    rows = []
+    for r in range(1, max_rows + 1):
+        row_vals = []
+        for c in range(1, max_cols + 1):
+            v = ws.cell(row=r, column=c).value
+            row_vals.append("" if v is None else v)
+        rows.append(row_vals)
+
+    return {"sheet": sheet_name, "rows": rows}
+
 @app.get("/meta/machines")
 def get_machinedata():
     """
@@ -972,6 +996,45 @@ def get_machinedata():
     return{
         "machines":machine_value_list
     } 
+
+@app.post("/calculate/recycling")
+def calculate_recycling_emission(req: RecyclingEmissionRequest):
+
+    # --- validate country ---
+    if req.country not in country_list:
+        raise HTTPException(status_code=400, detail="Country not found")
+
+    country_index = country_list.index(req.country)
+    manufacturing_electricity = float(electricity_list[country_index])
+
+    # --- validate recycling type ---
+    normalized_types = [t.strip().lower() for t in metal_recycling_types_list]
+    selected = req.metal_type.strip().lower()
+
+    if selected not in normalized_types:
+        raise HTTPException(status_code=400, detail="Recycling type not supported")
+
+    idx = normalized_types.index(selected)
+    metal_emission = metal_recycling_emission_list[idx]
+
+    if metal_emission == "N/A":
+        raise HTTPException(status_code=400, detail="Emission factor not available")
+
+    metal_emission = float(metal_emission)
+
+    recycled_weight = float(req.recycled_weight_kg)
+
+    recycled_emission = (manufacturing_electricity / 0.3) * metal_emission * recycled_weight
+
+    return {
+        "category": "Recycling",
+        "country": req.country,
+        "metal_type": req.metal_type,
+        "recycled_weight_kg": recycled_weight,
+        "electricity_grid_intensity": manufacturing_electricity,
+        "recycling_emission_factor": metal_emission,
+        "recycled_emission_kgco2e": round(recycled_emission, 2)
+    }
     
 @app.get("/meta/material type")
 def get_materialdata():
@@ -991,6 +1054,20 @@ def Grid_intensity_of_all_countries():
         "countries": country_list,
         "grid_intensity": electricity_list,
     }
+
+@app.delete("/profiles/delete/{username}/{profile_name}")
+def delete_profile(username: str, profile_name: str):
+    all_profiles = load_profiles()
+    bucket = all_profiles.get(username, {})
+
+    if profile_name not in bucket:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    del bucket[profile_name]
+    all_profiles[username] = bucket
+    save_profiles(all_profiles)
+
+    return {"status": "deleted", "username": username, "profile_name": profile_name}
 
 @app.get("/meta/transport(cargotype)")
 def get_transport_types():
@@ -1099,45 +1176,6 @@ def get_options():
         "Energy_Related_Waste_ef": Energy_Related_Waste_ef,
     }
 
-@app.post("/calculate/recycling")
-def calculate_recycling_emission(req: RecyclingEmissionRequest):
-
-    # --- validate country ---
-    if req.country not in country_list:
-        raise HTTPException(status_code=400, detail="Country not found")
-
-    country_index = country_list.index(req.country)
-    manufacturing_electricity = float(electricity_list[country_index])
-
-    # --- validate recycling type ---
-    normalized_types = [t.strip().lower() for t in metal_recycling_types_list]
-    selected = req.metal_type.strip().lower()
-
-    if selected not in normalized_types:
-        raise HTTPException(status_code=400, detail="Recycling type not supported")
-
-    idx = normalized_types.index(selected)
-    metal_emission = metal_recycling_emission_list[idx]
-
-    if metal_emission == "N/A":
-        raise HTTPException(status_code=400, detail="Emission factor not available")
-
-    metal_emission = float(metal_emission)
-
-    recycled_weight = float(req.recycled_weight_kg)
-
-    recycled_emission = (manufacturing_electricity / 0.3) * metal_emission * recycled_weight
-
-    return {
-        "category": "Recycling",
-        "country": req.country,
-        "metal_type": req.metal_type,
-        "recycled_weight_kg": recycled_weight,
-        "electricity_grid_intensity": manufacturing_electricity,
-        "recycling_emission_factor": metal_emission,
-        "recycled_emission_kgco2e": round(recycled_emission, 2)
-    }
-
 @app.get("/meta/transport/config")
 def get_transport_config():
     """
@@ -1193,7 +1231,7 @@ def get_machinetypes_YCM():
     return{
         "Machine Model": Amada_machine_model,
         "main_spindle": Amada_main_spindle,
-        "Sub Spindle": Amada_secondary_spindle
+        "Sub Spindle": Amada_sub_spindle
     }
 
 @app.get("/meta/Mazak_model")
@@ -1267,16 +1305,7 @@ def get_profile(profile_name: str, username: str):
     if profile_name not in bucket:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-
-    profile = bucket[profile_name]  # assign so we can debug
-
-    # 🔹 Debug print BEFORE returning
-    import json
-    print(f"[DEBUG] Returning profile for {username} / {profile_name}:")
-    print(json.dumps(profile, indent=2))  # pretty-printed JSON
-
-    return profile
-
+    return bucket[profile_name]
 
 @app.get("/profiles")
 def list_profiles(username: str):
@@ -1293,14 +1322,8 @@ def calculate_material_emissions(req:MaterialEmissionReq): #req: is the name of 
         "Steel":steel_list,
         "Aluminum":aluminium_list,
         "Cement":cement_list,
-        "Plastic (Average)":plastic_list,
-        "Carbon Fiber":carbon_fiber_list,
-        "PET (Polyethylene Terephthalate)":PET_list,
-        "HDPE (High-Density Polyethylene)":HDPE_list,
-        "LDPE (Low-Density Polyethylene / LLDPE)":LDPE_list,
-        "PP (Polypropylene)":PP_list,
-        "PS (Polystyrene, general purpose)":PS_list,
-        "PVC (Polyvinyl Chloride)":PVC_list
+        "Plastic":plastic_list,
+        "Carbon Fiber":carbon_fiber_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400,detail="Material not supported for calculation")
@@ -1327,13 +1350,7 @@ def calculate_material_emissions_advanced(req: MaterialEmissionAdvancedReq):
         "Aluminum": aluminium_list,
         "Cement": cement_list,
         "Plastic": plastic_list,
-        "Carbon Fiber": carbon_fiber_list,
-        "PET":PET_list,
-        "HDPE":HDPE_list,
-        "LDPE":LDPE_list,
-        "PP":PP_list,
-        "PS":PS_list,
-        "PVC":PVC_list
+        "Carbon Fiber": carbon_fiber_list
     }
     if req.material not in materials:
         raise HTTPException(status_code=400, detail="Material not supported for calculation")
@@ -1649,6 +1666,44 @@ def calculate_machine_power_emission(req:MachineEmissionsReq):
         "emissions": emissions,       # kg CO2e
     }
 
+@app.post("/subscribe")
+def subscribe(req: SubscribeRequest):
+    api_key = MAILCHIMP_API_KEY
+    audience_id = MAILCHIMP_AUDIENCE_ID
+
+    if "-" not in api_key:
+        raise HTTPException(status_code=500, detail="Invalid Mailchimp API key format")
+
+    dc = api_key.split("-")[1]  # us16
+    email_lower = req.email.strip().lower()
+    member_hash = hashlib.md5(email_lower.encode("utf-8")).hexdigest()
+
+    url = f"https://{dc}.api.mailchimp.com/3.0/lists/{audience_id}/members/{member_hash}"
+
+    payload = {
+        "email_address": email_lower,
+        "status_if_new": "subscribed",  # change to "pending" for double opt-in
+    }
+
+    try:
+        r = requests.put(
+            url,
+            auth=("any", api_key),  # Mailchimp uses HTTP Basic auth
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=10,
+        )
+    except requests.RequestException:
+        raise HTTPException(status_code=502, detail="Unable to reach Mailchimp")
+
+    data = r.json() if r.content else {}
+
+    if r.status_code not in (200, 201):
+        msg = data.get("detail") or data.get("title") or "Mailchimp error"
+        raise HTTPException(status_code=400, detail=msg)
+
+    return {"ok": True}
+
 @app.post("/calculate/assembly")
 def calculate_assembly(req: AssemblyRequest):
 
@@ -1901,20 +1956,6 @@ def save_profile(req: ProfileSaveRequest):
     save_profiles(all_profiles)
     return {"status": "ok", "saved_profile": req.profile_name, "username": req.username}
     
-@app.delete("/profiles/delete/{username}/{profile_name}")
-def delete_profile(username: str, profile_name: str):
-    all_profiles = load_profiles()
-    bucket = all_profiles.get(username, {})
-
-    if profile_name not in bucket:
-        raise HTTPException(status_code=404, detail="Profile not found")
-
-    del bucket[profile_name]
-    all_profiles[username] = bucket
-    save_profiles(all_profiles)
-
-    return {"status": "deleted", "username": username, "profile_name": profile_name}
-
 @app.post("/profiles/rename")
 def rename_profile(req: ProfileRenameRequest):
     all_profiles = load_profiles()
@@ -1964,32 +2005,20 @@ def login_user(req: UserLoginRequest):
     bucket = all_profiles.get(req.username, {})
     return {"status": "ok","username": req.username,"profiles": list(bucket.keys())}
 
-@app.get("/excel/sheets")
-def excel_list_sheets():
-    # load fresh workbook so edits show up immediately
-    wb = load_workbook(EXCEL_PATH, data_only=False)
-    return {"sheets": wb.sheetnames}
+@app.post("/excel/update_cell")
+def excel_update_cell(req: ExcelUpdateCellRequest):
+    if req.row < 1 or req.col < 1:
+        raise HTTPException(status_code=400, detail="row/col must be >= 1")
 
-@app.get("/excel/sheet/{sheet_name}")
-def excel_read_sheet(sheet_name: str, max_rows: int = 200, max_cols: int = 50):
-    """
-    Returns a sheet as rows[][] so React can display it in a grid.
-    """
-    wb = load_workbook(EXCEL_PATH, data_only=False)
-    if sheet_name not in wb.sheetnames:
-        raise HTTPException(status_code=404, detail="Sheet not found")
+    with portalocker.Lock(LOCK_PATH, timeout=10):
+        wb = load_workbook(EXCEL_PATH, data_only=False)  # must be False for writing
+        if req.sheet not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"Sheet '{req.sheet}' not found")
+        ws = wb[req.sheet]
+        ws.cell(row=req.row, column=req.col).value = req.value
+        _atomic_save_workbook(wb, EXCEL_PATH)
 
-    ws = wb[sheet_name]
-
-    rows = []
-    for r in range(1, max_rows + 1):
-        row_vals = []
-        for c in range(1, max_cols + 1):
-            v = ws.cell(row=r, column=c).value
-            row_vals.append("" if v is None else v)
-        rows.append(row_vals)
-
-    return {"sheet": sheet_name, "rows": rows, "max_rows": max_rows, "max_cols": max_cols}
+    return {"status": "ok"}
 
 @app.post("/excel/update_cells")
 def excel_update_cells(req: ExcelUpdateCellsRequest):

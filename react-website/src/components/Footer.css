@@ -129,8 +129,16 @@
   font-size: 2rem;
   display: flex;
   align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
 }
+
+.social-logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
 
 .website-rights {
   color: #fff;

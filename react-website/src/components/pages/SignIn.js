@@ -4,7 +4,7 @@ import "./SignIn.css";
 const API_BASE = "http://127.0.0.1:8000";
 
 const bgStyle = {
-  backgroundImage: "url(/images/Leaves.png)",
+  backgroundImage: `url(${process.env.PUBLIC_URL}/images/Leaves.png)`,
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",

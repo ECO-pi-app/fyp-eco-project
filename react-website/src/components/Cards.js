@@ -6,6 +6,8 @@ function Cards() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const FALLBACK_IMG = `${process.env.PUBLIC_URL}/images/img-9.jpg`;
+
   useEffect(() => {
     fetch('http://127.0.0.1:8000/news/sustainability')
       .then((res) => res.json())
@@ -40,11 +42,10 @@ function Cards() {
               ))
             }
 
-            {/* ✅ REAL cards after loading */}
             {!loading && articles.slice(0, 8).map((a, i) => (
               <CardItem
                 key={i}
-                src={a.image_url || "images/img-9.jpg"}
+                src={a.image_url && a.image_url.trim() ? a.image_url : FALLBACK_IMG}
                 text={a.title}
                 label={a.source || "News"}
                 path={a.url}

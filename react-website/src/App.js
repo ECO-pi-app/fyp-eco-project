@@ -2,7 +2,6 @@ import React from 'react';
 import Navbar from './components/Navbar';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css';
-
 import Home from './components/pages/Home';
 import About_us from './components/pages/About_us';
 import SignUp from './components/pages/SignUp';
@@ -14,6 +13,7 @@ import Profiles from "./components/pages/Profiles";
 import ProfileView from "./components/pages/ProfileView";
 import HowItWorks from './components/pages/HowItWorks';
 import ExcelEditor from "./components/pages/ExcelEditor";
+import Support from './components/pages/Support';
 
 
 
@@ -34,6 +34,7 @@ function App() {
           <Route path="/profiles/:name" component={ProfileView} />
           <Route path='/how-it-works' component={HowItWorks} />
           <Route path="/excel" component={ExcelEditor} />
+          <Route path='/support' component={Support} />
         </Switch>
       </Router>
     </>

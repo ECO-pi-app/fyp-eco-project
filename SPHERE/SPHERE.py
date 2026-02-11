@@ -124,7 +124,6 @@ def ensure_default_files():
 # Global variables
 total_emission_labels = []  # Global list to track total emission labels
 transport_row_widgets = []  # Global list to track transport row widgets
-business_travel_row_widgets=[] #Global list to track business travel row in UI
 machine_process_row_widgets = []  # Global List to track machine process row widgets
 machine_process_rows_state = {}  # Dictionary to save the state of machine process rows
 pie_chart_debounce_id = None
@@ -814,33 +813,6 @@ def save_profile_inputs(profile_data, widgets):
             }
             print(f"[DEBUG][save_profile_inputs] Row {idx}: transport={row_data['transport']}, variation={row_data['variation']}, fuel={row_data['fuel']}, origin={row_data['origin']}, destination={row_data['destination']}, mode={row_data['mode']}, value_label={row_data['value_label']}")
             profile_data['transport_rows'].append(row_data)
-    # Save dynamic business rows (Business Travel)
-    profile_data['business_travel_rows'] = []
-    for idx, row in enumerate(business_travel_row_widgets):
-        # matches the keys created in the Business Travel UI block
-        type_combo = row.get('type_combo')
-        variation_combo = row.get('variation_combo')
-        fuel_combo = row.get('fuel_combo')
-        origin_entry = row.get('origin_entry')
-        destination_entry = row.get('destination_entry')
-        mode_combo = row.get('mode_combo')
-
-        if type_combo and type_combo.winfo_exists():
-            row_data = {
-                'transport': type_combo.get(),
-                'variation': variation_combo.get() if variation_combo and variation_combo.winfo_exists() else '',
-                'fuel':      fuel_combo.get() if fuel_combo and fuel_combo.winfo_exists() else '',
-                'origin':    origin_entry.get() if origin_entry and origin_entry.winfo_exists() else '',
-                'destination': destination_entry.get() if destination_entry and destination_entry.winfo_exists() else '',
-                'mode':      mode_combo.get() if mode_combo and mode_combo.winfo_exists() else '',
-                'value_label': '',  # (no value label in Business Travel rows)
-            }
-            print(f"[DEBUG][save_profile_inputs][BT] Row {idx}: "
-                f"transport={row_data['transport']}, variation={row_data['variation']}, "
-                f"fuel={row_data['fuel']}, origin={row_data['origin']}, "
-                f"destination={row_data['destination']}, mode={row_data['mode']}")
-            profile_data['business_travel_rows'].append(row_data)
-
 
     # Only update the current part (book-style navigation)
     if machine_parts_data and machine_process_row_widgets:
@@ -1707,29 +1679,6 @@ def show_main_page(root, profile_data, back_to_cover_callback, cover_page, activ
             cell.value = header
             cell.font = subheader_font
             cell.fill = header_fill
-        # --- Business Travel Options (duplicate of Transport section) ---
-        bt_row = transport_header_row + 15  # space below transport section
-        ws['A'+str(bt_row)] = "Business Travel Options"
-        ws['A'+str(bt_row)].font = header_font
-        ws['A'+str(bt_row)].fill = header_fill
-        ws.merge_cells(f'A{bt_row}:F{bt_row}')
-
-        # Quantity input for Business Travel
-        bt_qty_row = bt_row + 1
-        ws['A'+str(bt_qty_row)] = "Number of Business Travel Rows"
-        ws['B'+str(bt_qty_row)] = "1"
-        ws['B'+str(bt_qty_row)].font = Font(bold=True)
-        ws['C'+str(bt_qty_row)] = "← Enter quantity here"
-        ws['C'+str(bt_qty_row)].font = Font(italic=True, color="FF0000")
-
-        # Business Travel headers (same as Transport)
-        bt_header_row = bt_qty_row + 1
-        for col, header in enumerate(['Travel Type', 'Variation', 'Fuel', 'Origin', 'Destination', 'Mode']):
-            cell = ws.cell(row=bt_header_row, column=col+1)
-            cell.value = header
-            cell.font = subheader_font
-            cell.fill = header_fill
-
 
         # Transport data rows
         transport_data_start = transport_header_row + 1
@@ -6897,117 +6846,6 @@ def show_main_page(root, profile_data, back_to_cover_callback, cover_page, activ
         debounce_id = root.after(500, on_quantity_change)
     quantity_entry.bind("<KeyRelease>", debounced_on_quantity_change)
     quantity_entry.bind("<FocusOut>", lambda event: on_quantity_change())
-
-     # --- Business Travel (UI) ---  # NEW
-    bt_parent = scrollable_frame  # same parent as Material/Transport sections
-
-    bt_frame = ttk.Labelframe(bt_parent, text="Business Travel", style="Eco.TLabelframe", padding=10)
-    bt_frame.grid(row=2, column=0, sticky="ew", padx=15, pady=5)  # put under Material (row=1)
-
-    bt_qty_var = tk.StringVar(value=str(len(profile_data.get("business_travel_rows", [])) or 1))
-    ttk.Label(bt_frame, text="Number of Business Travel Rows", style="Eco.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=5)
-    bt_qty_entry = ttk.Entry(bt_frame, textvariable=bt_qty_var, width=6)
-    bt_qty_entry.grid(row=0, column=1, sticky="w", padx=5, pady=5)
-    ttk.Label(bt_frame, text="← Enter quantity here", style="Eco.TLabel").grid(row=0, column=2, sticky="w", padx=5)
-
-    bt_rows_holder = tk.Frame(bt_frame, bg="#A8D5BA")
-    bt_rows_holder.grid(row=1, column=0, columnspan=3, sticky="nsew", pady=(6, 0))
-    bt_frame.grid_columnconfigure(0, weight=1)
-    bt_frame.grid_rowconfigure(1, weight=1)
-
-    def generate_business_travel_rows(quantity: int):
-        for w in bt_rows_holder.winfo_children():
-            w.destroy()
-        business_travel_row_widgets.clear()
-        headers = ["Travel Type", "Variation", "Fuel", "Origin", "Destination", "Mode"]
-        for c, h in enumerate(headers):
-            ttk.Label(bt_rows_holder, text=h, style="Eco.TLabel").grid(row=0, column=c, padx=5, pady=(0,4), sticky="w")
-
-        existing = profile_data.get("business_travel_rows", [])
-        for i in range(max(0, quantity)):
-            row_state = existing[i] if i < len(existing) else {}
-            type_var = tk.StringVar(value=row_state.get("transport",""))
-            type_combo = ttk.Combobox(bt_rows_holder, width=18, textvariable=type_var, values=["Van"], state="readonly")
-            type_combo.grid(row=i+1, column=0, padx=5, pady=3, sticky="w")
-
-            var_var = tk.StringVar(value=row_state.get("variation",""))
-            var_combo = ttk.Combobox(bt_rows_holder, width=18, textvariable=var_var, state="readonly")
-            var_combo.grid(row=i+1, column=1, padx=5, pady=3, sticky="w")
-
-            fuel_var = tk.StringVar(value=row_state.get("fuel",""))
-            fuel_combo = ttk.Combobox(bt_rows_holder, width=14, textvariable=fuel_var, state="readonly")
-            fuel_combo.grid(row=i+1, column=2, padx=5, pady=3, sticky="w")
-
-            origin_var = tk.StringVar(value=row_state.get("origin",""))
-            dest_var   = tk.StringVar(value=row_state.get("destination",""))
-            origin_entry = ttk.Entry(bt_rows_holder, width=16, textvariable=origin_var)
-            dest_entry   = ttk.Entry(bt_rows_holder, width=16, textvariable=dest_var)
-            origin_entry.grid(row=i+1, column=3, padx=5, pady=3, sticky="w")
-            dest_entry.grid(row=i+1, column=4, padx=5, pady=3, sticky="w")
-
-            mode_var = tk.StringVar(value=row_state.get("mode","None"))
-            mode_combo = ttk.Combobox(bt_rows_holder, width=12, textvariable=mode_var, values=["None","driving","plane","ship"], state="readonly")
-            mode_combo.grid(row=i+1, column=5, padx=5, pady=3, sticky="w")
-
-            value_label = ttk.Label(bt_rows_holder, text="Total Emission: 0.00 CO2eKg", style="Eco.TLabel")
-            value_label.grid(row=i+1, column=6, padx=5, pady=3, sticky="w")
-            business_travel_row_widgets.append({
-                "type_combo": type_combo,
-                "variation_combo": var_combo,
-                "fuel_combo": fuel_combo,
-                "origin_entry": origin_entry,
-                "destination_entry": dest_entry,
-                "mode_combo": mode_combo,
-                "value_label": value_label,
-            })
-            total_emission_labels.append(value_label)
-
-            def update_dependent(i=i):
-                t = business_travel_row_widgets[i]["type_combo"].get()
-
-                # Always reset both combos first
-                business_travel_row_widgets[i]["variation_combo"]["values"] = []
-                business_travel_row_widgets[i]["fuel_combo"]["values"] = []
-                business_travel_row_widgets[i]["variation_combo"].set("")
-                business_travel_row_widgets[i]["fuel_combo"].set("")
-
-                # Default: disable both until we know it's Van
-                business_travel_row_widgets[i]["variation_combo"].config(state="readonly")
-                business_travel_row_widgets[i]["fuel_combo"].config(state="readonly")
-
-                if t.lower() == "van":
-                    # Pull variation and fuel data for Van from your Excel-based lists
-                    business_travel_row_widgets[i]["variation_combo"]["values"] = van_list
-                    if not business_travel_row_widgets[i]["variation_combo"].get() and van_list:
-                        business_travel_row_widgets[i]["variation_combo"].set(van_list[0])
-
-                    # Variation options for Van (from your emission data)
-                    business_travel_row_widgets[i]["variation_combo"]["values"] = van_list
-                    if not business_travel_row_widgets[i]["variation_combo"].get() and van_list:
-                        business_travel_row_widgets[i]["variation_combo"].set(van_list[0])
-
-                    # Fuel options for Van (fixed 3 choices)
-                    business_travel_row_widgets[i]["fuel_combo"]["values"] = ["Diesel", "Petrol", "Battery"]
-                    if not business_travel_row_widgets[i]["fuel_combo"].get():
-                        business_travel_row_widgets[i]["fuel_combo"].set("Diesel")
-                else:
-                    # For future expansion — other travel types can go here
-                    business_travel_row_widgets[i]["variation_combo"]["values"] = []
-                    business_travel_row_widgets[i]["fuel_combo"]["values"] = []
-
-
-    def on_bt_qty_change(*_):
-        try:
-            n = max(0, int(bt_qty_var.get()))
-        except Exception:
-            n = 0
-        generate_business_travel_rows(n)
-
-    bt_qty_var.trace_add("write", on_bt_qty_change)
-    initial_bt_n = len(profile_data.get("business_travel_rows", [])) or 1
-    bt_qty_var.set(str(initial_bt_n))
-    generate_business_travel_rows(initial_bt_n)
-
  
     # Material Selection
     material_frame = ttk.Labelframe(scrollable_frame, text="Material Selection", style="Eco.TLabelframe")
