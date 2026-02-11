@@ -90,7 +90,7 @@ void initState() {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Add Timeline"),
+              Text("Add New Timeline"),
               InfoIconPopupDark(
                 text: 'Define the time period of the study',
                 iconSize: 20,
@@ -101,12 +101,11 @@ void initState() {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Timeline name
                 SizedBox(
                   width: 250,
                   child: TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: "Timeline Name"),
+                    decoration: const InputDecoration(labelText: "Year"),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -286,7 +285,7 @@ void initState() {
             // ---------------- TIMELINES ----------------
             Row(
               children: [
-                const Labels(title: "Timelines", color: Apptheme.textclrdark),
+                const Labels(title: "Emission over time", color: Apptheme.textclrdark),
                 const Spacer(),
                 IconButton(onPressed: _addTimeline, icon: const Icon(Icons.add)),
               ],
@@ -451,7 +450,7 @@ void initState() {
             if (product != null && activeTimeline != null) ...[
               Row(
                 children: [
-                  const Labels(title: "Parts Assembly", color: Apptheme.textclrdark),
+                  const Labels(title: "Parts List", color: Apptheme.textclrdark),
                   const Spacer(),
                   IconButton(onPressed: _addPart, icon: const Icon(Icons.add)),
                 ],

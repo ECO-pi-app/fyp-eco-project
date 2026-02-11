@@ -6,6 +6,7 @@ import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
@@ -16,7 +17,7 @@ import 'package:open_file/open_file.dart';
 
 
 class ProductDetailForm extends ConsumerStatefulWidget {
-  final String productId;
+  final Product productId;
 
   const ProductDetailForm({super.key, required this.productId});
 
@@ -88,9 +89,9 @@ class _ProductDetailFormState
     if (part == null) return;
 
     final emissionTotals =
-        ref.read(emissionTotalsProvider((widget.productId, part)));
+        ref.read(emissionTotalsProvider((widget.productId.name, part)));
     final materialRows =
-        ref.read(emissionRowsProvider((widget.productId, part)));
+        ref.read(emissionRowsProvider((widget.productId.name, part)));
 
     final excel = Excel.createExcel();
     const sheetName = 'Summary';
@@ -419,8 +420,8 @@ Future<void> _exportPdf() async {
     final totals = ref.read(emissionTotalsProvider((product.name, part)));
 
     final breakdown = {
-      'Scope 1': totals.machining,
-      'Scope 2': 0.0,
+      'Scope 1': 0.0,
+      'Scope 2': totals.machining,
       'Purchased Goods': totals.materialNormal + totals.material,
       'Transport': totals.transport + totals.downstreamTransport + totals.productionTransport,
       'Waste': totals.waste,
@@ -428,40 +429,40 @@ Future<void> _exportPdf() async {
       'End of Life': totals.endofLife,
     };
 
-pdf.addPage(
-  pw.MultiPage(
-    pageFormat: PdfPageFormat.a4,
-    margin: const pw.EdgeInsets.all(32),
-    build: (_) => [
-      pw.Text(
-        'Part: $part',
-        style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-      ),
-      pw.SizedBox(height: 12),
-      pw.Text(
-        'Total Emissions (kg CO₂e)',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
-      pw.SizedBox(height: 8),
-      coloredBoxRow('Total', totals.total, PdfColors.black),
-      pw.SizedBox(height: 16),
-      pw.Text(
-        'Emission Breakdown by Life Cycle Stage',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
-      pw.SizedBox(height: 8),
-      ...breakdown.entries.map(
-        (e) => coloredBoxRow(e.key, e.value, stageColors[e.key]!),
-      ),
-      pw.Divider(),
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (_) => [
+          pw.Text(
+            'Part: $part',
+            style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 12),
+          pw.Text(
+            'Total Emissions (kg CO₂e)',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 8),
+          coloredBoxRow('Total', totals.total, PdfColors.black),
+          pw.SizedBox(height: 16),
+          pw.Text(
+            'Emission Breakdown by Life Cycle Stage',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 8),
+          ...breakdown.entries.map(
+            (e) => coloredBoxRow(e.key, e.value, stageColors[e.key]!),
+          ),
+          pw.Divider(),
 
-      buildPartTables(
-        ref,
-        (product: product.name, part: part)
+          buildPartTables(
+            ref,
+            (product: product.name, part: part)
+          ),
+        ],
       ),
-    ],
-  ),
-);
+    );
 
     
   }
@@ -489,7 +490,7 @@ Widget build(BuildContext context) {
   final part = ref.watch(activePartProvider);
   if (part == null) return const SizedBox();
 
-  final emissionTotals = ref.watch(emissionTotalsProvider((widget.productId, part)));
+  final emissionTotals = ref.watch(convertedEmissionsTotalProvider((widget.productId, part)));
 
   return SingleChildScrollView(
     padding: const EdgeInsets.all(16),
@@ -526,8 +527,8 @@ Widget build(BuildContext context) {
         ),
         const SizedBox(height: 8),
 
-        _emissionRow('Scope 1', emissionTotals.machining),
-        _emissionRow('Scope 2', 0),
+        _emissionRow('Scope 1', 0),
+        _emissionRow('Scope 2', emissionTotals.machining),
         _emissionRow('Purchased Goods', emissionTotals.material + emissionTotals.materialNormal),
         _emissionRow('Upstream Transport', emissionTotals.transport),
         _emissionRow('Waste', emissionTotals.waste),

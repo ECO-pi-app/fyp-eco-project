@@ -225,7 +225,7 @@ class _SelectedProductInfoWidgetState
       padding: const EdgeInsets.all(16),
       child: productName == null
           ? Labels(
-              title: "Select a project to add a description",
+              title: "Description goes here",
               color: Apptheme.textclrdark,
             )
           : Column(
@@ -240,7 +240,7 @@ class _SelectedProductInfoWidgetState
                   controller: _controller,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: "Enter project description...",
+                    hintText: "Example Description here...",
                     filled: true,
                     fillColor: Apptheme.transparentcheat,
                     border: OutlineInputBorder(
@@ -341,7 +341,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                               Expanded(
                                 child: GestureDetector(
                                   onDoubleTap: () {
-                                    RootScaffold.of(context)?.goToHomePageWithArgs(product.name);
+                                    RootScaffold.of(context)?.goToHomePageWithArgs(product);
                                   },
                                   child: ChoiceChip(
                                     showCheckmark: false,

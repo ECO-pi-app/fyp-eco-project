@@ -182,12 +182,6 @@ for (int i = 0; i < rowCount; i++) {
         ref.read(endOfLifeTableProvider(key).notifier);
 
     final List<Widget> widgetofpage1 = [
-      Labels(
-        title: 'Primary Inputs',
-        color: Apptheme.textclrdark,
-        toppadding: 0,
-        fontsize: 22,
-      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -241,13 +235,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       MaterialAttributesMenu(productID: widget.productID),
-      Labels(
-        title: 'Secondary Inputs',
-        color: Apptheme.textclrdark,
-        toppadding: 30,
-        fontsize: 22,
-      ),
-      //--ROW 2: Upstream Transportation--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -390,7 +377,6 @@ for (int i = 0; i < rowCount; i++) {
     ];
 
     final List<Widget> widgetofpage3 = [
-      //--ROW 1: Upstream Transportation--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -422,7 +408,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       DownstreamTransportAttributesMenu(productID: widget.productID),
-            //--ROW 2: Fugitive leaks--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -452,7 +437,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       FugitiveLeaksAttributesMenu(productID: widget.productID),
-      //--ROW 2: Downstream Distribution--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -481,7 +465,6 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       UsageCycleAttributesMenu(productID: widget.productID),
-      //--ROW 3: End of Life--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -696,7 +679,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Material',
                         values: tableState.normalMaterials,
                         items: materials,
@@ -704,7 +687,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                             tableNotifier.updateCell(row: row, column: 'Material', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Country',
                         values: tableState.countries,
                         items: countries,
@@ -712,7 +695,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                             tableNotifier.updateCell(row: row, column: 'Country', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
@@ -848,7 +831,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Material',
                         values: tableState.materials,
                         items: materials,
@@ -856,7 +839,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Material', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
@@ -864,7 +847,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Mass', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Custom EF',
                         values: tableState.customEF,
                         isTextField: true,
@@ -991,7 +974,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Vehicle',
                         values: tableState.vehicles,
                         items: vehicles,
@@ -999,7 +982,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Vehicle', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Class',
                         values: tableState.classes,
                         itemsPerRow: List.generate(tableState.vehicles.length, (i) {
@@ -1010,7 +993,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Class', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Distance (km)',
                         values: tableState.distances,
                         isTextField: true,
@@ -1018,7 +1001,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Distance (km)', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
@@ -1131,7 +1114,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Brand',
                         values: tableState.brands,
                         items: brands,
@@ -1139,7 +1122,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Brand', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Machine',
                         values: tableState.machines,
                         itemsPerRow: List.generate(tableState.brands.length, (i) {
@@ -1150,7 +1133,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Machine', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Country',
                         values: tableState.countries,
                         items: countries,
@@ -1158,7 +1141,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Country', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Time of operation (hr)',
                         values: tableState.times,
                         isTextField: true,
@@ -1266,7 +1249,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'GHG',
                         values: tableState.ghg,
                         items: ghgList,
@@ -1274,7 +1257,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'GHG', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Total Charge (kg)',
                         values: tableState.totalCharge,
                         isTextField: true,
@@ -1282,7 +1265,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Total', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Remaining Charge (kg)',
                         values: tableState.remainingCharge,
                         isTextField: true,
@@ -1394,7 +1377,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Vehicle',
                         values: tableState.vehicles,
                         items: vehicles,
@@ -1402,7 +1385,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Vehicle', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Class',
                         values: tableState.classes,
                         itemsPerRow: List.generate(tableState.vehicles.length, (i) {
@@ -1413,7 +1396,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Class', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Distance (km)',
                         values: tableState.distances,
                         isTextField: true,
@@ -1421,7 +1404,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Distance (km)', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
@@ -1529,7 +1512,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Waste Type',
                         values: tableState.wasteType,
                         items: wasteMaterials,
@@ -1537,7 +1520,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Waste Type', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Waste Material',
                         values: tableState.waste,
                         itemsPerRow:List.generate(tableState.wasteType.length, (i) {
@@ -1548,7 +1531,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Waste Material', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.mass,
                         isTextField: true,
@@ -1659,7 +1642,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Vehicle',
                         values: tableState.vehicles,
                         items: vehicles,
@@ -1667,7 +1650,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Vehicle', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Class',
                         values: tableState.classes,
                         itemsPerRow: List.generate(tableState.vehicles.length, (i) {
@@ -1678,7 +1661,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Class', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Distance (km)',
                         values: tableState.distances,
                         isTextField: true,
@@ -1686,7 +1669,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Distance (km)', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
@@ -1794,7 +1777,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Category',
                         values: tableState.categories,
                         items: usageCycleCategories,
@@ -1802,7 +1785,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Category', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildDynamicColumn(
+                      ResizableDynamicColumn(
                         title: 'Product',
                         values: tableState.productTypes,
                         itemsPerRow: List.generate(tableState.categories.length, (i) {
@@ -1819,7 +1802,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'Product', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Usage Frequency',
                         values: tableState.usageFrequencies,
                         isTextField: true,
@@ -1923,7 +1906,7 @@ List<RowFormat> rows = List.generate(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumn(
+                      ResizableColumn(
                         title: 'End of Life Method',
                         values: tableState.endOfLifeOptions,
                         items: endOfLifeMethods,
@@ -1931,7 +1914,7 @@ List<RowFormat> rows = List.generate(
                             tableNotifier.updateCell(row: row, column: 'End of Life Option', value: value),
                       ),
                       const SizedBox(width: 10),
-                      buildColumn(
+                      ResizableColumn(
                         title: 'Product Mass (kg)',
                         values: tableState.endOfLifeTotalMass,
                         isTextField: true,
@@ -1978,162 +1961,321 @@ List<RowFormat> rows = List.generate(
 }
 
 
-Widget buildColumn({
-  required String title,
-  required List<String?> values,
-  List<String>? items,
-  bool isTextField = false,
-  required void Function(int row, String? value) onChanged,
-}) {
-  return Container(
-    width: 315,
-    decoration: BoxDecoration(
-      color: Apptheme.transparentcheat,
-      borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: Apptheme.widgetclrdark),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 5),
-        Labels(title: title, color: Apptheme.textclrdark, fontsize: 16,),
-        const SizedBox(height: 5),
-        for (int i = 0; i < values.length; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: Container(
-              width: 305,
-              height: 30,
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: Apptheme.widgettertiaryclr,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: isTextField
-                  ? TextFormField(
-                      initialValue: values[i],
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(color: Apptheme.textclrdark, fontSize: 15),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Apptheme.iconsprimary),
-                        ),
-                      ),
-                      onChanged: (value) => onChanged(i, value),
-                    )
-                  : DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        dropdownColor: Apptheme.widgettertiaryclr,
-                        value: (items != null && values[i] != null && items.contains(values[i]))
-                            ? values[i]
-                            : null,
-                        hint: const Text("Select"),
-                        isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconsdark),
-                        items: (items ?? [])
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: TextStyle(color: Apptheme.textclrdark, fontSize: 15),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => onChanged(i, value),
-                      ),
+class ResizableColumn extends StatefulWidget {
+  final String title;
+  final List<String?> values;
+  final List<String>? items;
+  final bool isTextField;
+  final void Function(int row, String? value) onChanged;
 
-                    ),
-            ),
-          ),
-      ],
-    ),
-  );
+  const ResizableColumn({
+    super.key,
+    required this.title,
+    required this.values,
+    required this.onChanged,
+    this.items,
+    this.isTextField = false,
+  });
+
+  @override
+  State<ResizableColumn> createState() => _ResizableColumnState();
 }
 
-Widget buildDynamicColumn({
-  required String title,
-  required List<String?> values,
-  required List<List<String>> itemsPerRow,
-  bool isTextField = false,
-  required void Function(int row, String? value) onChanged,
-}) {
-  return Container(
-    width: 315,
-    decoration: BoxDecoration(
-      color: Apptheme.transparentcheat,
-      borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: Apptheme.widgetclrdark),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+class _ResizableColumnState extends State<ResizableColumn> {
+  double width = 100;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
       children: [
-        const SizedBox(height: 5),
-        Labels(title: title, color: Apptheme.textclrdark, fontsize: 16,),
-        const SizedBox(height: 5),
-        for (int i = 0; i < values.length; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: Container(
-              width: 305,
-              height: 30,
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: Apptheme.widgettertiaryclr,
-                borderRadius: BorderRadius.circular(6),
+        Container(
+          width: width,
+          decoration: BoxDecoration(
+            color: Apptheme.transparentcheat,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Apptheme.widgetclrdark),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 5),
+              Labels(
+                title: widget.title,
+                color: Apptheme.textclrdark,
+                fontsize: 16,
               ),
-              child: isTextField
-                  ? TextFormField(
-                      initialValue: values[i],
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(color: Apptheme.textclrlight, fontSize: 15),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Apptheme.iconsprimary),
-                        ),
-                      ),
-                      onChanged: (value) => onChanged(i, value),
-                    )
-                  : DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        dropdownColor: Apptheme.widgettertiaryclr,
-                        value: (itemsPerRow[i].contains(values[i])) ? values[i] : null,
-                        hint: const Text("Select"),
-                        isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: Apptheme.iconsdark),
-                        items: itemsPerRow[i]
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: TextStyle(color: Apptheme.textclrdark, fontSize: 15),
-                                ),
+              const SizedBox(height: 5),
+
+              for (int i = 0; i < widget.values.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Container(
+                    width: width - 10,
+                    height: 30,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Apptheme.widgettertiaryclr,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: widget.isTextField
+                        ? TextFormField(
+                            initialValue: widget.values[i],
+                            keyboardType: TextInputType.number,
+                            style: TextStyle(
+                              color: Apptheme.textclrdark,
+                              fontSize: 15,
+                            ),
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Apptheme.iconsprimary),
                               ),
-                            )
-                            .toList(),
-                        onChanged: (value) => onChanged(i, value),
+                            ),
+                            onChanged: (value) =>
+                                widget.onChanged(i, value),
+                          )
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              dropdownColor: Apptheme.widgettertiaryclr,
+                              value: (widget.items != null &&
+                                      widget.values[i] != null &&
+                                      widget.items!.contains(widget.values[i]))
+                                  ? widget.values[i]
+                                  : null,
+                              hint: const Text("Select"),
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Apptheme.iconsdark,
+                              ),
+                              items: (widget.items ?? [])
+                                  .map(
+                                    (e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          color: Apptheme.textclrdark,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) =>
+                                  widget.onChanged(i, value),
+                            ),
+                          ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        /// Grip-dots resize handle
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeColumn,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragUpdate: (details) {
+                setState(() {
+                  width += details.delta.dx;
+                  width = width.clamp(200, 600);
+                });
+              },
+              child: Container(
+                width: 14,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (_) => Container(
+                      width: 4,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Apptheme.iconsprimary,
+                        shape: BoxShape.circle,
                       ),
                     ),
+                  ),
+                ),
+              ),
             ),
           ),
+        ),
       ],
-    ),
-  );
+    );
+  }
 }
 
+class ResizableDynamicColumn extends StatefulWidget {
+  final String title;
+  final List<String?> values;
+  final List<List<String>> itemsPerRow;
+  final bool isTextField;
+  final void Function(int row, String? value) onChanged;
 
+  const ResizableDynamicColumn({
+    super.key,
+    required this.title,
+    required this.values,
+    required this.itemsPerRow,
+    required this.onChanged,
+    this.isTextField = false,
+  });
 
+  @override
+  State<ResizableDynamicColumn> createState() =>
+      _ResizableDynamicColumnState();
+}
 
+class _ResizableDynamicColumnState
+    extends State<ResizableDynamicColumn> {
+  double width = 100;
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: width,
+          decoration: BoxDecoration(
+            color: Apptheme.transparentcheat,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Apptheme.widgetclrdark),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 5),
+              Labels(
+                title: widget.title,
+                color: Apptheme.textclrdark,
+                fontsize: 16,
+              ),
+              const SizedBox(height: 5),
+
+              for (int i = 0; i < widget.values.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Container(
+                    width: width - 10,
+                    height: 30,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Apptheme.widgettertiaryclr,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: widget.isTextField
+                        ? TextFormField(
+                            initialValue: widget.values[i],
+                            keyboardType: TextInputType.number,
+                            style: TextStyle(
+                              color: Apptheme.textclrlight,
+                              fontSize: 15,
+                            ),
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Apptheme.iconsprimary),
+                              ),
+                            ),
+                            onChanged: (value) =>
+                                widget.onChanged(i, value),
+                          )
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              dropdownColor: Apptheme.widgettertiaryclr,
+                              value: widget.itemsPerRow[i]
+                                      .contains(widget.values[i])
+                                  ? widget.values[i]
+                                  : null,
+                              hint: const Text("Select"),
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Apptheme.iconsdark,
+                              ),
+                              items: widget.itemsPerRow[i]
+                                  .map(
+                                    (e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          color: Apptheme.textclrdark,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) =>
+                                  widget.onChanged(i, value),
+                            ),
+                          ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        /// Grip-dots resize handle
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeColumn,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragUpdate: (details) {
+                setState(() {
+                  width += details.delta.dx;
+                  width = width.clamp(200, 600);
+                });
+              },
+              child: Container(
+                width: 14,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (_) => Container(
+                      width: 4,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Apptheme.iconsprimary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 

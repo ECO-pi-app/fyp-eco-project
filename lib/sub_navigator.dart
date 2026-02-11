@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/primary_elements(to_set_up_pages)/appbar.dart';
 import 'package:test_app/governing_screens/loginpage.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/governing_screens/welcomepage.dart';
 import 'package:test_app/governing_screens/primarypage.dart';
 
@@ -33,7 +34,7 @@ class RootScaffoldState extends State<RootScaffold> {
     _innerNavigatorKey.currentState!.pushReplacementNamed('/homepage');
   }
 
-  void goToHomePageWithArgs(String profileName) {
+  void goToHomePageWithArgs(Product profileName) {
   _innerNavigatorKey.currentState?.pushReplacementNamed(
     '/homepage',
     arguments: profileName,
@@ -58,9 +59,9 @@ class RootScaffoldState extends State<RootScaffold> {
               return MaterialPageRoute(
                   builder: (_) => const Welcomepage(), settings: settings);
             case '/homepage':
-              final product = settings.arguments as String;
+              final product = settings.arguments as Product;
               return MaterialPageRoute(
-                builder: (_) => HomeScreen(profileName: product, productID: 'product_001',),
+                builder: (_) => HomeScreen(profileName: product, productID: product.name,),
                 settings: settings,
               );
 

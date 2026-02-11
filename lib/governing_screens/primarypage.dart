@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 class HomeScreen extends ConsumerStatefulWidget {
-  final String profileName;
+  final Product profileName;
   final String productID;
 
   const HomeScreen({
@@ -44,15 +44,15 @@ void initState() {
   pages = [
     KeyedSubtree(
       key: ValueKey('home'),
-      child: Dynamichome(productName: widget.profileName,),
+      child: Dynamichome(productName: widget.profileName.name,),
     ),
     KeyedSubtree(
       key: ValueKey('analysis'),
-      child: Dynamicprdanalysis(productID: widget.profileName,),
+      child: Dynamicprdanalysis(productID: widget.profileName.name,),
     ),
     KeyedSubtree(
       key: ValueKey('scope'),
-      child: Scopeanalysis(productID: widget.profileName,),
+      child: Scopeanalysis(productID: widget.profileName.name,),
     ),
     KeyedSubtree(
       key: ValueKey('assembly'),
@@ -218,7 +218,7 @@ void _showPageGuide() {
           color: Apptheme.transparentcheat,
           width: double.infinity,
           height: double.infinity,
-          child: BackgroundDrawer(onSelectPage: _onPageSelected, profileName: widget.profileName)
+          child: BackgroundDrawer(onSelectPage: _onPageSelected, profileName: widget.profileName.name)
         ),
 
         Positioned(
@@ -249,7 +249,7 @@ void _showPageGuide() {
                             padding: const EdgeInsets.only(bottom: 5),
                             child: Center(
                               child: Bigfocusedtext(
-                                title: widget.profileName,
+                                title: widget.profileName.name,
                                 fontsize: 23,
                                 color: Apptheme.textclrlight,
                               ),

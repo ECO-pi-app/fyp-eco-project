@@ -195,7 +195,7 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                       child: InkWell(
                         onTap: () {
                           RootScaffold.of(context)
-                              ?.goToHomePageWithArgs(product.name);
+                              ?.goToHomePageWithArgs(product);
                         },
                         child: Container(
                           width: double.infinity,
