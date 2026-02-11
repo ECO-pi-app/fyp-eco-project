@@ -133,7 +133,7 @@ class MetaOptions {
 
 
 final metaOptionsProvider = FutureProvider<MetaOptions>((ref) async {
-  const url = 'http://127.0.0.1:8000/meta/options';
+  const url = 'https://ecopi-backend.onrender.com/meta/options';
 
   final res = await http.get(
     Uri.parse(url),

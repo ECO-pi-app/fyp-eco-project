@@ -396,7 +396,7 @@ class EmissionCalculator
   final Map<String, Map<String, dynamic>> _config = {
     'material': {
       'endpoint':
-          'http://127.0.0.1:8000/calculate/material_emission',
+          'https://ecopi-backend.onrender.com/calculate/material_emission',
       'apiKeys': {
         "Country": "country",
         "Material": "material",
@@ -405,7 +405,7 @@ class EmissionCalculator
     },
     'material_custom': {
       'endpoint':
-          'http://127.0.0.1:8000/calculate/material_emission_recycled',
+          'https://ecopi-backend.onrender.com/calculate/material_emission_recycled',
       'apiKeys': {
         "Country": "country",
         "Material": "material",
@@ -415,7 +415,7 @@ class EmissionCalculator
       }
     },
     'upstream_transport': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/van',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/van',
       'apiKeys': {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
@@ -425,7 +425,7 @@ class EmissionCalculator
     },
     'machining': {
       'endpoint':
-          'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
+          'https://ecopi-backend.onrender.com/calculate/machine_power_emission_Amada',
       'apiKeys': {
         "Brand": "machine_brand",
         "Machine": "machine_model",
@@ -435,7 +435,7 @@ class EmissionCalculator
     },
     'fugitive': {
       'endpoint':
-          'http://127.0.0.1:8000/calculate/fugitive_emissions',
+          'https://ecopi-backend.onrender.com/calculate/fugitive_emissions',
       'apiKeys': {
         "GHG": "ghg_name",
         "Total Charge (kg)": "total_charged_amount_kg",
@@ -443,7 +443,7 @@ class EmissionCalculator
       }
     },
     'production_transport': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/van',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/van',
       'apiKeys': {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
@@ -452,14 +452,14 @@ class EmissionCalculator
       }
     },
     'waste': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/waste',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/waste',
       'apiKeys': {
         "Waste Material": "waste_type",
         "Mass (kg)": "mass_kg",
       }
     },
     'downstream_transport': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/type_here',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/type_here',
       'apiKeys': {
         "Vehicle": "vehicle_type",
         "Class": "transport_type",
@@ -468,14 +468,14 @@ class EmissionCalculator
       }
     },
     'usage_cycle': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/usage_cycle',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/usage_cycle',
       'apiKeys': {
         "Product" : "usage_type",
         "Usage Frequency": "amount",
       }
     },
     'end_of_life': {
-      'endpoint': 'http://127.0.0.1:8000/calculate/end_of_life',
+      'endpoint': 'https://ecopi-backend.onrender.com/calculate/end_of_life',
       'apiKeys': {
         "End of Life Option": "activity",
         "Total Mass": "mass_kg",
@@ -484,40 +484,40 @@ class EmissionCalculator
   };
 
   final Map<String, String> _transportEndpoints = {
-    'Van': 'http://127.0.0.1:8000/calculate/van',
-    'HGV (Diesel)': 'http://127.0.0.1:8000/calculate/hgv',
+    'Van': 'https://ecopi-backend.onrender.com/calculate/van',
+    'HGV (Diesel)': 'https://ecopi-backend.onrender.com/calculate/hgv',
     'HGV Refrigerated (Diesel)':
-        'http://127.0.0.1:8000/calculate/hgv_r',
+        'https://ecopi-backend.onrender.com/calculate/hgv_r',
     'Freight Flights':
-        'http://127.0.0.1:8000/calculate/freight_flight',
-    'Rail': 'http://127.0.0.1:8000/calculate/rail_sheet',
+        'https://ecopi-backend.onrender.com/freight_flight',
+    'Rail': 'https://ecopi-backend.onrender.com/calculate/rail_sheet',
     'Sea Tanker':
-        'http://127.0.0.1:8000/calculate/sea_tanker',
+        'https://ecopi-backend.onrender.com/calculate/sea_tanker',
     'Cargo Ship':
-        'http://127.0.0.1:8000/calculate/cargo_ship',
+        'https://ecopi-backend.onrender.com/calculate/cargo_ship',
   };
 
     final Map<String, String> _usageEndpoints = {
-    'Electronics': 'http://127.0.0.1:8000/calculate/usage/electronics',
-    'Energy': 'http://127.0.0.1:8000/calculate/usage/energy',
-    'Consumables': 'http://127.0.0.1:8000/calculate/usage/consumables',
-    'Services': 'http://127.0.0.1:8000/calculate/usage/services',
+    'Electronics': 'https://ecopi-backend.onrender.com/calculate/usage/electronics',
+    'Energy': 'https://ecopi-backend.onrender.com/calculate/usage/energy',
+    'Consumables': 'https://ecopi-backend.onrender.com/calculate/usage/consumables',
+    'Services': 'https://ecopi-backend.onrender.com/calculate/usage/services',
   };
 
   final Map<String, String> _wasteEndpoints = {
-  'Municipal Solid Waste (MSW)': 'http://127.0.0.1:8000/calculate/waste/msw',
-  'Industrial & Process Waste': 'http://127.0.0.1:8000/calculate/waste/industrial',
-  'Construction & Demolition Waste': 'http://127.0.0.1:8000/calculate/waste/construction',
-  'Hazardous Waste': 'http://127.0.0.1:8000/calculate/waste/hazardous',
-  'Organic Waste': 'http://127.0.0.1:8000/calculate/waste/organic',
-  'Material-specific Waste': 'http://127.0.0.1:8000/calculate/waste/material',
-  'Energy-related Waste': 'http://127.0.0.1:8000/calculate/waste/energy',
+  'Municipal Solid Waste (MSW)': 'https://ecopi-backend.onrender.com/calculate/waste/msw',
+  'Industrial & Process Waste': 'https://ecopi-backend.onrender.com/calculate/waste/industrial',
+  'Construction & Demolition Waste': 'https://ecopi-backend.onrender.com/calculate/waste/construction',
+  'Hazardous Waste': 'https://ecopi-backend.onrender.com/calculate/waste/hazardous',
+  'Organic Waste': 'https://ecopi-backend.onrender.com/calculate/waste/organic',
+  'Material-specific Waste': 'https://ecopi-backend.onrender.com/calculate/waste/material',
+  'Energy-related Waste': 'https://ecopi-backend.onrender.com/calculate/waste/energy',
   };
 
   final Map<String, String> _machinesBrandEndpoints = {
-    'Amada': 'http://127.0.0.1:8000/calculate/machine_power_emission_Amada',
-    'YCM': 'http://127.0.0.1:8000/calculate/machine_power_emission_ycm',
-    'Mazak': 'http://127.0.0.1:8000/calculate/machine_power_emission_mazak',
+    'Amada': 'https://ecopi-backend.onrender.com/calculate/machine_power_emission_Amada',
+    'YCM': 'https://ecopi-backend.onrender.com/calculate/machine_power_emission_ycm',
+    'Mazak': 'https://ecopi-backend.onrender.com/calculate/machine_power_emission_mazak',
   };
 
 

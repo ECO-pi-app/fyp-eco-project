@@ -53,7 +53,7 @@ class Product {
 
 // ------------------- FETCH PRODUCTS -------------------
 Future<List<Product>> fetchProducts(String username) async {
-  final url = Uri.parse('http://127.0.0.1:8000/profiles?username=$username');
+  final url = Uri.parse('https://ecopi-backend.onrender.com/profiles?username=$username');
   debugPrint("[fetchProducts] Fetching products for username: $username");
   debugPrint("[fetchProducts] URL: $url"); // 👈 ADDED
 
@@ -130,7 +130,7 @@ Future<List<Product>> fetchProducts(String username) async {
 Future<Product> fetchProductDetail(String username, String productName) async {
   // Include username as a query parameter
   final url = Uri.parse(
-    'http://127.0.0.1:8000/profiles/$productName?username=$username',
+    'https://ecopi-backend.onrender.com/profiles/$productName?username=$username',
   );
 
   debugPrint("[fetchProductDetail] URL: $url");
@@ -356,7 +356,7 @@ class ProfileSaveRequest {
 final saveProfileProvider =
     FutureProvider.family<String, ProfileSaveRequest>((ref, req) async {
   final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/profiles/save'),
+    Uri.parse('https://ecopi-backend.onrender.com/profiles/save'),
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(req.toJson()),
   );
@@ -415,7 +415,7 @@ final signUpProvider =
   debugPrint("Sign up payload: $payload");
 
   final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/auth/signup'),
+    Uri.parse('https://ecopi-backend.onrender.com/auth/signup'),
     headers: {"Content-Type": "application/json"},
     body: payload,
   );
@@ -455,7 +455,7 @@ final logInProvider =
   print("Login payload: $payload");
 
   final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/auth/login'),
+    Uri.parse('https://ecopi-backend.onrender.com/auth/login'),
     headers: {"Content-Type": "application/json"},
     body: payload,
   );
@@ -509,7 +509,7 @@ Future<bool> deleteProfile(String username, String profileName) async {
 }
 
 final profileServiceProvider = Provider<ProfileService>((ref) {
-  return ProfileService("http://127.0.0.1:8000");
+  return ProfileService("https://ecopi-backend.onrender.com");
 });
 
 // ---------------- DELETE PROFILE NOTIFIER ----------------
