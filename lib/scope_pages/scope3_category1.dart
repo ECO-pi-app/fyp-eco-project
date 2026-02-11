@@ -182,304 +182,247 @@ class _ProductDetailFormState
 Future<void> _exportPdf() async {
   final product = ref.read(activeProductProvider);
   final timeline = ref.read(activeTimelineProvider);
-
-  if (product == null || timeline == null) {
-    debugPrint("[_exportPdf] No active product or timeline.");
-    return;
-  }
+  if (product == null || timeline == null) return;
 
   final allParts = ref.read(partsProvider);
-  if (allParts.isEmpty) {
-    debugPrint("[_exportPdf] No parts to export.");
-    return;
-  }
+  if (allParts.isEmpty) return;
 
   final pdf = pw.Document();
 
+  // ---------------- STYLES ----------------
+  final baseStyle = pw.TextStyle(fontSize: 9);
+  final boldStyle = pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold);
+  final titleStyle = pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold);
+  final smallHeader = pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold);
+
+  final secondaryColor = PdfColor.fromInt(Apptheme.widgetsecondaryclr.value);
+  final tertiaryColor = PdfColor.fromInt(Apptheme.widgettertiaryclr.value);
+
   // ---------------- HELPERS ----------------
-
   pw.Widget labelRow(String label, String value) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 4),
+        padding: const pw.EdgeInsets.symmetric(vertical: 2),
         child: pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-            pw.Text(value),
+            pw.Text(label, style: baseStyle),
+            pw.Text(value, style: baseStyle),
           ],
         ),
       );
 
-  pw.Widget coloredBoxRow(String label, double value, PdfColor color) =>
-      pw.Container(
-        padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        margin: const pw.EdgeInsets.symmetric(vertical: 4),
-        decoration: pw.BoxDecoration(
-          color: color,
-          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
-        ),
-        child: pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              label,
-              style: pw.TextStyle(
-                color: PdfColors.white,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.Text(
-              value.toStringAsFixed(2),
-              style: pw.TextStyle(
-                color: PdfColors.white,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      );
-
-  pw.Widget sectionTitle(String text) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 8),
-        child: pw.Text(
-          text,
-          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-        ),
-      );
-
-  pw.Widget simpleTable(List<String> headers, List<List<String>> rows) {
-    return pw.Table(
-      border: pw.TableBorder.all(width: 0.5),
-      defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-      children: [
-        pw.TableRow(
-          decoration: const pw.BoxDecoration(color: PdfColors.grey300),
-          children: headers
-              .map(
-                (h) => pw.Padding(
-                  padding: const pw.EdgeInsets.all(6),
-                  child: pw.Text(
-                    h,
-                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-        ...rows.map(
-          (r) => pw.TableRow(
-            children: r
-                .map(
-                  (c) => pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(c),
-                  ),
+  pw.Widget compactValueRow(String label, double value, {PdfColor? color}) => pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(vertical: 1),
+        child: pw.Container(
+          padding: const pw.EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+          decoration: color != null
+              ? pw.BoxDecoration(
+                  color: color,
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
                 )
-                .toList(),
+              : null,
+          child: pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(label,
+                  style: baseStyle.copyWith(color: color != null ? PdfColors.white : null)),
+              pw.Text(value.toStringAsFixed(2),
+                  style: boldStyle.copyWith(color: color != null ? PdfColors.white : null)),
+            ],
           ),
         ),
+      );
+
+  pw.Widget lifecycleBoundaryBox() => pw.Container(
+        padding: const pw.EdgeInsets.all(6),
+        decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.8)),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text("System Boundary Definition", style: smallHeader),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Expanded(
+                  child: pw.Container(
+                    padding: const pw.EdgeInsets.all(4),
+                    decoration: pw.BoxDecoration(
+                        border: pw.Border.all(width: 0.5), color: secondaryColor),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Cradle-to-Gate (Stage A)",
+                            style: boldStyle.copyWith(color: PdfColors.white)),
+                        pw.Text("A1  Raw Material Supply",
+                            style: baseStyle.copyWith(color: PdfColors.white)),
+                        pw.Text("A2  Transport to Manufacturer",
+                            style: baseStyle.copyWith(color: PdfColors.white)),
+                        pw.Text("A3  Manufacturing & Waste",
+                            style: baseStyle.copyWith(color: PdfColors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                pw.SizedBox(width: 6),
+                pw.Expanded(
+                  child: pw.Container(
+                    padding: const pw.EdgeInsets.all(4),
+                    decoration: pw.BoxDecoration(
+                        border: pw.Border.all(width: 0.5), color: tertiaryColor),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Cradle-to-Grave (Stages B & C)",
+                            style: boldStyle.copyWith(color: PdfColors.white)),
+                        pw.Text("B1–B7 – Use Phase",
+                            style: baseStyle.copyWith(color: PdfColors.white)),
+                        pw.Text("C1–C4 – End of Life",
+                            style: baseStyle.copyWith(color: PdfColors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+  pw.Widget compactTable(List<String> headers, List<List<String>> rows) {
+    return pw.Table(
+      border: pw.TableBorder.all(width: 0.3),
+      columnWidths: {for (int i = 0; i < headers.length; i++) i: const pw.FlexColumnWidth()},
+      children: [
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+          children: headers
+              .map((h) => pw.Padding(
+                    padding: const pw.EdgeInsets.all(3),
+                    child: pw.Text(h, style: boldStyle),
+                  ))
+              .toList(),
+        ),
+        ...rows.map((r) => pw.TableRow(
+              children: r
+                  .map((c) => pw.Padding(
+                        padding: const pw.EdgeInsets.all(3),
+                        child: pw.Text(c, style: baseStyle),
+                      ))
+                  .toList(),
+            )),
       ],
     );
   }
 
   pw.Widget buildPartTables(WidgetRef ref, TableKey partKey) {
     final materialTable = ref.read(normalMaterialTableProvider(partKey));
-    final transportTable =
-        ref.read(upstreamTransportTableProvider(partKey));
+    final transportTable = ref.read(upstreamTransportTableProvider(partKey));
     final machiningTable = ref.read(machiningTableProvider(partKey));
 
     final materialRows = List.generate(
-      materialTable.normalMaterials.length,
-      (i) => [
-        materialTable.normalMaterials[i] ?? '',
-        materialTable.masses[i] ?? '',
-      ],
-    );
+        materialTable.normalMaterials.length,
+        (i) => [materialTable.normalMaterials[i] ?? '', materialTable.masses[i] ?? '']);
 
     final transportRows = List.generate(
-      transportTable.vehicles.length,
-      (i) => [
-        transportTable.vehicles[i] ?? '',
-        transportTable.classes[i] ?? '',
-        transportTable.distances[i] ?? '',
-        transportTable.masses[i] ?? '',
-      ],
-    );
+        transportTable.vehicles.length,
+        (i) => [
+              transportTable.classes[i] ?? '',
+              transportTable.vehicles[i] ?? '',
+              transportTable.distances[i] ?? '',
+              transportTable.masses[i] ?? ''
+            ]);
 
     final machiningRows = List.generate(
-      machiningTable.machines.length,
-      (i) => [
-        machiningTable.brands[i] ?? '',
-        machiningTable.machines[i] ?? '',
-        machiningTable.times[i] ?? '',
-      ],
-    );
-
-    debugPrint(
-      "[buildPartTables] $partKey -> "
-      "materials=${materialRows.length}, "
-      "transport=${transportRows.length}, "
-      "machining=${machiningRows.length}",
-    );
+        machiningTable.machines.length,
+        (i) => [machiningTable.brands[i] ?? '', machiningTable.machines[i] ?? '', machiningTable.times[i] ?? '']);
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        sectionTitle("Materials"),
-        simpleTable(
-          ["Material", "Weight (kg)"],
-          materialRows,
-        ),
-        pw.SizedBox(height: 16),
-        sectionTitle("Upstream Transport"),
-        simpleTable(
-          ["Class", "Vehicle", "Distance (km)", "Mass (kg)"],
-          transportRows,
-        ),
-        pw.SizedBox(height: 16),
-        sectionTitle("Machining"),
-        simpleTable(
-          ["Brand", "Machine", "Operating Time (hr)"],
-          machiningRows,
-        ),
+        pw.Text("Materials", style: smallHeader),
+        compactTable(["Material", "Weight (kg)"], materialRows),
+        pw.SizedBox(height: 6),
+        pw.Text("Upstream Transport", style: smallHeader),
+        compactTable(["Class", "Vehicle", "Distance (km)", "Mass (kg)"], transportRows),
+        pw.SizedBox(height: 6),
+        pw.Text("Machining", style: smallHeader),
+        compactTable(["Brand", "Machine", "Operating Time (hr)"], machiningRows),
       ],
     );
   }
 
-  final stageColors = {
-    'Scope 1': PdfColors.red,
-    'Scope 2': PdfColors.orange,
-    'Purchased Goods': PdfColors.blue,
-    'Transport': PdfColors.green,
-    'Waste': PdfColors.purple,
-    'Use Phase': PdfColors.teal,
-    'End of Life': PdfColors.grey,
-  };
-
-  // ---------------- SUMMARY PAGE ----------------
-
+  // ---------------- TOTAL EMISSIONS & PERCENTAGES ----------------
   final totalEmissions = <String, double>{};
-
+  double grandTotal = 0;
   for (final part in allParts) {
-    final totals = ref.read(emissionTotalsProvider((product.name, part)));
-
-    final partTotal = totals.machining +
-        totals.material +
-        totals.transport +
-        totals.waste +
-        totals.usageCycle +
-        totals.endofLife;
-
-    totalEmissions[part] = partTotal;
-
-    debugPrint(
-      "[_exportPdf] $part totals -> "
-      "machining=${totals.machining}, "
-      "material=${totals.material}, "
-      "transport=${totals.transport}, "
-      "waste=${totals.waste}, "
-      "use=${totals.usageCycle}, "
-      "eol=${totals.endofLife}, "
-      "TOTAL=$partTotal",
-    );
+    final totals = ref.read(convertedEmissionsTotalProvider((product, part)));
+    totalEmissions[part] = totals.total;
+    grandTotal += totals.total;
   }
 
+  // ---------------- FIRST PAGE ----------------
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(32),
+      margin: const pw.EdgeInsets.all(18),
       build: (_) => [
-        pw.Text(
-          'Product Emissions Summary',
-          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
-        ),
-        pw.SizedBox(height: 16),
-        labelRow('Product ID', product.name),
-        labelRow('Description', _descriptionController.text),
-        labelRow('Functional Unit', _functionalUnitController.text),
-        labelRow('Declarations', _declarationsController.text),
-        labelRow(
-          'Allocation',
-          allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None',
-        ),
-        pw.Divider(),
-        pw.Text(
-          'Total Emissions by Part (kg CO₂e)',
-          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Text('Product Carbon Footprint Report', style: titleStyle),
+        pw.SizedBox(height: 6),
+        labelRow("Product", product.name),
+        labelRow("Functional Unit", _functionalUnitController.text),
+        labelRow("Description", _descriptionController.text),
         pw.SizedBox(height: 8),
-        ...totalEmissions.entries.map(
-          (e) => coloredBoxRow(e.key, e.value, PdfColors.blue),
+        lifecycleBoundaryBox(),
+        pw.SizedBox(height: 8),
+        pw.Text("Total Emissions by Part (kg CO₂e)", style: smallHeader),
+        pw.SizedBox(height: 4),
+
+        // ---------------- PER-PART TABLE WITH PERCENTAGE ----------------
+        compactTable(
+          ["Part", "Emissions (kg CO₂e)", "Percentage"],
+          totalEmissions.entries.map((e) {
+            final pct = grandTotal > 0 ? e.value / grandTotal * 100 : 0;
+            return [e.key, e.value.toStringAsFixed(2), "${pct.toStringAsFixed(1)} %"];
+          }).toList(),
         ),
       ],
     ),
   );
 
-  // ---------------- PER PART PAGES ----------------
-
+  // ---------------- PER-PART DETAIL PAGES ----------------
   for (final part in allParts) {
-    final totals = ref.read(emissionTotalsProvider((product.name, part)));
-
-    final breakdown = {
-      'Scope 1': 0.0,
-      'Scope 2': totals.machining,
-      'Purchased Goods': totals.materialNormal + totals.material,
-      'Transport': totals.transport + totals.downstreamTransport + totals.productionTransport,
-      'Waste': totals.waste,
-      'Use Phase': totals.usageCycle,
-      'End of Life': totals.endofLife,
-    };
-
+    final totals = ref.read(convertedEmissionsTotalProvider((product, part)));
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
+        margin: const pw.EdgeInsets.all(18),
         build: (_) => [
-          pw.Text(
-            'Part: $part',
-            style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 12),
-          pw.Text(
-            'Total Emissions (kg CO₂e)',
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 8),
-          coloredBoxRow('Total', totals.total, PdfColors.black),
-          pw.SizedBox(height: 16),
-          pw.Text(
-            'Emission Breakdown by Life Cycle Stage',
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 8),
-          ...breakdown.entries.map(
-            (e) => coloredBoxRow(e.key, e.value, stageColors[e.key]!),
-          ),
-          pw.Divider(),
-
-          buildPartTables(
-            ref,
-            (product: product.name, part: part)
-          ),
+          pw.Text("Part: $part", style: titleStyle),
+          pw.SizedBox(height: 6),
+          compactValueRow("Total Emissions (kg CO₂e)", totals.total, color: tertiaryColor),
+          pw.SizedBox(height: 6),
+          pw.Text("Lifecycle Breakdown (A/B/C)", style: smallHeader),
+          pw.SizedBox(height: 2),
+          compactValueRow(
+              "A1–A3 (Cradle-to-Gate)",
+              totals.material + totals.materialNormal + totals.transport + totals.machining + totals.waste,
+              color: secondaryColor),
+          compactValueRow("B Stage (Use Phase)", totals.usageCycle, color: tertiaryColor),
+          compactValueRow("C Stage (End of Life)", totals.endofLife, color: tertiaryColor),
+          pw.SizedBox(height: 6),
+          buildPartTables(ref, (product: product.name, part: part)),
         ],
       ),
     );
-
-    
   }
 
-  
-
   // ---------------- SAVE FILE ----------------
-
   final pdfBytes = await pdf.save();
-  final file = File('Product_$product.pdf');
-
+  final file = File('Product_${product.name}.pdf');
   await file.writeAsBytes(pdfBytes);
-  debugPrint("[_exportPdf] Saved -> ${file.path}");
-
   await OpenFile.open(file.path);
+  debugPrint("[_exportPdf] Saved -> ${file.path}");
 }
-
 
   // ===================== UI =====================
 
@@ -587,3 +530,9 @@ Widget build(BuildContext context) {
 }
 
 }
+
+
+
+
+
+
