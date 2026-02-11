@@ -9,7 +9,7 @@ export default function HowItWorks() {
 
         <video
           className="howitworks__video"
-          src="/videos/signin.mp4"
+          src={process.env.PUBLIC_URL + "/videos/log-in.mp4"}
           controls
           playsInline
         />
