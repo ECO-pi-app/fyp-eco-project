@@ -270,12 +270,6 @@ for (int i = 0; i < rowCount; i++) {
     ];
 
     final List<Widget> widgetofpage2 = [
-      Labels(
-        title: 'Primary Processes',
-        color: Apptheme.textclrdark,
-        toppadding: 0,
-        fontsize: 22,
-      ),
       //--ROW 1: Machining--
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -306,12 +300,7 @@ for (int i = 0; i < rowCount; i++) {
         ],
       ),
       MachiningAttributesMenu(productID: widget.productID),
-      Labels(
-        title: 'Optional Processes',
-        color: Apptheme.textclrdark,
-        toppadding: 30,
-        fontsize: 22,
-      ),
+
       //-Row 3: Production Transport --
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
