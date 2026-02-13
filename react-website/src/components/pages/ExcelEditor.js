@@ -99,13 +99,12 @@ export default function ExcelEditor() {
           height="75vh"
           licenseKey="non-commercial-and-evaluation"
           stretchH="all"
-          autoColumnSize={{ useHeaders: true }}   // ✅ better auto-fit (includes headers)
+          autoColumnSize={{ useHeaders: true }}
           manualColumnResize={true}
           manualRowResize={true}
           colWidths={160}
           wordWrap={true}
 
-          // ✅ “Excel-like coloured titles”: style first row + first column
           cells={(row, col) => {
             if (row === 0 && col === 0) return { className: "excel-title-cell" };
             if (row === 0) return { className: "excel-header-row" };
