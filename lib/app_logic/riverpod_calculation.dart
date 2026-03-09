@@ -212,7 +212,7 @@ final convertedEmissionRowProvider = Provider.family<
 
     double getAlloc(List<String?> list) {
       if (i >= list.length) return 0;
-      return (double.tryParse(list[i] ?? '0') ?? 0) / 100;
+      return (double.tryParse(list[i] ?? '100') ?? 100) / 100;
     }
 
     EmissionResults base;
@@ -317,7 +317,7 @@ final convertedEmissionRowProvider = Provider.family<
         final rows =
             ref.watch(wasteEmissionRowsProvider(key));
         final allocs = ref
-            .watch(wastesProvider(key))
+            .watch(wastesTableProvider(key))
             .wasteAllocationValues;
         if (i >= rows.length) return EmissionResults.empty();
 
@@ -840,7 +840,7 @@ final machiningAllocationSumProvider =
 });
 
 /// ---------------- WASTE ----------------
-final wastesProvider =
+final wastesTableProvider =
     StateNotifierProvider.family<WastesTableNotifier, WastesTableState, TableKey>((ref, key) {
   final notifier = WastesTableNotifier();
 
@@ -871,7 +871,7 @@ final wastesProvider =
 
 final wasteAllocationSumProvider =
     Provider.family<double, TableKey>((ref, key) {
-  final table = ref.watch(wastesProvider(key));
+  final table = ref.watch(wastesTableProvider(key));
   return table.wasteAllocationValues
       .map(_toDouble)
       .fold(0.0, (a, b) => a + b);

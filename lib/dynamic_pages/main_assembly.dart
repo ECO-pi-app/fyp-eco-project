@@ -305,7 +305,6 @@ SizedBox(
               child: Textsinsidewidgetsdrysafe(
                 words: part,
                 color: Apptheme.textclrdark,
-                toppadding: 0,
               ),
             ),
             selected: selected,
@@ -352,7 +351,6 @@ SizedBox(
               const Textsinsidewidgetsdrysafe(
                 words: "No compound parts created yet",
                 color: Apptheme.textclrdark,
-                toppadding: 0,
               ),
             ListView.builder(
               shrinkWrap: true,
@@ -366,14 +364,12 @@ SizedBox(
                     words: c.name,
                     color: Apptheme.textclrdark,
                     fontsize: 17,
-                    toppadding: 0,
                   ),
                   subtitle: Textsinsidewidgetsdrysafe(
                     words:
                         "Components: ${c.components.join(", ")} | Process: ${c.assemblyProcess ?? 'N/A'}",
                     color: Apptheme.textclrdark,
                     fontsize: 13,
-                    toppadding: 5,
                   ),
                 );
               },
@@ -414,7 +410,6 @@ SizedBox(
                       words: c.name,
                       color: Apptheme.textclrdark,
                       fontsize: 17,
-                      toppadding: 0,
                     ),
                     subtitle: Textsinsidewidgetsdrysafe(
                       words: "Components: ${c.components.join(", ")}",

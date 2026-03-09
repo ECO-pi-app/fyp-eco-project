@@ -31,6 +31,18 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
     }
   }
 
+  
+  void renameTimeline(String oldName, String newName) {
+    if (oldName == newName) return;
+
+    final updated = [
+      for (final t in state.timelines)
+        if (t == oldName) newName else t
+    ];
+
+    state = state.copyWith(timelines: updated);
+  }
+
   void clear() => state = TimelineState();
 }
 
@@ -41,6 +53,15 @@ class TimelineDurationNotifier
   void setDuration(String timelineName, String start, String end) {
     state = {...state, timelineName: {"start": start, "end": end}};
   }
+
+  void renameTimeline(String oldName, String newName) {
+  if (!state.containsKey(oldName)) return;
+
+  final updated = {...state};
+  updated[newName] = updated.remove(oldName)!;
+
+  state = updated;
+}
 
   void clear() => state = {};
 }
@@ -129,7 +150,12 @@ class PieChartState {
 }
 
 class PieChartNotifier extends StateNotifier<PieChartState> {
-  PieChartNotifier() : super(const PieChartState());
+  final StateNotifierProviderRef<PieChartNotifier, PieChartState> ref;
+  final Product product;
+  final String timeline;
+
+  PieChartNotifier(this.ref, this.product, this.timeline)
+      : super(const PieChartState());
 
   void addPart(String part, double value) {
     state = state.copyWith(
@@ -138,12 +164,50 @@ class PieChartNotifier extends StateNotifier<PieChartState> {
     );
   }
 
-  void clear() => state = const PieChartState();
-}
+  /// Rename a part and migrate all associated data
+  void renamePart(String oldName, String newName) {
+    if (oldName == newName) return;
+
+    // Update parts list
+    final updatedParts = [
+      for (final p in state.parts) if (p == oldName) newName else p
+    ];
+    state = state.copyWith(parts: updatedParts);
+
+    // Migrate data in all emission/material/transport tables
+    _migrateTable(oldName, newName, normalMaterialTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, materialTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, upstreamTransportTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, machiningTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, fugitiveLeaksTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, productionTransportTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, downstreamTransportTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, wastesTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, usageCycleTableProvider, (part) => (product: product.name, part: part),);
+    _migrateTable(oldName, newName, endOfLifeTableProvider, (part) => (product: product.name, part: part),);
+  }
+
+  void _migrateTable<S, N extends StateNotifier<S>, K>(
+    String oldName,
+    String newName,
+    StateNotifierProviderFamily<N, S, K> provider,
+    K Function(String partName) keyBuilder,
+  ) {
+    final oldKey = keyBuilder(oldName);
+    final newKey = keyBuilder(newName);
+
+    final oldState = ref.read(provider(oldKey));
+    if (oldState == null) return;
+
+    ref.read(provider(newKey).notifier).state = oldState;
+  }
+
+    void clear() => state = const PieChartState();
+  }
 
 final pieChartProvider =
     StateNotifierProvider.family<PieChartNotifier, PieChartState, PieKey>(
-  (ref, key) => PieChartNotifier(),
+  (ref, key) => PieChartNotifier(ref, key.product, key.timeline),
 );
 
 final partsProvider = Provider<List<String>>((ref) {

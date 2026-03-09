@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/auto_tabs.dart';
@@ -7,7 +8,6 @@ import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.
 import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.dart';
 import 'package:test_app/app_logic/river_controls.dart';
 import 'package:test_app/app_logic/riverpod_calculation.dart';
-import 'package:test_app/app_logic/riverpod_fetch.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/dynamic_pages/main_productanlys.dart';
 import 'package:test_app/dynamic_pages/popup_pages.dart';
@@ -41,79 +41,21 @@ class ScopeanalysisState extends ConsumerState<Scopeanalysis> {
     double totalEndOfLife = 0;
 
     if (product != null && part != null) {
-      final key = (product: product.name, part: part);
 
-      // Get each table individually
-      final normalMaterialTable = ref.watch(normalMaterialTableProvider(key));
-      final materialTable = ref.watch(materialTableProvider(key));
-      final transportTable = ref.watch(upstreamTransportTableProvider(key));
-      final machiningTable = ref.watch(machiningTableProvider(key));
-      final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
-      final productionTransportTable = ref.watch(productionTransportTableProvider(key));
-      final downsteamTransportTable = ref.watch(downstreamTransportTableProvider(key));
-      final wasteTable = ref.watch(wastesProvider(key));
-      final usageCycleTable = ref.watch(usageCycleTableProvider(key));
-      final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
+      final emissions = ref.watch(
+        savedEmissionsProvider((product: product.name, part: part)),
+      );
 
-      // Determine the number of rows (use the longest table as row count)
-      final rowCount = [
-        normalMaterialTable.normalMaterials.length,
-        materialTable.materials.length,
-        transportTable.vehicles.length,
-        machiningTable.machines.length,
-        fugitiveTable.ghg.length,
-        productionTransportTable.vehicles.length,
-        downsteamTransportTable.vehicles.length,
-        wasteTable.wasteType.length,
-        usageCycleTable.categories.length,
-        endOfLifeTable.endOfLifeOptions.length,
-      ].reduce((a, b) => a > b ? a : b);
-
-      // Loop through each row and sum the converted emissions
-      // Loop through each row and sum the converted emissions
-for (int i = 0; i < rowCount; i++) {
-  final normal = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.materialNormal, i))
-  );
-  final material = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.material, i))
-  );
-  final transport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportUpstream, i))
-  );
-  final machining = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.machining, i))
-  );
-  final fugitive = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.fugitive, i))
-  );
-  final prodTransport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.productionTransport, i))
-  );
-  final downstream = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportDownstream, i))
-  );
-  final waste = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.waste, i))
-  );
-  final usage = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.usageCycle, i))
-  );
-  final endOfLife = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.endOfLife, i))
-  );
-
-  totalNormalMaterial += normal.materialNormal;
-  totalMaterial += material.material;
-  totalTransport += transport.transport;
-  totalMachining += machining.machining;
-  totalFugitive += fugitive.fugitive;
-  totalProductionTransport += prodTransport.productionTransport;
-  totalDownstreamTransport += downstream.downstreamTransport;
-  totalWaste += waste.waste;
-  totalUsageCycle += usage.usageCycle;
-  totalEndOfLife += endOfLife.endofLife;
-}
+      totalNormalMaterial = emissions.materialNormal;
+      totalMaterial = emissions.material;
+      totalTransport = emissions.transport;
+      totalMachining = emissions.machining;
+      totalFugitive = emissions.fugitive;
+      totalProductionTransport = emissions.productionTransport;
+      totalDownstreamTransport = emissions.downstreamTransport;
+      totalWaste = emissions.waste;
+      totalUsageCycle = emissions.usageCycle;
+      totalEndOfLife = emissions.endofLife;
     }
 
     if (product == null || part == null) {
@@ -122,22 +64,22 @@ for (int i = 0; i < rowCount; i++) {
 
     final key = (product: product.name, part: part);
 
-    /// ---------------- MATERIAL ----------------
-    final normalMaterialState =
-        ref.watch(normalMaterialTableProvider(key));
-    final normalMaterialNotifier =
-        ref.read(normalMaterialTableProvider(key).notifier);
+    // /// ---------------- MATERIAL ----------------
+    // final normalMaterialState =
+    //     ref.watch(normalMaterialTableProvider(key));
+    // final normalMaterialNotifier =
+    //     ref.read(normalMaterialTableProvider(key).notifier);
 
-    final materialState =
-        ref.watch(materialTableProvider(key));
-    final materialNotifier =
-        ref.read(materialTableProvider(key).notifier);
+    // final materialState =
+    //     ref.watch(materialTableProvider(key));
+    // final materialNotifier =
+    //     ref.read(materialTableProvider(key).notifier);
 
-    /// ---------------- UPSTREAM TRANSPORT ----------------
-    final upstreamTransportState =
-        ref.watch(upstreamTransportTableProvider(key));
-    final upstreamTransportNotifier =
-        ref.read(upstreamTransportTableProvider(key).notifier);
+    // /// ---------------- UPSTREAM TRANSPORT ----------------
+    // final upstreamTransportState =
+    //     ref.watch(upstreamTransportTableProvider(key));
+    // final upstreamTransportNotifier =
+    //     ref.read(upstreamTransportTableProvider(key).notifier);
 
     /// ---------------- MACHINING ----------------
     final machiningState =
@@ -145,35 +87,35 @@ for (int i = 0; i < rowCount; i++) {
     final machiningNotifier =
         ref.read(machiningTableProvider(key).notifier);
 
-    /// ---------------- FUGITIVE LEAKS ----------------
-    final leaksState =
-        ref.watch(fugitiveLeaksTableProvider(key));
-    final leaksNotifier =
-        ref.read(fugitiveLeaksTableProvider(key).notifier);
+    // /// ---------------- FUGITIVE LEAKS ----------------
+    // final leaksState =
+    //     ref.watch(fugitiveLeaksTableProvider(key));
+    // final leaksNotifier =
+    //     ref.read(fugitiveLeaksTableProvider(key).notifier);
 
-    /// ---------------- PRODUCTION TRANSPORT ----------------
-    final productionTransportState =
-        ref.watch(productionTransportTableProvider(key));
-    final productionTransportNotifier =
-        ref.read(productionTransportTableProvider(key).notifier);
+    // /// ---------------- PRODUCTION TRANSPORT ----------------
+    // final productionTransportState =
+    //     ref.watch(productionTransportTableProvider(key));
+    // final productionTransportNotifier =
+    //     ref.read(productionTransportTableProvider(key).notifier);
 
-    /// ---------------- DOWNSTREAM TRANSPORT ----------------
-    final downstreamTransportState =
-        ref.watch(downstreamTransportTableProvider(key));
-    final downstreamTransportNotifier =
-        ref.read(downstreamTransportTableProvider(key).notifier);
+    // /// ---------------- DOWNSTREAM TRANSPORT ----------------
+    // final downstreamTransportState =
+    //     ref.watch(downstreamTransportTableProvider(key));
+    // final downstreamTransportNotifier =
+    //     ref.read(downstreamTransportTableProvider(key).notifier);
 
-    /// ---------------- WASTE ----------------
-    final wasteTransportState =
-        ref.watch(wastesProvider(key));
-    final wasteTransportNotifier =
-        ref.read(wastesProvider(key).notifier);
+    // /// ---------------- WASTE ----------------
+    // final wasteTransportState =
+    //     ref.watch(wastesTableProvider(key));
+    // final wasteTransportNotifier =
+    //     ref.read(wastesTableProvider(key).notifier);
 
-    /// ---------------- USAGE CYCLE ----------------
-    final usageCycleState =
-        ref.watch(usageCycleTableProvider(key));
-    final usageCycleNotifier =
-        ref.read(usageCycleTableProvider(key).notifier);
+    // /// ---------------- USAGE CYCLE ----------------
+    // final usageCycleState =
+    //     ref.watch(usageCycleTableProvider(key));
+    // final usageCycleNotifier =
+    //     ref.read(usageCycleTableProvider(key).notifier);
 
     /// ---------------- END OF LIFE ----------------
     final endOfLifeState =
@@ -234,14 +176,6 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Fugitive Leaks",
-                tooltip: "Adjust fugitive emissions allocation",
-                popupContent: buildFugitiveLeaksTable(
-                  leaksState,
-                  leaksNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -264,14 +198,6 @@ for (int i = 0; i < rowCount; i++) {
           Row(
             children: [
               GoogleMapsIconButton(
-              ),
-              sectionRow(
-                title: "Production Transport",
-                tooltip: "Adjust production transport allocation",
-                popupContent: buildProductionTransportTable(
-                  productionTransportState,
-                  productionTransportNotifier,
-                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
@@ -310,14 +236,6 @@ for (int i = 0; i < rowCount; i++) {
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
-          sectionRow(
-            title: "Material Acquisition",
-            tooltip: "Fine-tune raw material inputs",
-            popupContent: buildNormalMaterialTable(
-              normalMaterialState,
-              normalMaterialNotifier,
-            ),
-          ),
         ],
       ),
       NormalMaterialAttributesMenu(productID: widget.productID),
@@ -328,15 +246,6 @@ for (int i = 0; i < rowCount; i++) {
             title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
-          ),
-
-          sectionRow(
-            title: "Recycled Material Acquisition",
-            tooltip: "Fine-tune recycled material inputs",
-            popupContent: buildMaterialTable(
-              materialState,
-              materialNotifier,
-            ),
           ),
         ],
       ),
@@ -368,14 +277,6 @@ for (int i = 0; i < rowCount; i++) {
             children: [
               GoogleMapsIconButton(
               ),
-              sectionRow(
-                title: "Upstream Transport",
-                tooltip: "Adjust upstream transport allocation",
-                popupContent: buildUpstreamTransportTable(
-                  upstreamTransportState,
-                  upstreamTransportNotifier,
-                ),
-              ),
             ],
           ),
         ],
@@ -403,14 +304,6 @@ for (int i = 0; i < rowCount; i++) {
             title: 'Waste |  ${totalWaste.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
-          ),
-          sectionRow(
-            title: "Manufacturing Wastes",
-            tooltip: "Adjust waste mass allocation",
-            popupContent: buildWasteTable(
-              wasteTransportState,
-              wasteTransportNotifier,
-            ),
           ),
         ],
       ),
@@ -441,14 +334,6 @@ for (int i = 0; i < rowCount; i++) {
             children: [
               GoogleMapsIconButton(
               ),
-              sectionRow(
-                title: "Downstream Transportation",
-                tooltip: "Adjust downstream transport allocation",
-                popupContent: buildDownstreamTransportTable(
-                  downstreamTransportState,
-                  downstreamTransportNotifier,
-                ),
-              ),
             ],
           ),
         ],
@@ -478,14 +363,6 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Usage Cycle",
-                tooltip: "Adjust usage cycle allocation",
-                popupContent: buildUsageCycleTable(
-                  usageCycleState,
-                  usageCycleNotifier,
-                ),
-              ),
             ],
           ),
         ],

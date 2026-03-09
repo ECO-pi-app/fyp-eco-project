@@ -276,6 +276,19 @@ void _showPageGuide() {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CurrentPageIndicator(),
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final lastSaved = ref.watch(lastSavedProvider);
+
+                            return Textsinsidewidgets(
+                              words: lastSaved.display.isEmpty
+                                  ? "Unsaved"
+                                  : "Last saved: ${lastSaved.display}",
+                              color: Apptheme.textclrlight,
+                              toppadding: 0,
+                            );
+                          },
+                        ),
 
                         Row(
                           children: [

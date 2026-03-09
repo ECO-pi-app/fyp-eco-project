@@ -363,7 +363,6 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                                               words: product.name,
                                               color: Apptheme.textclrdark,
                                               fontsize: 20,
-                                              toppadding: 0,
                                               leftpadding: 0,
                                             ),
                                           ),
@@ -601,7 +600,6 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                               child: const Textsinsidewidgetsdrysafe(
                                 words: "Create Project",
                                 color: Apptheme.textclrdark,
-                                toppadding: 0,
                                 leftpadding: -5,
                               ),
                             ),

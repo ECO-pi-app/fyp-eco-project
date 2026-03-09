@@ -1,15 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:test_app/app_logic/riverpod_profileswitch.dart';
-import 'package:test_app/app_logic/riverpod_states.dart';
 
 final secureStorage = FlutterSecureStorage();
 
 // -------------------  PAGE TRACKING  -------------------
 final currentPageProvider = StateProvider<int>((ref) => 0);
+final emissionsRefreshProvider = StateProvider<int>((ref) => 0);
+
+// -------------------  TRACK WHETHER CUSTOM MATERIAL IS CHECKED  -------------------
+final customMaterialCheckedProvider = StateProvider<bool>((ref) => false);
 
 // ------------------- UNIT CONVERSION -------------------
 

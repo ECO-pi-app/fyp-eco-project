@@ -6,6 +6,7 @@ import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'dart:convert';
 import 'package:test_app/app_logic/riverpod_states.dart';
+import 'dart:async';
 
 Future<void> triggerSave(WidgetRef ref) async {
   final activeProduct = ref.read(activeProductProvider);
@@ -168,16 +169,23 @@ final activeProductLoaderProvider = Provider<void>((ref) {
 
       debugPrint("[activeProductLoader] Loading full product: $next");
 
-      try {
-        final product =
-            await fetchProductDetail(username, next.name);
+try {
+  final product =
+      await fetchProductDetail(username, next.name);
 
-        debugPrint("[activeProductLoader] Loaded product data: ${product.data.keys}");
+  debugPrint("[activeProductLoader] Loaded product data: ${product.data.keys}");
 
-        // TODO: hydrate your timeline + parts providers here
-      } catch (e) {
-        debugPrint("[activeProductLoader] Failed: $e");
-      }
+  final timelines = product.data["timelines"];
+
+  if (timelines is Map<String, dynamic>) {
+    for (final timeline in timelines.keys) {
+      hydrateEmissions(ref, product, timeline);
+    }
+  }
+
+} catch (e) {
+  debugPrint("[activeProductLoader] Failed: $e");
+}
     },
   );
 });
@@ -220,7 +228,42 @@ final hydrateDescriptionsProvider = Provider<void>((ref) {
 });
 
 
+void hydrateEmissions(dynamic ref, Product product, String? timeline) {
+  debugPrint("HYDRATE START: ${product.name} timeline=$timeline");
 
+  final timelineData =
+      product.data["timelines"]?[timeline] as Map<String, dynamic>?;
+
+  if (timelineData == null) return;
+
+  final partsMap = timelineData["parts"] as Map<String, dynamic>?;
+
+  if (partsMap == null) return;
+
+  for (var partName in partsMap.keys) {
+    final partData = partsMap[partName] as Map<String, dynamic>?;
+    if (partData == null) continue;
+
+    final emissionResults = partData["emission_results"];
+    if (emissionResults != null) {
+      ref
+          .read(savedEmissionsProvider((product: product.name, part: partName))
+              .notifier)
+          .updateField(
+            materialNormal: emissionResults["materialNormal"] ?? 0,
+            material: emissionResults["material"] ?? 0,
+            transport: emissionResults["transportUpstream"] ?? 0,
+            machining: emissionResults["machining"] ?? 0,
+            fugitive: emissionResults["fugitive"] ?? 0,
+            productionTransport: emissionResults["productionTransport"] ?? 0,
+            downstreamTransport: emissionResults["transportDownstream"] ?? 0,
+            waste: emissionResults["waste"] ?? 0,
+            usageCycle: emissionResults["usageCycle"] ?? 0,
+            endofLife: emissionResults["endOfLife"] ?? 0,
+          );
+    }
+  }
+}
 // ---------------- PROFILE SAVE ----------------
 Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
   final product = ref.read(activeProductProvider);
@@ -242,6 +285,8 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
 
     for (var partName in partsList) {
       final partKey = (product: product.name, part: partName); // record literal
+
+      final emissionResults = ref.read(convertedEmissionsTotalProvider((product, partName)));
 
       partsData[partName] = {
         "normal_materials": {
@@ -287,10 +332,10 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
           "allocation_values": ref.read(machiningTableProvider(partKey)).machiningAllocationValues,
         },
         "wastes": {
-          "types": ref.read(wastesProvider(partKey)).wasteType,
-          "wastes": ref.read(wastesProvider(partKey)).waste,
-          "masses": ref.read(wastesProvider(partKey)).mass,
-          "allocation_values": ref.read(wastesProvider(partKey)).wasteAllocationValues,
+          "types": ref.read(wastesTableProvider(partKey)).wasteType,
+          "wastes": ref.read(wastesTableProvider(partKey)).waste,
+          "masses": ref.read(wastesTableProvider(partKey)).mass,
+          "allocation_values": ref.read(wastesTableProvider(partKey)).wasteAllocationValues,
         },
         "fugitive_leaks": {
           "ghg": ref.read(fugitiveLeaksTableProvider(partKey)).ghg,
@@ -308,6 +353,18 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
           "options": ref.read(endOfLifeTableProvider(partKey)).endOfLifeOptions,
           "total_mass": ref.read(endOfLifeTableProvider(partKey)).endOfLifeTotalMass,
           "allocation_values": ref.read(endOfLifeTableProvider(partKey)).endOfLifeAllocationValues,
+        },
+        "emission_results": {
+          "materialNormal": emissionResults.materialNormal,
+          "material": emissionResults.material,
+          "transportUpstream": emissionResults.transport,
+          "machining": emissionResults.machining,
+          "fugitive": emissionResults.fugitive,
+          "productionTransport": emissionResults.productionTransport,
+          "transportDownstream": emissionResults.downstreamTransport,
+          "waste": emissionResults.waste,
+          "usageCycle": emissionResults.usageCycle,
+          "endOfLife": emissionResults.endofLife,
         },
       };
     }
@@ -388,12 +445,176 @@ Future<void> saveProfile(
   try {
     final savedProfile = await ref.read(saveProfileProvider(req).future);
     print("Saved profile: $savedProfile");
+
+    // update last saved timestamp
+    ref.read(lastSavedProvider.notifier).updateTimestamp(DateTime.now());
   } catch (e) {
     print("Error saving profile: $e");
   }
 }
 
+class LastSavedState {
+  final DateTime? timestamp;
+  final String display;
 
+  LastSavedState({this.timestamp, this.display = ""});
+
+  LastSavedState copyWith({DateTime? timestamp, String? display}) {
+    return LastSavedState(
+      timestamp: timestamp ?? this.timestamp,
+      display: display ?? this.display,
+    );
+  }
+}
+
+class LastSavedNotifier extends StateNotifier<LastSavedState> {
+  Timer? _timer;
+
+  LastSavedNotifier() : super(LastSavedState());
+
+  void updateTimestamp(DateTime time) {
+    state = state.copyWith(timestamp: time);
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (state.timestamp == null) return;
+      final diff = DateTime.now().difference(state.timestamp!);
+      state = state.copyWith(display: _formatDuration(diff));
+    });
+  }
+
+  String _formatDuration(Duration diff) {
+    if (diff.inSeconds < 60) return "${diff.inSeconds}s ago";
+    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
+    if (diff.inHours < 24) return "${diff.inHours}h ago";
+    return "${diff.inDays}d ago";
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+final lastSavedProvider =
+    StateNotifierProvider<LastSavedNotifier, LastSavedState>(
+        (ref) => LastSavedNotifier());
+
+// ------------------- SAVED EMISSIONS PROVIDER -------------------
+
+typedef SavedEmissionKey = ({String product, String part});
+
+/// ---------------- SAVED EMISSIONS NOTIFIER ----------------
+class SavedEmissionsNotifier extends StateNotifier<EmissionResults> {
+  SavedEmissionsNotifier(this.ref, this.key) : super(EmissionResults.empty()) {
+    _init();
+  }
+
+  final Ref ref;
+  final SavedEmissionKey key;
+
+  /// Initialize from local totals
+  Future<void> _init() async {
+    try {
+      final totals = ref.read(emissionTotalsProvider((key.product, key.part)));
+      state = totals;
+
+      // Optionally, refresh from backend immediately
+      await refresh();
+    } catch (e, st) {
+      debugPrint("[SavedEmissionsNotifier._init] Error: $e\n$st");
+    }
+  }
+
+  /// Update fields locally and refresh from backend
+  Future<void> updateField({
+    double? material,
+    double? materialNormal,
+    double? transport,
+    double? machining,
+    double? fugitive,
+    double? productionTransport,
+    double? downstreamTransport,
+    double? waste,
+    double? usageCycle,
+    double? endofLife,
+  }) async {
+    // Update local state immediately
+    state = state.copyWith(
+      material: material,
+      materialNormal: materialNormal,
+      transport: transport,
+      machining: machining,
+      fugitive: fugitive,
+      productionTransport: productionTransport,
+      downstreamTransport: downstreamTransport,
+      waste: waste,
+      usageCycle: usageCycle,
+      endofLife: endofLife,
+    );
+
+    // Refresh from backend to get latest values
+    await refresh();
+  }
+
+  /// Fetch latest data from backend and update state
+  Future<void> refresh() async {
+    try {
+      final username = await ref.read(usernameProvider.future);
+
+      if (username == null || username.isEmpty) {
+        debugPrint("[SavedEmissionsNotifier.refresh] No username available, skipping refresh");
+        return;
+      }
+
+      final productData = await fetchProductDetail(username, key.product);
+
+      final timelines = productData.data["timelines"] as Map<String, dynamic>?;
+
+      if (timelines == null) return;
+
+      for (final timeline in timelines.keys) {
+        final parts = timelines[timeline]?["parts"] as Map<String, dynamic>?;
+        if (parts != null && parts.containsKey(key.part)) {
+          final emissionResults = parts[key.part]?["emission_results"];
+          if (emissionResults != null) {
+            state = EmissionResults(
+              materialNormal: emissionResults["materialNormal"] ?? 0,
+              material: emissionResults["material"] ?? 0,
+              transport: emissionResults["transportUpstream"] ?? 0,
+              machining: emissionResults["machining"] ?? 0,
+              fugitive: emissionResults["fugitive"] ?? 0,
+              productionTransport: emissionResults["productionTransport"] ?? 0,
+              downstreamTransport: emissionResults["transportDownstream"] ?? 0,
+              waste: emissionResults["waste"] ?? 0,
+              usageCycle: emissionResults["usageCycle"] ?? 0,
+              endofLife: emissionResults["endOfLife"] ?? 0,
+            );
+          }
+        }
+      }
+    } catch (e, st) {
+      debugPrint("[SavedEmissionsNotifier.refresh] Failed to refresh emissions: $e\n$st");
+    }
+  }
+}
+/// ---------------- SAVED EMISSIONS PROVIDER ----------------
+final savedEmissionsProvider = StateNotifierProvider.family<
+    SavedEmissionsNotifier, EmissionResults, SavedEmissionKey>(
+  (ref, key) => SavedEmissionsNotifier(ref, key),
+);
+
+class EmissionResultsNotifier extends StateNotifier<EmissionResults> {
+  EmissionResultsNotifier() : super(EmissionResults.empty());
+
+  void setResults(EmissionResults results) {
+    state = results;
+  }
+}
 // ---------------- SIGN UP REQUEST ----------------
 class SignUpParameters {
   final String profileName;

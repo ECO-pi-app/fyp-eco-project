@@ -339,7 +339,6 @@ class Textsinsidewidgetsdrysafe extends StatelessWidget {
   final Color color;
   final double fontsize;
   final double leftpadding;
-  final double toppadding;
   final int maxLines;
   final FontWeight fontweight;
   final bool softWrap;
@@ -350,7 +349,6 @@ class Textsinsidewidgetsdrysafe extends StatelessWidget {
     required this.color,
     this.fontsize = 15,
     this.leftpadding = 0,
-    this.toppadding = 10,
     this.maxLines = 10,
     this.fontweight = FontWeight.w500,
     this.softWrap = true,
@@ -361,23 +359,18 @@ class Textsinsidewidgetsdrysafe extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         left: 5 + leftpadding,
-        top: toppadding,
         right: 5,
       ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          words,
-          style: TextStyle(
-            color: color,
-            fontWeight: fontweight,
-            fontSize: fontsize,
-          ),
-          textAlign: TextAlign.left,
-          overflow: TextOverflow.fade,
-          softWrap: softWrap,
-          maxLines: maxLines,
+      child: Text(
+        words,
+        style: TextStyle(
+          color: color,
+          fontWeight: fontweight,
+          fontSize: fontsize,
         ),
+        textAlign: TextAlign.left,
+        softWrap: softWrap,
+        maxLines: maxLines,
       ),
     );
   }

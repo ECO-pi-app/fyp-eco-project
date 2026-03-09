@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
 import 'package:test_app/design/apptheme/colors.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -57,80 +58,22 @@ String getPercentageTitle(double value, double total) {
     double totalEndOfLife = 0;
 
     if (product != null && part != null) {
-      final key = (product: product.name, part: part);
 
-      // Get each table individually
-      final normalMaterialTable = ref.watch(normalMaterialTableProvider(key));
-      final materialTable = ref.watch(materialTableProvider(key));
-      final transportTable = ref.watch(upstreamTransportTableProvider(key));
-      final machiningTable = ref.watch(machiningTableProvider(key));
-      final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
-      final productionTransportTable = ref.watch(productionTransportTableProvider(key));
-      final downsteamTransportTable = ref.watch(downstreamTransportTableProvider(key));
-      final wasteTable = ref.watch(wastesProvider(key));
-      final usageCycleTable = ref.watch(usageCycleTableProvider(key));
-      final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
+      final emissions = ref.watch(
+        savedEmissionsProvider((product: product.name, part: part)),
+      );
 
-      // Determine the number of rows (use the longest table as row count)
-      final rowCount = [
-        normalMaterialTable.normalMaterials.length,
-        materialTable.materials.length,
-        transportTable.vehicles.length,
-        machiningTable.machines.length,
-        fugitiveTable.ghg.length,
-        productionTransportTable.vehicles.length,
-        downsteamTransportTable.vehicles.length,
-        wasteTable.wasteType.length,
-        usageCycleTable.categories.length,
-        endOfLifeTable.endOfLifeOptions.length,
-      ].reduce((a, b) => a > b ? a : b);
-
-      // Loop through each row and sum the converted emissions
-for (int i = 0; i < rowCount; i++) {
-  final normal = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.materialNormal, i))
-  );
-  final material = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.material, i))
-  );
-  final transport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportUpstream, i))
-  );
-  final machining = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.machining, i))
-  );
-  final fugitive = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.fugitive, i))
-  );
-  final prodTransport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.productionTransport, i))
-  );
-  final downstream = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportDownstream, i))
-  );
-  final waste = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.waste, i))
-  );
-  final usage = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.usageCycle, i))
-  );
-  final endOfLife = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.endOfLife, i))
-  );
-
-  totalNormalMaterial += normal.materialNormal;
-  totalMaterial += material.material;
-  totalTransport += transport.transport;
-  totalMachining += machining.machining;
-  totalFugitive += fugitive.fugitive;
-  totalProductionTransport += prodTransport.productionTransport;
-  totalDownstreamTransport += downstream.downstreamTransport;
-  totalWaste += waste.waste;
-  totalUsageCycle += usage.usageCycle;
-  totalEndOfLife += endOfLife.endofLife;
-}
+      totalNormalMaterial = emissions.materialNormal;
+      totalMaterial = emissions.material;
+      totalTransport = emissions.transport;
+      totalMachining = emissions.machining;
+      totalFugitive = emissions.fugitive;
+      totalProductionTransport = emissions.productionTransport;
+      totalDownstreamTransport = emissions.downstreamTransport;
+      totalWaste = emissions.waste;
+      totalUsageCycle = emissions.usageCycle;
+      totalEndOfLife = emissions.endofLife;
     }
-
 
     final List<Map<String, double>> toggleTotals = [
       // LCA Categories

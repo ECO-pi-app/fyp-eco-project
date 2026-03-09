@@ -13,8 +13,6 @@ import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:open_file/open_file.dart';
-
-import 'package:flutter/foundation.dart';
 import 'package:file_selector/file_selector.dart';
 
 
@@ -275,7 +273,7 @@ Future<void> exportPdfWithDialog() async {
     required String titleText,
     required List<String> headers,
     required List<List<String>> rows,
-    required double allocationSum,
+    required double? allocationSum,
     required double emissionTotal,
   }) {
     return pw.Column(
@@ -288,7 +286,7 @@ Future<void> exportPdfWithDialog() async {
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text("Allocation Sum: ${allocationSum.toStringAsFixed(2)}",
+            pw.Text("Allocation Sum: ${allocationSum?.toStringAsFixed(2)}",
                 style: base),
             pw.Text("Emissions: ${emissionTotal.toStringAsFixed(2)} kgCO₂e",
                 style: bold),
@@ -360,7 +358,7 @@ Future<void> exportPdfWithDialog() async {
     );
 
     // ---------- WASTE ----------
-    final waste = ref.read(wastesProvider(key));
+    final waste = ref.read(wastesTableProvider(key));
     final wasteRows = List.generate(
       waste.waste.length,
       (i) => [
@@ -431,7 +429,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Normal Material",
           headers: ["Material", "Country", "Mass", "Allocation"],
           rows: normalRows,
-          allocationSum: ref.read(normalMaterialAllocationSumProvider(key)),
+          allocationSum: null,
           emissionTotal: sum(
             ref.read(normalMaterialEmissionRowsProvider(key)),
             (e) => e.materialNormal,
@@ -442,7 +440,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Material",
           headers: ["Material", "Country", "Mass", "Allocation"],
           rows: matRows,
-          allocationSum: ref.read(materialAllocationSumProvider(key)),
+          allocationSum:null,
           emissionTotal: sum(
             ref.read(materialEmissionRowsProvider(key)),
             (e) => e.material,
@@ -453,7 +451,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Upstream Transport",
           headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
           rows: upRows,
-          allocationSum: ref.read(upstreamTransportAllocationSumProvider(key)),
+          allocationSum: null,
           emissionTotal: emissionTotals.transport,
         ),
 
@@ -461,7 +459,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Machining",
           headers: ["Brand", "Machine", "Country", "Time", "Allocation"],
           rows: machRows,
-          allocationSum: ref.read(machiningAllocationSumProvider(key)),
+          allocationSum: null,
           emissionTotal: emissionTotals.machining,
         ),
 
@@ -469,7 +467,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Waste",
           headers: ["Type", "Waste", "Mass", "Allocation"],
           rows: wasteRows,
-          allocationSum: ref.read(wasteAllocationSumProvider(key)),
+          allocationSum: null,
           emissionTotal: sum(
             ref.read(wasteEmissionRowsProvider(key)),
             (e) => e.waste,
@@ -491,7 +489,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Production Transport",
           headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
           rows: prodRows,
-          allocationSum: ref.read(productionTransportAllocationSumProvider(key)),
+          allocationSum: null,
           emissionTotal: sum(
             ref.read(productionTransportEmissionRowsProvider(key)),
             (e) => e.productionTransport,
@@ -502,7 +500,7 @@ Future<void> exportPdfWithDialog() async {
           titleText: "Downstream Transport",
           headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
           rows: downRows,
-          allocationSum: ref.read(downstreamTransportAllocationSumProvider(key)),
+          allocationSum:null,
           emissionTotal: sum(
             ref.read(downstreamTransportEmissionRowsProvider(key)),
             (e) => e.downstreamTransport,

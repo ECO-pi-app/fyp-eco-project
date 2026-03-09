@@ -29,6 +29,14 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
     final product = ref.watch(activeProductProvider);
     final part = ref.watch(activePartProvider);
 
+    final parts = ref.watch(partsProvider);
+    final results = List.generate(parts.length, (i) {
+      final partName = parts[i];
+      return ref.watch(
+        savedEmissionsProvider((product: product!.name, part: partName)),
+      );
+    });
+
     double totalNormalMaterial = 0;
     double totalMaterial = 0;
     double totalTransport = 0;
@@ -40,104 +48,47 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
     double totalUsageCycle = 0;
     double totalEndOfLife = 0;
 
+    EmissionResults? emissions;
+
     if (product != null && part != null) {
-      final key = (product: product.name, part: part);
+      emissions = ref.watch(
+        savedEmissionsProvider((product: product.name, part: part)),
+      );
 
-      // Get each table individually
-      final normalMaterialTable = ref.watch(normalMaterialTableProvider(key));
-      final materialTable = ref.watch(materialTableProvider(key));
-      final transportTable = ref.watch(upstreamTransportTableProvider(key));
-      final machiningTable = ref.watch(machiningTableProvider(key));
-      final fugitiveTable = ref.watch(fugitiveLeaksTableProvider(key));
-      final productionTransportTable = ref.watch(productionTransportTableProvider(key));
-      final downsteamTransportTable = ref.watch(downstreamTransportTableProvider(key));
-      final wasteTable = ref.watch(wastesProvider(key));
-      final usageCycleTable = ref.watch(usageCycleTableProvider(key));
-      final endOfLifeTable = ref.watch(endOfLifeTableProvider(key));
-
-      // Determine the number of rows (use the longest table as row count)
-      final rowCount = [
-        normalMaterialTable.normalMaterials.length,
-        materialTable.materials.length,
-        transportTable.vehicles.length,
-        machiningTable.machines.length,
-        fugitiveTable.ghg.length,
-        productionTransportTable.vehicles.length,
-        downsteamTransportTable.vehicles.length,
-        wasteTable.wasteType.length,
-        usageCycleTable.categories.length,
-        endOfLifeTable.endOfLifeOptions.length,
-      ].reduce((a, b) => a > b ? a : b);
-
-      // Loop through each row and sum the converted emissions
-      // Loop through each row and sum the converted emissions
-for (int i = 0; i < rowCount; i++) {
-  final normal = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.materialNormal, i))
-  );
-  final material = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.material, i))
-  );
-  final transport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.transportUpstream, i))
-  );
-  final machining = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.machining, i))
-  );
-  final fugitive = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.fugitive, i))
-  );
-  final prodTransport = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.productionTransport, i))
-  );
-  final downstream = ref.watch(
-    convertedEmissionRowProvider((product.name , part, EmissionCategory.transportDownstream, i))
-  );
-  final waste = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.waste, i))
-  );
-  final usage = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.usageCycle, i))
-  );
-  final endOfLife = ref.watch(
-    convertedEmissionRowProvider((product.name, part, EmissionCategory.endOfLife, i))
-  );
-
-  totalNormalMaterial += normal.materialNormal;
-  totalMaterial += material.material;
-  totalTransport += transport.transport;
-  totalMachining += machining.machining;
-  totalFugitive += fugitive.fugitive;
-  totalProductionTransport += prodTransport.productionTransport;
-  totalDownstreamTransport += downstream.downstreamTransport;
-  totalWaste += waste.waste;
-  totalUsageCycle += usage.usageCycle;
-  totalEndOfLife += endOfLife.endofLife;
-}
+      // **assign to outer variables**
+      totalMaterial = emissions?.material ?? 0;
+      totalNormalMaterial = emissions?.materialNormal ?? 0;
+      totalTransport = emissions?.transport ?? 0;
+      totalMachining = emissions?.machining ?? 0;
+      totalFugitive = emissions?.fugitive ?? 0;
+      totalProductionTransport = emissions?.productionTransport ?? 0;
+      totalDownstreamTransport = emissions?.downstreamTransport ?? 0;
+      totalWaste = emissions?.waste ?? 0;
+      totalUsageCycle = emissions?.usageCycle ?? 0;
+      totalEndOfLife = emissions?.endofLife ?? 0;
     }
-
     if (product == null || part == null) {
       return const SizedBox();
     }
 
     final key = (product: product.name, part: part);
 
-    /// ---------------- MATERIAL ----------------
-    final normalMaterialState =
-        ref.watch(normalMaterialTableProvider(key));
-    final normalMaterialNotifier =
-        ref.read(normalMaterialTableProvider(key).notifier);
+    // /// ---------------- MATERIAL ----------------
+    // final normalMaterialState =
+    //     ref.watch(normalMaterialTableProvider(key));
+    // final normalMaterialNotifier =
+    //     ref.read(normalMaterialTableProvider(key).notifier);
 
-    final materialState =
-        ref.watch(materialTableProvider(key));
-    final materialNotifier =
-        ref.read(materialTableProvider(key).notifier);
+    // final materialState =
+    //     ref.watch(materialTableProvider(key));
+    // final materialNotifier =
+    //     ref.read(materialTableProvider(key).notifier);
 
-    /// ---------------- UPSTREAM TRANSPORT ----------------
-    final upstreamTransportState =
-        ref.watch(upstreamTransportTableProvider(key));
-    final upstreamTransportNotifier =
-        ref.read(upstreamTransportTableProvider(key).notifier);
+    // /// ---------------- UPSTREAM TRANSPORT ----------------
+    // final upstreamTransportState =
+    //     ref.watch(upstreamTransportTableProvider(key));
+    // final upstreamTransportNotifier =
+    //     ref.read(upstreamTransportTableProvider(key).notifier);
 
     /// ---------------- MACHINING ----------------
     final machiningState =
@@ -145,35 +96,35 @@ for (int i = 0; i < rowCount; i++) {
     final machiningNotifier =
         ref.read(machiningTableProvider(key).notifier);
 
-    /// ---------------- FUGITIVE LEAKS ----------------
-    final leaksState =
-        ref.watch(fugitiveLeaksTableProvider(key));
-    final leaksNotifier =
-        ref.read(fugitiveLeaksTableProvider(key).notifier);
+    // /// ---------------- FUGITIVE LEAKS ----------------
+    // final leaksState =
+    //     ref.watch(fugitiveLeaksTableProvider(key));
+    // final leaksNotifier =
+    //     ref.read(fugitiveLeaksTableProvider(key).notifier);
 
-    /// ---------------- PRODUCTION TRANSPORT ----------------
-    final productionTransportState =
-        ref.watch(productionTransportTableProvider(key));
-    final productionTransportNotifier =
-        ref.read(productionTransportTableProvider(key).notifier);
+    // /// ---------------- PRODUCTION TRANSPORT ----------------
+    // final productionTransportState =
+    //     ref.watch(productionTransportTableProvider(key));
+    // final productionTransportNotifier =
+    //     ref.read(productionTransportTableProvider(key).notifier);
 
-    /// ---------------- DOWNSTREAM TRANSPORT ----------------
-    final downstreamTransportState =
-        ref.watch(downstreamTransportTableProvider(key));
-    final downstreamTransportNotifier =
-        ref.read(downstreamTransportTableProvider(key).notifier);
+    // /// ---------------- DOWNSTREAM TRANSPORT ----------------
+    // final downstreamTransportState =
+    //     ref.watch(downstreamTransportTableProvider(key));
+    // final downstreamTransportNotifier =
+    //     ref.read(downstreamTransportTableProvider(key).notifier);
 
-    /// ---------------- WASTE ----------------
-    final wasteTransportState =
-        ref.watch(wastesProvider(key));
-    final wasteTransportNotifier =
-        ref.read(wastesProvider(key).notifier);
+    // /// ---------------- WASTE ----------------
+    // final wasteTransportState =
+    //     ref.watch(wastesTableProvider(key));
+    // final wasteTransportNotifier =
+    //     ref.read(wastesTableProvider(key).notifier);
 
-    /// ---------------- USAGE CYCLE ----------------
-    final usageCycleState =
-        ref.watch(usageCycleTableProvider(key));
-    final usageCycleNotifier =
-        ref.read(usageCycleTableProvider(key).notifier);
+    // /// ---------------- USAGE CYCLE ----------------
+    // final usageCycleState =
+    //     ref.watch(usageCycleTableProvider(key));
+    // final usageCycleNotifier =
+    //     ref.read(usageCycleTableProvider(key).notifier);
 
     /// ---------------- END OF LIFE ----------------
     final endOfLifeState =
@@ -186,20 +137,12 @@ for (int i = 0; i < rowCount; i++) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Labels(
-            title: 'Material Input | ${totalNormalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+            title: 'Material Input | ${totalMaterial+totalNormalMaterial} ${ref.watch(unitLabelProvider)} CO₂',
             color: Apptheme.textclrdark,
             fontsize: 17,
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Material Acquisition",
-                tooltip: "Fine-tune raw material inputs",
-                popupContent: buildNormalMaterialTable(
-                  normalMaterialState,
-                  normalMaterialNotifier,
-                ),
-              ),
               InfoIconPopupDark(
                 text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
               ),
@@ -211,30 +154,38 @@ for (int i = 0; i < rowCount; i++) {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Labels(
-            title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
-            color: Apptheme.textclrdark,
-            fontsize: 17,
+          Row(
+            children: [
+              Checkbox(
+                value: ref.watch(customMaterialCheckedProvider),
+                onChanged: (val) => ref.read(customMaterialCheckedProvider.notifier).state = val ?? false,
+              ),
+              if (ref.watch(customMaterialCheckedProvider))
+                Labels(
+                  title: 'Custom Material Input | ${totalMaterial.toStringAsFixed(2)} ${ref.watch(unitLabelProvider)} CO₂',
+                  color: Apptheme.textclrdark,
+                  fontsize: 17,
+                )
+              else
+                Labels(
+                  title: 'Show Custom Material Input (Optional)',
+                  color: Apptheme.textclrdark,
+                  fontsize: 17,
+                ),
+            ],
           ),
 
           Row(
             children: [
-              sectionRow(
-                title: "Recycled Material Acquisition",
-                tooltip: "Fine-tune recycled material inputs",
-                popupContent: buildMaterialTable(
-                  materialState,
-                  materialNotifier,
-                ),
-              ),
               InfoIconPopupDark(
-                text: 'Sourcing and manufacturing/refining of raw materials purchased and used during production',
+                text: 'Interface to enter custom emission factor (EF) for materials in case users have specific data or want to use a different EF than the default one provided by the software.',
               ),
             ],
           ),
         ],
       ),
-      MaterialAttributesMenu(productID: widget.productID),
+      if (ref.watch(customMaterialCheckedProvider))
+        MaterialAttributesMenu(productID: widget.productID),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -246,14 +197,6 @@ for (int i = 0; i < rowCount; i++) {
           Row(
             children: [
               GoogleMapsIconButton(
-              ),
-              sectionRow(
-                title: "Upstream Transport",
-                tooltip: "Adjust upstream transport allocation",
-                popupContent: buildUpstreamTransportTable(
-                  upstreamTransportState,
-                  upstreamTransportNotifier,
-                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
@@ -283,7 +226,7 @@ for (int i = 0; i < rowCount; i++) {
             children: [
               sectionRow(
                 title: "Machining",
-                tooltip: "Adjust machining allocation",
+                tooltip: "Adjust machine load factors",
                 popupContent: buildMachiningTable(
                   machiningState,
                   machiningNotifier,
@@ -314,14 +257,6 @@ for (int i = 0; i < rowCount; i++) {
             children: [
               GoogleMapsIconButton(
               ),
-              sectionRow(
-                title: "Production Transport",
-                tooltip: "Adjust production transport allocation",
-                popupContent: buildProductionTransportTable(
-                  productionTransportState,
-                  productionTransportNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -344,14 +279,6 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Manufacturing Wastes",
-                tooltip: "Adjust waste mass allocation",
-                popupContent: buildWasteTable(
-                  wasteTransportState,
-                  wasteTransportNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -377,14 +304,6 @@ for (int i = 0; i < rowCount; i++) {
             children: [
               GoogleMapsIconButton(
               ),
-              sectionRow(
-                title: "Downstream Transportation",
-                tooltip: "Adjust downstream transport allocation",
-                popupContent: buildDownstreamTransportTable(
-                  downstreamTransportState,
-                  downstreamTransportNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -407,14 +326,6 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Fugitive Leaks",
-                tooltip: "Adjust fugitive emissions allocation",
-                popupContent: buildFugitiveLeaksTable(
-                  leaksState,
-                  leaksNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -435,14 +346,6 @@ for (int i = 0; i < rowCount; i++) {
           ),
           Row(
             children: [
-              sectionRow(
-                title: "Usage Cycle",
-                tooltip: "Adjust usage cycle allocation",
-                popupContent: buildUsageCycleTable(
-                  usageCycleState,
-                  usageCycleNotifier,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InfoIconPopupDark(
@@ -598,9 +501,12 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
 
   const NormalMaterialAttributesMenu({super.key, required this.productID});
 
+  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(activeProductLoaderProvider);
+    ref.watch(emissionsRefreshProvider); // just watching it to rebuild
 
     final horizontalController = ScrollController();
 
@@ -612,6 +518,14 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
     print('Active product: $product');
     final part = ref.watch(activePartProvider);
     print('Active part: $part');
+
+    final parts = ref.watch(partsProvider);
+    final results = List.generate(parts.length, (i) {
+      final partName = parts[i];
+      return ref.watch(
+        savedEmissionsProvider((product: product!.name, part: partName)),
+      );
+    });
 
     if (product == null || part == null) {
       return const Text('Select a part');
@@ -648,6 +562,11 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
         ],
       ),
     );
+
+    final emissionResults = ref.watch(savedEmissionsProvider((product: product.name, part: part)));
+
+    final totalNormalMaterial = emissionResults.materialNormal;
+    final totalMaterial = emissionResults.material;
 
     return Column(
       children: [
@@ -711,6 +630,9 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'material', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -862,6 +784,10 @@ List<RowFormat> rows = List.generate(
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'material_custom', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1014,6 +940,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'upstream_transport', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1154,6 +1083,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'machining', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1278,6 +1210,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'fugitive', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1417,6 +1352,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'production_transport', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1450,8 +1388,8 @@ class WasteMaterialAttributesMenu extends ConsumerWidget {
     if (product == null || part == null) return const SizedBox();
 
     final key = (product: product.name, part: part);
-    final tableState = ref.watch(wastesProvider(key));
-    final tableNotifier = ref.read(wastesProvider(key).notifier);
+    final tableState = ref.watch(wastesTableProvider(key));
+    final tableNotifier = ref.read(wastesTableProvider(key).notifier);
 
     final wasteMaterials = ref.watch(wasteCategoryProvider);
 
@@ -1543,6 +1481,9 @@ List<RowFormat> rows = List.generate(
               child: ElevatedButton(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier).calculate(part, 'waste', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1682,6 +1623,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'downstream_transport', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1815,6 +1759,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'usage_cycle', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,
@@ -1928,6 +1875,9 @@ List<RowFormat> rows = List.generate(
                 onPressed: () async {
                   await ref.read(emissionCalculatorProvider(productID).notifier)
                       .calculate(part, 'end_of_life', rows);
+                  hydrateEmissions(ref, product, ref.watch(activeTimelineProvider));
+                  await triggerSave(ref);
+                  ref.read(emissionsRefreshProvider.notifier).state++;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.widgettertiaryclr,

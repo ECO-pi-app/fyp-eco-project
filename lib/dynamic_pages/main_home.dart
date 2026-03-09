@@ -41,7 +41,7 @@ void initState() {
   WidgetsBinding.instance.addPostFrameCallback((_) async {
     final username = ref.read(usernameProvider).value;
     if (widget.productName != null && username != null) {
-      // 1️⃣ Fetch full product
+
       final product = await fetchProductDetail(username, widget.productName!);
       ref.read(activeProductProvider.notifier).state = product;
 
@@ -198,7 +198,9 @@ void initState() {
 
     ref.read(timelineProvider(product.name).notifier).addTimeline(timelineName);
     ref.read(activeTimelineProvider.notifier).state = timelineName;
+    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
     ref.read(timelineDurationProvider(product.name).notifier).state = {
+      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
       ...ref.read(timelineDurationProvider(product.name).notifier).state,
       timelineName: {"start": start, "end": end},
     };
@@ -234,7 +236,7 @@ void initState() {
 
     if (partName == null || partName.trim().isEmpty) return;
 
-    final emissionResult = ref.watch(convertedEmissionsTotalProvider((product, partName)));
+    final emissionResult = ref.watch(savedEmissionsProvider((product: product.name, part: partName)));
     final totalValue = emissionResult.total;
 
     ref.read(pieChartProvider((product: product, timeline: timeline)).notifier)
@@ -243,9 +245,82 @@ void initState() {
 
   }
 
+  Future<String?> showRenameDialog(
+    BuildContext context,
+    String currentName,
+    String title,
+  ) async {
+    final nameController = TextEditingController(text: currentName);
+
+    final result = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: "New name",
+                border: OutlineInputBorder(),
+              ),
+              autofocus: true,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext, rootNavigator: true).pop(false),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (nameController.text.trim().isEmpty) return;
+                Navigator.of(dialogContext, rootNavigator: true).pop(true);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+
+    // If user pressed Save, return the new name
+    if (result == true) return nameController.text.trim();
+    return null;
+  }
+
+  Future<void> _renamePart(String oldName) async {
+    final product = ref.read(activeProductProvider);
+    final timeline = ref.read(activeTimelineProvider);
+
+    if (product == null || timeline == null) return;
+
+    final newName = await showRenameDialog(context, oldName, "Rename Part");
+    if (newName == null || newName.trim().isEmpty) return;
+
+    ref
+        .read(pieChartProvider((product: product, timeline: timeline)).notifier)
+        .renamePart(oldName, newName);
+  }
+    
+  Future<void> _renameTimeline(String oldName) async {
+    final product = ref.read(activeProductProvider);
+    if (product == null) return;
+
+    final newName = await showRenameDialog(context, oldName, "Rename Timeline");
+    if (newName == null || newName.trim().isEmpty) return;
+
+    ref.read(timelineProvider(product.name).notifier)
+        .renameTimeline(oldName, newName);
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(productTimelineResetProvider);
+    ref.watch(activeProductLoaderProvider); 
 
 
     final product = ref.watch(activeProductProvider);
@@ -257,7 +332,9 @@ void initState() {
     final parts = ref.watch(partsProvider);
     final results = List.generate(parts.length, (i) {
       final partName = parts[i];
-      return ref.watch(convertedEmissionsTotalProvider((ref.watch(activeProductProvider)!, partName)));
+      return ref.watch(
+        savedEmissionsProvider((product: product!.name, part: partName)),
+      );
     });
 
     final timelineTotals = (product != null && timelines != null)
@@ -336,7 +413,7 @@ void initState() {
                             final timelineName = timelines.timelines[i];
 
                             final parts = ref
-                                .watch(pieChartProvider((product: product!, timeline: timelineName)))
+                                .watch(pieChartProvider((product: product, timeline: timelineName)))
                                 .parts;
 
                             double runningTotal = 0;
@@ -357,7 +434,7 @@ void initState() {
                             for (int p = 0; p < parts.length; p++) {
                               final partName = parts[p];
                               final result =
-                                  ref.watch(convertedEmissionsTotalProvider((product!, partName)));
+                                  ref.watch(savedEmissionsProvider((product:product.name,part: partName)));
 
                               final value = result.total;
 
@@ -420,14 +497,12 @@ void initState() {
                                     Textsinsidewidgetsdrysafe(
                                       words: t,
                                       color: Apptheme.textclrdark,
-                                      toppadding: 0,
                                     ),
                                     if (start.isNotEmpty || end.isNotEmpty)
                                       Textsinsidewidgetsdrysafe(
                                         words: "$start → $end",
                                         color: Apptheme.textclrdark,
                                         fontsize: 10,
-                                        toppadding: 1,
                                       ),
                                   ],
                                 ),
@@ -450,7 +525,7 @@ void initState() {
             if (product != null && activeTimeline != null) ...[
               Row(
                 children: [
-                  const Labels(title: "Parts List", color: Apptheme.textclrdark),
+                  const Labels(title: "Material emissions for all parts", color: Apptheme.textclrdark),
                   const Spacer(),
                   IconButton(onPressed: _addPart, icon: const Icon(Icons.add)),
                 ],
@@ -472,7 +547,7 @@ void initState() {
                                 alignment: BarChartAlignment.spaceAround,
                                 maxY: results.isEmpty
                                     ? 1
-                                    : results.map((r) => (r!.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
+                                    : results.map((r) => (r.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
                                 titlesData: FlTitlesData(
                                                 topTitles: AxisTitles(
                                                   sideTitles: SideTitles(showTitles: false),
@@ -507,7 +582,7 @@ void initState() {
                                                 ),
                                               ),
                                 barGroups: List.generate(parts.length, (i) {
-                                  final r = results[i]!;
+                                  final r = results[i];
                                   final materialTotal = r.materialNormal + r.material;
                                   return BarChartGroupData(
                                     x: i,
@@ -557,8 +632,8 @@ void initState() {
                                 final color = colors[i % colors.length]; // cycle if more parts than colors
                         
                                 return PieChartSectionData(
-                                  value: (results[i] as EmissionResults).total, // <--- use .total
-                                  title: parts[i] as String,
+                                  value: (results[i]).total, // <--- use .total
+                                  title: parts[i],
                                   color: color,
                                   radius: 120,
                                   titleStyle: const TextStyle(
@@ -583,24 +658,32 @@ void initState() {
                     Expanded(
                       flex: 1,
                       child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Wrap(
                             children: List.generate(parts.length, (index) {
                               final part = parts[index];
                               final result = results[index];
 
-                              return ChoiceChip(
-                                selectedColor: Apptheme.widgetsecondaryclr,
-                                backgroundColor: Apptheme.widgettertiaryclr,
-                                label: Textsinsidewidgetsdrysafe(
-                                  words: "$part = ${result?.total.toStringAsFixed(2) ?? 0}",
-                                  color: Apptheme.textclrdark,
-                                  toppadding: 0,
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: Tooltip(
+                                  message: "Double click to rename part",
+                                  child: GestureDetector(
+                                    onDoubleTap: () => _renamePart(part),
+                                    child: ChoiceChip(
+                                      showCheckmark: false,
+                                      selectedColor: Apptheme.widgetsecondaryclr,
+                                      backgroundColor: Apptheme.widgettertiaryclr,
+                                      label: Textsinsidewidgetsdrysafe(
+                                        words: "$part = ${result.total.toStringAsFixed(2)}",
+                                        color: Apptheme.textclrdark,
+                                      ),
+                                      selected: ref.watch(activePartProvider) == part,
+                                      onSelected: (_) {
+                                        ref.read(activePartProvider.notifier).setPart(part);
+                                      },
+                                    ),
+                                  ),
                                 ),
-                                selected: ref.watch(activePartProvider) == part,
-                                onSelected: (_) {
-                                  ref.read(activePartProvider.notifier).setPart(part);
-                                },
                               );
                             }),
                         ),
@@ -616,4 +699,5 @@ void initState() {
       ),
     );
   }
+
 }
