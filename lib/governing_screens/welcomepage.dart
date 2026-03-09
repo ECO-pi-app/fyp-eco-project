@@ -107,7 +107,10 @@ void dispose() {
 
                         SizedBox(
                           child: SelectedProductInfoWidget(),
-                        )
+                        ),
+
+                        LogoutTile(
+                        ),
 
                       ],
                     ),
@@ -1268,3 +1271,42 @@ class _RandomFactsWidgetState extends State<RandomFactsWidget> {
     );
   }
 }
+
+
+class LogoutTile extends StatelessWidget {
+  const LogoutTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Container(
+        color: Apptheme.transparentcheat,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 50,
+              height: 25,
+              child: InkWell(
+                onTap: () {
+                  RootScaffold.of(context)?.goToLoginPage();
+                },
+                child: Icon(
+                  Icons.logout,
+                  size: 25,
+                  color: Apptheme.iconsdark,
+                ),
+              ),
+            ),
+             SizedBox(
+              height: 10,
+              child: Labelsinsubdrawerdark(label: "Logout",),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+

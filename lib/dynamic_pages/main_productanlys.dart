@@ -1971,130 +1971,135 @@ class ResizableColumn extends StatefulWidget {
 }
 
 class _ResizableColumnState extends State<ResizableColumn> {
-  double width = 100;
+
+  double width = 240; // ⭐ sensible default
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: width,
-          decoration: BoxDecoration(
-            color: Apptheme.transparentcheat,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: Apptheme.widgetclrdark),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5),
-              Labels(
-                title: widget.title,
-                color: Apptheme.textclrdark,
-                fontsize: 16,
-              ),
-              const SizedBox(height: 5),
+    return SizedBox(
+      width: width + 14,
+      child: Stack(
+        children: [
 
-              for (int i = 0; i < widget.values.length; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Container(
-                    width: width - 10,
-                    height: 30,
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Apptheme.widgettertiaryclr,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: widget.isTextField
-                        ? TextFormField(
-                            initialValue: widget.values[i],
-                            keyboardType: TextInputType.number,
-                            style: TextStyle(
-                              color: Apptheme.textclrdark,
-                              fontSize: 15,
-                            ),
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              border: OutlineInputBorder(),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Apptheme.iconsprimary),
+          Container(
+            width: width,
+            decoration: BoxDecoration(
+              color: Apptheme.transparentcheat,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Apptheme.widgetclrdark),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                const SizedBox(height: 5),
+
+                Labels(
+                  title: widget.title,
+                  color: Apptheme.textclrdark,
+                  fontsize: 16,
+                ),
+
+                const SizedBox(height: 5),
+
+                for (int i = 0; i < widget.values.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Container(
+                      width: width - 10,
+                      height: 30,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Apptheme.widgettertiaryclr,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: widget.isTextField
+                          ? TextFormField(
+                              initialValue: widget.values[i],
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(
+                                color: Apptheme.textclrdark,
+                                fontSize: 15,
                               ),
-                            ),
-                            onChanged: (value) =>
-                                widget.onChanged(i, value),
-                          )
-                        : DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              dropdownColor: Apptheme.widgettertiaryclr,
-                              value: (widget.items != null &&
-                                      widget.values[i] != null &&
-                                      widget.items!.contains(widget.values[i]))
-                                  ? widget.values[i]
-                                  : null,
-                              hint: const Text("Select"),
-                              isExpanded: true,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: Apptheme.iconsdark,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                               ),
-                              items: (widget.items ?? [])
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(
-                                        e,
-                                        style: TextStyle(
-                                          color: Apptheme.textclrdark,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
                               onChanged: (value) =>
                                   widget.onChanged(i, value),
+                            )
+                          : DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                dropdownColor: Apptheme.widgettertiaryclr,
+                                value: (widget.items != null &&
+                                        widget.values[i] != null &&
+                                        widget.items!.contains(widget.values[i]))
+                                    ? widget.values[i]
+                                    : null,
+                                hint: const Text("Select"),
+                                isExpanded: true,
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Apptheme.iconsdark,
+                                ),
+                                items: (widget.items ?? [])
+                                    .map(
+                                      (e) => DropdownMenuItem(
+                                        value: e,
+                                        child: Text(
+                                          e,
+                                          style: TextStyle(
+                                            color: Apptheme.textclrdark,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (value) =>
+                                    widget.onChanged(i, value),
+                              ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
-            ],
+                  SizedBox(height: 5)
+              ],
+            ),
           ),
-        ),
 
-        /// Grip-dots resize handle
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: 0,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.resizeColumn,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onHorizontalDragUpdate: (details) {
-                setState(() {
-                  width += details.delta.dx;
-                  width = width.clamp(200, 600);
-                });
-              },
-              child: Container(
-                width: 14,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    5,
-                    (_) => Container(
-                      width: 4,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Apptheme.iconsprimary,
-                        shape: BoxShape.circle,
+          /// Resize handle
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.resizeColumn,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    width += details.delta.dx;
+                    width = width.clamp(180, 600);
+                  });
+                },
+                child: Container(
+                  width: 14,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      5,
+                      (_) => Container(
+                        width: 4,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Apptheme.iconsprimary,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
@@ -2102,8 +2107,8 @@ class _ResizableColumnState extends State<ResizableColumn> {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -2129,131 +2134,134 @@ class ResizableDynamicColumn extends StatefulWidget {
       _ResizableDynamicColumnState();
 }
 
-class _ResizableDynamicColumnState
-    extends State<ResizableDynamicColumn> {
-  double width = 100;
+class _ResizableDynamicColumnState extends State<ResizableDynamicColumn> {
+
+  double width = 240;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: width,
-          decoration: BoxDecoration(
-            color: Apptheme.transparentcheat,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: Apptheme.widgetclrdark),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5),
-              Labels(
-                title: widget.title,
-                color: Apptheme.textclrdark,
-                fontsize: 16,
-              ),
-              const SizedBox(height: 5),
+    return SizedBox(
+      width: width + 14,
+      child: Stack(
+        children: [
 
-              for (int i = 0; i < widget.values.length; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Container(
-                    width: width - 10,
-                    height: 30,
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Apptheme.widgettertiaryclr,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: widget.isTextField
-                        ? TextFormField(
-                            initialValue: widget.values[i],
-                            keyboardType: TextInputType.number,
-                            style: TextStyle(
-                              color: Apptheme.textclrlight,
-                              fontSize: 15,
-                            ),
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              border: OutlineInputBorder(),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Apptheme.iconsprimary),
+          Container(
+            width: width,
+            decoration: BoxDecoration(
+              color: Apptheme.transparentcheat,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Apptheme.widgetclrdark),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                const SizedBox(height: 5),
+
+                Labels(
+                  title: widget.title,
+                  color: Apptheme.textclrdark,
+                  fontsize: 16,
+                ),
+
+                const SizedBox(height: 5),
+
+                for (int i = 0; i < widget.values.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Container(
+                      width: width - 10,
+                      height: 30,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Apptheme.widgettertiaryclr,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: widget.isTextField
+                          ? TextFormField(
+                              initialValue: widget.values[i],
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(
+                                color: Apptheme.textclrdark,
+                                fontSize: 15,
                               ),
-                            ),
-                            onChanged: (value) =>
-                                widget.onChanged(i, value),
-                          )
-                        : DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              dropdownColor: Apptheme.widgettertiaryclr,
-                              value: widget.itemsPerRow[i]
-                                      .contains(widget.values[i])
-                                  ? widget.values[i]
-                                  : null,
-                              hint: const Text("Select"),
-                              isExpanded: true,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: Apptheme.iconsdark,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                               ),
-                              items: widget.itemsPerRow[i]
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(
-                                        e,
-                                        style: TextStyle(
-                                          color: Apptheme.textclrdark,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
                               onChanged: (value) =>
                                   widget.onChanged(i, value),
+                            )
+                          : DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                dropdownColor: Apptheme.widgettertiaryclr,
+                                value: widget.itemsPerRow[i]
+                                        .contains(widget.values[i])
+                                    ? widget.values[i]
+                                    : null,
+                                hint: const Text("Select"),
+                                isExpanded: true,
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Apptheme.iconsdark,
+                                ),
+                                items: widget.itemsPerRow[i]
+                                    .map(
+                                      (e) => DropdownMenuItem(
+                                        value: e,
+                                        child: Text(
+                                          e,
+                                          style: TextStyle(
+                                            color: Apptheme.textclrdark,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (value) =>
+                                    widget.onChanged(i, value),
+                              ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
-            ],
+                  SizedBox(height: 5)
+              ],
+            ),
           ),
-        ),
 
-        /// Grip-dots resize handle
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: 0,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.resizeColumn,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onHorizontalDragUpdate: (details) {
-                setState(() {
-                  width += details.delta.dx;
-                  width = width.clamp(200, 600);
-                });
-              },
-              child: Container(
-                width: 14,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    5,
-                    (_) => Container(
-                      width: 4,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Apptheme.iconsprimary,
-                        shape: BoxShape.circle,
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.resizeColumn,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    width += details.delta.dx;
+                    width = width.clamp(180, 600);
+                  });
+                },
+                child: Container(
+                  width: 14,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      5,
+                      (_) => Container(
+                        width: 4,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Apptheme.iconsprimary,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
@@ -2261,10 +2269,8 @@ class _ResizableDynamicColumnState
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
-
-

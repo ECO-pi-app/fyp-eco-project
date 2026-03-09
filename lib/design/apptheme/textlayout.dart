@@ -536,6 +536,28 @@ class Labelsinsubdrawer extends StatelessWidget {
     );
 }
 }
+class Labelsinsubdrawerdark extends StatelessWidget {
+  final String label;
+  const Labelsinsubdrawerdark({super.key,
+  this.label = 'Type here',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: const TextStyle(
+        color: Apptheme.textclrdark,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+      ),
+      overflow: TextOverflow.visible,
+      softWrap: false,
+      maxLines: 1,
+      textAlign: TextAlign.justify,
+    );
+}
+}
 
 //---------------------------------------------------------------------------------------//
 

@@ -14,6 +14,8 @@ import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/apptheme/textlayout.dart';
 import 'package:open_file/open_file.dart';
 
+import 'package:flutter/foundation.dart';
+import 'package:file_selector/file_selector.dart';
 
 
 class ProductDetailForm extends ConsumerStatefulWidget {
@@ -84,102 +86,147 @@ class _ProductDetailFormState
     );
   }
 
-  Future<void> _exportExcel() async {
-    final part = ref.read(activePartProvider);
-    if (part == null) return;
+Future<void> _exportExcel() async {
+  final part = ref.read(activePartProvider);
+  if (part == null) return;
 
-    final emissionTotals =
-        ref.read(emissionTotalsProvider((widget.productId.name, part)));
-    final materialRows =
-        ref.read(emissionRowsProvider((widget.productId.name, part)));
+  final emissionTotals = ref.watch(convertedEmissionsTotalProvider((widget.productId, part)));
 
-    final excel = Excel.createExcel();
-    const sheetName = 'Summary';
+  final materialRows =
+      ref.read(emissionRowsProvider((widget.productId.name, part)));
 
-    void writeRow(int rowIndex, List<dynamic> values) {
-      for (var col = 0; col < values.length; col++) {
-        final value = values[col];
-        final cellValue = value is num
-            ? DoubleCellValue(value.toDouble())
-            : TextCellValue(value.toString());
+  final excel = Excel.createExcel();
+  const sheetName = 'Summary';
 
-        excel.updateCell(
-          sheetName,
-          CellIndex.indexByColumnRow(
-            columnIndex: col,
-            rowIndex: rowIndex,
-          ),
-          cellValue,
-        );
-      }
-    }
+  final sheet = excel[sheetName];
 
-    int row = 0;
+  /// ---------- STYLES ----------
+  final headerStyle = CellStyle(
+    bold: true,
+    fontSize: 14,
+    horizontalAlign: HorizontalAlign.Center,
+    verticalAlign: VerticalAlign.Center,
+  );
 
-    writeRow(row++, ['Product Description', _descriptionController.text]);
-    writeRow(row++, ['Functional Unit', _functionalUnitController.text]);
-    writeRow(row++, ['Declarations', _declarationsController.text]);
-    writeRow(row++, [
-      'Allocation',
-      allocationApplied ? 'NOT ALIGNED WITH STANDARD' : 'None'
-    ]);
+  final sectionStyle = CellStyle(
+    bold: true,
+    fontSize: 12,
+  );
 
-    row++;
+  final labelStyle = CellStyle(
+    bold: true,
+  );
 
-    writeRow(row++, ['Scope', 'kg CO₂e']);
-    writeRow(row++, ['Scope 1', 0]);
-    writeRow(row++, ['Scope 2', emissionTotals.machining]);
-    writeRow(row++, [
-      'Scope 3 Purchased goods & services',
-      emissionTotals.material
-    ]);
-    writeRow(row++, [
-      'Scope 3 Upstream transportation',
-      emissionTotals.transport
-    ]);
-    writeRow(row++, [
-      'Scope 3 Waste generated',
-      emissionTotals.waste
-    ]);
-    writeRow(row++, [
-      'Scope 3 Use of sold products',
-      emissionTotals.usageCycle
-    ]);
-    writeRow(row++, [
-      'Scope 3 End-of-life treatment',
-      emissionTotals.endofLife
-    ]);
+  /// ---------- HELPERS ----------
+  void writeCell(int row, int col, dynamic value, {CellStyle? style}) {
+    final cellValue = value is num
+        ? DoubleCellValue(value.toDouble())
+        : TextCellValue(value.toString());
 
-    row++;
-
-    writeRow(row++, ['Material', 'Normal', 'Custom']);
-    for (var i = 0; i < materialRows.length; i++) {
-      final r = materialRows[i];
-      writeRow(row++, [
-        'Material ${i + 1}',
-        r.materialNormal,
-        r.material,
-      ]);
-    }
-
-    final bytes = excel.encode();
-    if (bytes == null) return;
-
-    final dir = await getDownloadsDirectory();
-    if (dir == null) return;
-
-    final file = File(
-      '${dir.path}/Product_${widget.productId}.xlsx',
-    );
-
-    await file.writeAsBytes(bytes);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Excel saved to Downloads')),
+    sheet.updateCell(
+      CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+      cellValue,
+      cellStyle: style,
     );
   }
 
-Future<void> _exportPdf() async {
+  void writeSectionTitle(int row, String title) {
+    writeCell(row, 0, title, style: sectionStyle);
+  }
+
+  int row = 0;
+
+  /// ---------- TITLE ----------
+  writeCell(row++, 0, "PRODUCT EMISSION REPORT", style: headerStyle);
+  row++;
+
+  /// ---------- PRODUCT INFO ----------
+  writeSectionTitle(row++, "Product Information");
+
+  writeCell(row, 0, "Product Description", style: labelStyle);
+  writeCell(row++, 1, _descriptionController.text);
+
+  writeCell(row, 0, "Functional Unit", style: labelStyle);
+  writeCell(row++, 1, _functionalUnitController.text);
+
+  writeCell(row, 0, "Declarations", style: labelStyle);
+  writeCell(row++, 1, _declarationsController.text);
+
+  writeCell(row, 0, "Allocation", style: labelStyle);
+  writeCell(
+    row++,
+    1,
+    allocationApplied ? "NOT ALIGNED WITH STANDARD" : "None",
+  );
+
+  row++;
+
+  /// ---------- EMISSION SUMMARY ----------
+  writeSectionTitle(row++, "Emission Summary (kg CO₂e)");
+
+  writeCell(row, 0, "Scope", style: labelStyle);
+  writeCell(row++, 1, "kg CO₂e", style: labelStyle);
+
+  writeCell(row, 0, "Scope 1");
+  writeCell(row++, 1, 0);
+
+  writeCell(row, 0, "Scope 2 - Machining");
+  writeCell(row++, 1, emissionTotals.machining);
+
+  writeCell(row, 0, "Scope 3 - Purchased Goods & Services");
+  writeCell(row++, 1, emissionTotals.material);
+
+  writeCell(row, 0, "Scope 3 - Upstream Transportation");
+  writeCell(row++, 1, emissionTotals.transport);
+
+  writeCell(row, 0, "Scope 3 - Waste Generated");
+  writeCell(row++, 1, emissionTotals.waste);
+
+  writeCell(row, 0, "Scope 3 - Usage Cycle");
+  writeCell(row++, 1, emissionTotals.usageCycle);
+
+  writeCell(row, 0, "Scope 3 - End-of-Life");
+  writeCell(row++, 1, emissionTotals.endofLife);
+
+  row++;
+
+  /// ---------- MATERIAL TABLE ----------
+  writeSectionTitle(row++, "Material Breakdown");
+
+  // table header
+  writeCell(row, 0, "Material", style: labelStyle);
+  writeCell(row, 1, "Normal", style: labelStyle);
+  writeCell(row++, 2, "Custom", style: labelStyle);
+
+  for (var i = 0; i < materialRows.length; i++) {
+    final r = materialRows[i];
+
+    writeCell(row, 0, "Material ${i + 1}");
+    writeCell(row, 1, r.materialNormal);
+    writeCell(row++, 2, r.material);
+  }
+
+  /// ---------- COLUMN WIDTHS ----------
+  sheet.setColumnWidth(0, 35);
+  sheet.setColumnWidth(1, 20);
+  sheet.setColumnWidth(2, 20);
+
+  /// ---------- SAVE FILE ----------
+  final bytes = excel.encode();
+  if (bytes == null) return;
+
+  final dir = await getDownloadsDirectory();
+  if (dir == null) return;
+
+  final file = File('${dir.path}/Product_${widget.productId}.xlsx');
+  await file.writeAsBytes(bytes);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Excel saved to Downloads')),
+  );
+}
+
+Future<void> exportPdfWithDialog() async {
   final product = ref.read(activeProductProvider);
   final timeline = ref.read(activeTimelineProvider);
   if (product == null || timeline == null) return;
@@ -190,115 +237,24 @@ Future<void> _exportPdf() async {
   final pdf = pw.Document();
 
   // ---------------- STYLES ----------------
-  final baseStyle = pw.TextStyle(fontSize: 9);
-  final boldStyle = pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold);
-  final titleStyle = pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold);
-  final smallHeader = pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold);
+  final base = pw.TextStyle(fontSize: 8);
+  final bold = pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold);
+  final title = pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold);
+  final header = pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold);
 
-  final secondaryColor = PdfColor.fromInt(Apptheme.widgetsecondaryclr.value);
-  final tertiaryColor = PdfColor.fromInt(Apptheme.widgettertiaryclr.value);
+  // ---------------- GENERIC TABLE ----------------
+  pw.Widget table(List<String> headers, List<List<String>> rows) {
+    if (rows.isEmpty) return pw.Text("No data", style: base);
 
-  // ---------------- HELPERS ----------------
-  pw.Widget labelRow(String label, String value) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 2),
-        child: pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(label, style: baseStyle),
-            pw.Text(value, style: baseStyle),
-          ],
-        ),
-      );
-
-  pw.Widget compactValueRow(String label, double value, {PdfColor? color}) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 1),
-        child: pw.Container(
-          padding: const pw.EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-          decoration: color != null
-              ? pw.BoxDecoration(
-                  color: color,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
-                )
-              : null,
-          child: pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Text(label,
-                  style: baseStyle.copyWith(color: color != null ? PdfColors.white : null)),
-              pw.Text(value.toStringAsFixed(2),
-                  style: boldStyle.copyWith(color: color != null ? PdfColors.white : null)),
-            ],
-          ),
-        ),
-      );
-
-  pw.Widget lifecycleBoundaryBox() => pw.Container(
-        padding: const pw.EdgeInsets.all(6),
-        decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.8)),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text("System Boundary Definition", style: smallHeader),
-            pw.SizedBox(height: 4),
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Expanded(
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.all(4),
-                    decoration: pw.BoxDecoration(
-                        border: pw.Border.all(width: 0.5), color: secondaryColor),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text("Cradle-to-Gate (Stage A)",
-                            style: boldStyle.copyWith(color: PdfColors.white)),
-                        pw.Text("A1  Raw Material Supply",
-                            style: baseStyle.copyWith(color: PdfColors.white)),
-                        pw.Text("A2  Transport to Manufacturer",
-                            style: baseStyle.copyWith(color: PdfColors.white)),
-                        pw.Text("A3  Manufacturing & Waste",
-                            style: baseStyle.copyWith(color: PdfColors.white)),
-                      ],
-                    ),
-                  ),
-                ),
-                pw.SizedBox(width: 6),
-                pw.Expanded(
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.all(4),
-                    decoration: pw.BoxDecoration(
-                        border: pw.Border.all(width: 0.5), color: tertiaryColor),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text("Cradle-to-Grave (Stages B & C)",
-                            style: boldStyle.copyWith(color: PdfColors.white)),
-                        pw.Text("B1–B7 – Use Phase",
-                            style: baseStyle.copyWith(color: PdfColors.white)),
-                        pw.Text("C1–C4 – End of Life",
-                            style: baseStyle.copyWith(color: PdfColors.white)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-
-  pw.Widget compactTable(List<String> headers, List<List<String>> rows) {
     return pw.Table(
       border: pw.TableBorder.all(width: 0.3),
-      columnWidths: {for (int i = 0; i < headers.length; i++) i: const pw.FlexColumnWidth()},
       children: [
         pw.TableRow(
-          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+          decoration: const pw.BoxDecoration(color: PdfColors.grey300),
           children: headers
               .map((h) => pw.Padding(
                     padding: const pw.EdgeInsets.all(3),
-                    child: pw.Text(h, style: boldStyle),
+                    child: pw.Text(h, style: bold),
                   ))
               .toList(),
         ),
@@ -306,7 +262,7 @@ Future<void> _exportPdf() async {
               children: r
                   .map((c) => pw.Padding(
                         padding: const pw.EdgeInsets.all(3),
-                        child: pw.Text(c, style: baseStyle),
+                        child: pw.Text(c, style: base),
                       ))
                   .toList(),
             )),
@@ -314,116 +270,301 @@ Future<void> _exportPdf() async {
     );
   }
 
-  pw.Widget buildPartTables(WidgetRef ref, TableKey partKey) {
-    final materialTable = ref.read(normalMaterialTableProvider(partKey));
-    final transportTable = ref.read(upstreamTransportTableProvider(partKey));
-    final machiningTable = ref.read(machiningTableProvider(partKey));
+  // ---------------- SECTION BUILDER ----------------
+  pw.Widget section({
+    required String titleText,
+    required List<String> headers,
+    required List<List<String>> rows,
+    required double allocationSum,
+    required double emissionTotal,
+  }) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.SizedBox(height: 6),
+        pw.Text(titleText, style: header),
+        pw.SizedBox(height: 2),
+        table(headers, rows),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text("Allocation Sum: ${allocationSum.toStringAsFixed(2)}",
+                style: base),
+            pw.Text("Emissions: ${emissionTotal.toStringAsFixed(2)} kgCO₂e",
+                style: bold),
+          ],
+        ),
+      ],
+    );
+  }
 
-    final materialRows = List.generate(
-        materialTable.normalMaterials.length,
-        (i) => [materialTable.normalMaterials[i] ?? '', materialTable.masses[i] ?? '']);
+  // ---------------- EMISSION SUM HELPER ----------------
+  double sum(List<EmissionResults> rows, double Function(EmissionResults) f) {
+    return rows.fold(0.0, (a, b) => a + f(b));
+  }
 
-    final transportRows = List.generate(
-        transportTable.vehicles.length,
-        (i) => [
-              transportTable.classes[i] ?? '',
-              transportTable.vehicles[i] ?? '',
-              transportTable.distances[i] ?? '',
-              transportTable.masses[i] ?? ''
-            ]);
+  // ---------------- BUILD PART SECTION ----------------
+  pw.Widget buildPart(String part) {
+    final key = (product: product.name, part: part);
+    final emissionTotals =
+        ref.watch(convertedEmissionsTotalProvider((widget.productId, part)));
 
-    final machiningRows = List.generate(
-        machiningTable.machines.length,
-        (i) => [machiningTable.brands[i] ?? '', machiningTable.machines[i] ?? '', machiningTable.times[i] ?? '']);
+    // ---------- NORMAL MATERIAL ----------
+    final normalMat = ref.read(normalMaterialTableProvider(key));
+    final normalRows = List.generate(
+      normalMat.normalMaterials.length,
+      (i) => [
+        normalMat.normalMaterials[i] ?? '',
+        normalMat.countries[i] ?? '',
+        normalMat.masses[i] ?? '',
+        normalMat.materialAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- MATERIAL ----------
+    final mat = ref.read(materialTableProvider(key));
+    final matRows = List.generate(
+      mat.materials.length,
+      (i) => [
+        mat.materials[i] ?? '',
+        mat.countries[i] ?? '',
+        mat.masses[i] ?? '',
+        mat.materialAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- UPSTREAM TRANSPORT ----------
+    final up = ref.read(upstreamTransportTableProvider(key));
+    final upRows = List.generate(
+      up.vehicles.length,
+      (i) => [
+        up.classes[i] ?? '',
+        up.vehicles[i] ?? '',
+        up.distances[i] ?? '',
+        up.masses[i] ?? '',
+        up.transportAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- MACHINING ----------
+    final mach = ref.read(machiningTableProvider(key));
+    final machRows = List.generate(
+      mach.machines.length,
+      (i) => [
+        mach.brands[i] ?? '',
+        mach.machines[i] ?? '',
+        mach.countries[i] ?? '',
+        mach.times[i] ?? '',
+        mach.machiningAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- WASTE ----------
+    final waste = ref.read(wastesProvider(key));
+    final wasteRows = List.generate(
+      waste.waste.length,
+      (i) => [
+        waste.wasteType[i] ?? '',
+        waste.waste[i] ?? '',
+        waste.mass[i] ?? '',
+        waste.wasteAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- FUGITIVE ----------
+    final fug = ref.read(fugitiveLeaksTableProvider(key));
+    final fugRows = List.generate(
+      fug.ghg.length,
+      (i) => [
+        fug.ghg[i] ?? '',
+        fug.totalCharge[i] ?? '',
+        fug.remainingCharge[i] ?? '',
+        fug.fugitiveAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- PRODUCTION TRANSPORT ----------
+    final prodT = ref.read(productionTransportTableProvider(key));
+    final prodRows = List.generate(
+      prodT.vehicles.length,
+      (i) => [
+        prodT.classes[i] ?? '',
+        prodT.vehicles[i] ?? '',
+        prodT.distances[i] ?? '',
+        prodT.masses[i] ?? '',
+        prodT.transportAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- DOWNSTREAM ----------
+    final downT = ref.read(downstreamTransportTableProvider(key));
+    final downRows = List.generate(
+      downT.vehicles.length,
+      (i) => [
+        downT.classes[i] ?? '',
+        downT.vehicles[i] ?? '',
+        downT.distances[i] ?? '',
+        downT.masses[i] ?? '',
+        downT.transportAllocationValues[i] ?? ''
+      ],
+    );
+
+    // ---------- END OF LIFE ----------
+    final eol = ref.read(endOfLifeTableProvider(key));
+    final eolRows = List.generate(
+      eol.endOfLifeOptions.length,
+      (i) => [
+        eol.endOfLifeOptions[i] ?? '',
+        eol.endOfLifeTotalMass[i] ?? '',
+        eol.endOfLifeAllocationValues[i] ?? ''
+      ],
+    );
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Materials", style: smallHeader),
-        compactTable(["Material", "Weight (kg)"], materialRows),
-        pw.SizedBox(height: 6),
-        pw.Text("Upstream Transport", style: smallHeader),
-        compactTable(["Class", "Vehicle", "Distance (km)", "Mass (kg)"], transportRows),
-        pw.SizedBox(height: 6),
-        pw.Text("Machining", style: smallHeader),
-        compactTable(["Brand", "Machine", "Operating Time (hr)"], machiningRows),
+        pw.SizedBox(height: 12),
+        pw.Divider(),
+        pw.Text("PART: $part", style: title),
+
+        section(
+          titleText: "Normal Material",
+          headers: ["Material", "Country", "Mass", "Allocation"],
+          rows: normalRows,
+          allocationSum: ref.read(normalMaterialAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(normalMaterialEmissionRowsProvider(key)),
+            (e) => e.materialNormal,
+          ),
+        ),
+
+        section(
+          titleText: "Material",
+          headers: ["Material", "Country", "Mass", "Allocation"],
+          rows: matRows,
+          allocationSum: ref.read(materialAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(materialEmissionRowsProvider(key)),
+            (e) => e.material,
+          ),
+        ),
+
+        section(
+          titleText: "Upstream Transport",
+          headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
+          rows: upRows,
+          allocationSum: ref.read(upstreamTransportAllocationSumProvider(key)),
+          emissionTotal: emissionTotals.transport,
+        ),
+
+        section(
+          titleText: "Machining",
+          headers: ["Brand", "Machine", "Country", "Time", "Allocation"],
+          rows: machRows,
+          allocationSum: ref.read(machiningAllocationSumProvider(key)),
+          emissionTotal: emissionTotals.machining,
+        ),
+
+        section(
+          titleText: "Waste",
+          headers: ["Type", "Waste", "Mass", "Allocation"],
+          rows: wasteRows,
+          allocationSum: ref.read(wasteAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(wasteEmissionRowsProvider(key)),
+            (e) => e.waste,
+          ),
+        ),
+
+        section(
+          titleText: "Fugitive Leaks",
+          headers: ["GHG", "Total Charge", "Remaining", "Allocation"],
+          rows: fugRows,
+          allocationSum: ref.read(fugitiveAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(fugitiveEmissionRowsProvider(key)),
+            (e) => e.fugitive,
+          ),
+        ),
+
+        section(
+          titleText: "Production Transport",
+          headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
+          rows: prodRows,
+          allocationSum: ref.read(productionTransportAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(productionTransportEmissionRowsProvider(key)),
+            (e) => e.productionTransport,
+          ),
+        ),
+
+        section(
+          titleText: "Downstream Transport",
+          headers: ["Class", "Vehicle", "Distance", "Mass", "Allocation"],
+          rows: downRows,
+          allocationSum: ref.read(downstreamTransportAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(downstreamTransportEmissionRowsProvider(key)),
+            (e) => e.downstreamTransport,
+          ),
+        ),
+
+        section(
+          titleText: "End of Life",
+          headers: ["Option", "Total Mass", "Allocation"],
+          rows: eolRows,
+          allocationSum: ref.read(endOfLifeAllocationSumProvider(key)),
+          emissionTotal: sum(
+            ref.read(endOfLifeEmissionRowsProvider(key)),
+            (e) => e.endofLife,
+          ),
+        ),
       ],
     );
   }
 
-  // ---------------- TOTAL EMISSIONS & PERCENTAGES ----------------
-  final totalEmissions = <String, double>{};
-  double grandTotal = 0;
-  for (final part in allParts) {
-    final totals = ref.read(convertedEmissionsTotalProvider((product, part)));
-    totalEmissions[part] = totals.total;
-    grandTotal += totals.total;
-  }
-
-  // ---------------- FIRST PAGE ----------------
+  // ---------------- SINGLE PAGE ----------------
   pdf.addPage(
-    pw.MultiPage(
+    pw.Page(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(18),
-      build: (_) => [
-        pw.Text('Product Carbon Footprint Report', style: titleStyle),
-        pw.SizedBox(height: 6),
-        labelRow("Product", product.name),
-        labelRow("Functional Unit", _functionalUnitController.text),
-        labelRow("Description", _descriptionController.text),
-        pw.SizedBox(height: 8),
-        lifecycleBoundaryBox(),
-        pw.SizedBox(height: 8),
-        pw.Text("Total Emissions by Part (kg CO₂e)", style: smallHeader),
-        pw.SizedBox(height: 4),
-
-        // ---------------- PER-PART TABLE WITH PERCENTAGE ----------------
-        compactTable(
-          ["Part", "Emissions (kg CO₂e)", "Percentage"],
-          totalEmissions.entries.map((e) {
-            final pct = grandTotal > 0 ? e.value / grandTotal * 100 : 0;
-            return [e.key, e.value.toStringAsFixed(2), "${pct.toStringAsFixed(1)} %"];
-          }).toList(),
-        ),
-      ],
+      margin: const pw.EdgeInsets.all(16),
+      build: (_) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text("Product Carbon Footprint Report", style: title),
+          pw.SizedBox(height: 8),
+          pw.Text("Product: ${product.name}", style: base),
+          pw.Text("Functional Unit: ${_functionalUnitController.text}", style: base),
+          pw.Text("Description: ${_descriptionController.text}", style: base),
+          pw.SizedBox(height: 12),
+          ...allParts.map(buildPart),
+        ],
+      ),
     ),
   );
 
-  // ---------------- PER-PART DETAIL PAGES ----------------
-  for (final part in allParts) {
-    final totals = ref.read(convertedEmissionsTotalProvider((product, part)));
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(18),
-        build: (_) => [
-          pw.Text("Part: $part", style: titleStyle),
-          pw.SizedBox(height: 6),
-          compactValueRow("Total Emissions (kg CO₂e)", totals.total, color: tertiaryColor),
-          pw.SizedBox(height: 6),
-          pw.Text("Lifecycle Breakdown (A/B/C)", style: smallHeader),
-          pw.SizedBox(height: 2),
-          compactValueRow(
-              "A1–A3 (Cradle-to-Gate)",
-              totals.material + totals.materialNormal + totals.transport + totals.machining + totals.waste,
-              color: secondaryColor),
-          compactValueRow("B Stage (Use Phase)", totals.usageCycle, color: tertiaryColor),
-          compactValueRow("C Stage (End of Life)", totals.endofLife, color: tertiaryColor),
-          pw.SizedBox(height: 6),
-          buildPartTables(ref, (product: product.name, part: part)),
-        ],
-      ),
-    );
-  }
+// ---------------- SAVE DIALOG ----------------
+final saveLocation = await getSaveLocation(
+  acceptedTypeGroups: [
+    XTypeGroup(label: 'PDF', extensions: ['pdf'])
+  ],
+  suggestedName: 'Product_${product.name}.pdf',
+);
 
-  // ---------------- SAVE FILE ----------------
-  final pdfBytes = await pdf.save();
-  final file = File('Product_${product.name}.pdf');
-  await file.writeAsBytes(pdfBytes);
-  await OpenFile.open(file.path);
-  debugPrint("[_exportPdf] Saved -> ${file.path}");
+if (saveLocation == null) return; // user cancelled
+
+final path = saveLocation.path;
+
+// Generate the PDF bytes
+final bytes = await pdf.save();
+
+// Write file to disk
+final file = File(path);
+await file.writeAsBytes(bytes, flush: true);
+
+// Open the saved PDF
+await OpenFile.open(path);
 }
-
   // ===================== UI =====================
 
   
@@ -480,7 +621,6 @@ Widget build(BuildContext context) {
 
         const SizedBox(height: 16),
 
-        // ✅ Display total by part
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
@@ -519,7 +659,7 @@ Widget build(BuildContext context) {
                   backgroundColor: Apptheme.widgetsecondaryclr,
                   foregroundColor: Apptheme.textclrdark,
                 ),
-                onPressed: _exportPdf,
+                onPressed: exportPdfWithDialog,
               ),
             ],
           ),
@@ -530,9 +670,4 @@ Widget build(BuildContext context) {
 }
 
 }
-
-
-
-
-
 

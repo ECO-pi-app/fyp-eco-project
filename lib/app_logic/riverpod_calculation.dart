@@ -724,13 +724,27 @@ final materialTableProvider = StateNotifierProvider.family<
     final internalEF = partData?["materials"]?["internalEF"] as List<dynamic>? ?? [];
     final allocationValues = partData?["materials"]?["allocation_values"] as List<dynamic>? ?? [];
 
+    // find the maximum length among all lists
+    int maxLength = [
+      materials.length,
+      masses.length,
+      customEF.length,
+      countries.length,
+      internalEF.length,
+      allocationValues.length
+    ].reduce((a, b) => a > b ? a : b);
+
+    // helper to pad any list to maxLength
+    List<T?> padList<T>(List<T?> list) =>
+        List<T?>.from(list)..addAll(List<T?>.filled(maxLength - list.length, null));
+
     notifier.state = MaterialTableState(
-      materials: materials.cast<String?>(),
-      countries: countries.cast<String?>(),
-      masses: masses.cast<String?>(),
-      customEF: customEF.cast<String?>(),
-      internalEF: internalEF.cast<String?>(),
-      materialAllocationValues: allocationValues.cast<String?>(),
+      materials: padList(materials.cast<String?>()),
+      countries: padList(countries.cast<String?>()),
+      masses: padList(masses.cast<String?>()),
+      customEF: padList(customEF.cast<String?>()),
+      internalEF: padList(internalEF.cast<String?>()),
+      materialAllocationValues: padList(allocationValues.cast<String?>()),
     );
   }
 
@@ -1000,11 +1014,23 @@ final usageCycleTableProvider =
     final usageFrequencies = partData?["usage_cycle"]?["usageFrequencies"] as List<dynamic>? ?? [];
     final allocationValues = partData?["usage_cycle"]?["allocation_values"] as List<dynamic>? ?? [];
 
+    // find the maximum length among all lists
+    int maxLength = [
+      categories.length,
+      productTypes.length,
+      usageFrequencies.length,
+      allocationValues.length,
+    ].reduce((a, b) => a > b ? a : b);
+
+    // helper to pad any list to maxLength
+    List<T?> padList<T>(List<T?> list) =>
+        List<T?>.from(list)..addAll(List<T?>.filled(maxLength - list.length, null));
+
     notifier.state = UsageCycleState(
-      categories: categories.cast<String?>(),
-      productTypes: productTypes.cast<String?>(),
-      usageFrequencies: usageFrequencies.cast<String?>(),
-      usageCycleAllocationValues: allocationValues.cast<String?>(),
+      categories: padList(categories.cast<String?>()),
+      productTypes: padList(productTypes.cast<String?>()),
+      usageFrequencies: padList(usageFrequencies.cast<String?>()),
+      usageCycleAllocationValues: padList(allocationValues.cast<String?>()),
     );
   }
 
