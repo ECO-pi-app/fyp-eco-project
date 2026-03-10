@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import CardItem from "./CardItem";
 import './Cards.css';
 
+const API = process.env.REACT_APP_API_BASE || "https://ecopi-backend.onrender.com";
+
 function Cards() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ function Cards() {
   const FALLBACK_IMG = `${process.env.PUBLIC_URL}/images/img-9.jpg`;
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/news/sustainability')
+    fetch(`${API}/news/sustainability`)
       .then((res) => res.json())
       .then((data) => {
         setArticles(data.articles || []);
@@ -27,7 +29,6 @@ function Cards() {
       <div className='cards__container'>
         <div className="cards__wrapper">
           <ul className='cards__items'>
-            {/*  SKELETONS while loading */}
             {loading &&
               Array.from({ length: 8 }).map((_, i) => (
                 <li className="cards__item" key={`sk-${i}`}>
@@ -52,7 +53,6 @@ function Cards() {
                 external={true}
               />
             ))}
-
           </ul>
         </div>
       </div>
