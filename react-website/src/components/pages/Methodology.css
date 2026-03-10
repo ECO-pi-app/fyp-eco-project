@@ -1,0 +1,80 @@
+.method-page{
+  min-height: calc(100vh - 64px);
+  padding: 46px 20px 70px;
+  color: #fff;
+  background: linear-gradient(rgba(10,12,14,0.78), rgba(10,12,14,0.88));
+}
+
+.method-hero{
+  max-width: 980px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+
+.method-hero h1{
+  margin: 0 0 10px;
+  font-size: 46px;
+}
+
+.method-hero p{
+  margin: 0 auto;
+  max-width: 760px;
+  opacity: 0.92;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
+.method-stack{
+  max-width: 980px;
+  margin: 26px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* vertical spacing between the cards */
+}
+
+.method-card{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  padding: 18px 18px;
+  backdrop-filter: blur(6px);
+}
+
+.method-card h3{
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.method-card p{
+  margin: 0 0 10px;
+  opacity: 0.93;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.method-card ul{
+  margin: 0;
+  padding-left: 18px;
+  opacity: 0.95;
+}
+
+.method-card li{
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.method-formula{
+  margin-top: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+@media screen and (max-width: 700px){
+  .method-hero h1{ font-size: 36px; }
+}
