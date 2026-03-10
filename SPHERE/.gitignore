@@ -1,0 +1,10 @@
+# Ignore build artifacts and Python cache
+dist/
+build/
+*.spec
+*.exe
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
