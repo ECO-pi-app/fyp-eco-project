@@ -8,6 +8,7 @@ import 'package:test_app/design/primary_elements(to_set_up_pages)/pages_layouts.
 import 'package:test_app/app_logic/riverpod_calculation.dart';
 import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 import 'package:test_app/design/secondary_elements_(to_design_pages)/info_popup.dart';
+import 'package:test_app/governing_screens/primarypage.dart';
 
 /// ---------------- ACTIVE PART PROVIDER ----------------
 class ActivePartNotifier extends StateNotifier<String?> {
@@ -70,15 +71,18 @@ void initState() {
 }
 
 
-  /// ---------- TIMELINE DIALOG ----------
-  Future<Map<String, String>?> _showTimelineDialog() async {
-  final nameController = TextEditingController();
-
+/// ---------- TIMELINE DIALOG ----------
+Future<Map<String, String>?> _showTimelineDialog() async {
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
+  // Generate a list of years, e.g., 2000 → current year + 5
+  final currentYear = DateTime.now().year;
+  final years = List.generate(30, (i) => (currentYear - 20 + i).toString());
+
+  String? selectedYear;
   String? selectedStartMonth;
   String? selectedEndMonth;
 
@@ -90,7 +94,7 @@ void initState() {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Add New Timeline"),
+              const Text("Add New Timeline"),
               InfoIconPopupDark(
                 text: 'Define the time period of the study',
                 iconSize: 20,
@@ -101,11 +105,24 @@ void initState() {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Year dropdown
                 SizedBox(
                   width: 250,
-                  child: TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: "Year"),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedYear,
+                    hint: const Text("Select Year"),
+                    items: years
+                        .map((y) => DropdownMenuItem(
+                              value: y,
+                              child: Text(y),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedYear = val),
+                    decoration: const InputDecoration(
+                      labelText: "Year",
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -115,16 +132,12 @@ void initState() {
                   value: selectedStartMonth,
                   hint: const Text("Select Start Month"),
                   items: months
-                      .map(
-                        (m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(m),
-                        ),
-                      )
+                      .map((m) => DropdownMenuItem(
+                            value: m,
+                            child: Text(m),
+                          ))
                       .toList(),
-                  onChanged: (val) {
-                    setState(() => selectedStartMonth = val);
-                  },
+                  onChanged: (val) => setState(() => selectedStartMonth = val),
                   decoration: const InputDecoration(
                     labelText: "Start Month",
                     border: OutlineInputBorder(),
@@ -138,16 +151,12 @@ void initState() {
                   value: selectedEndMonth,
                   hint: const Text("Select End Month"),
                   items: months
-                      .map(
-                        (m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(m),
-                        ),
-                      )
+                      .map((m) => DropdownMenuItem(
+                            value: m,
+                            child: Text(m),
+                          ))
                       .toList(),
-                  onChanged: (val) {
-                    setState(() => selectedEndMonth = val);
-                  },
+                  onChanged: (val) => setState(() => selectedEndMonth = val),
                   decoration: const InputDecoration(
                     labelText: "End Month",
                     border: OutlineInputBorder(),
@@ -172,19 +181,17 @@ void initState() {
     ),
   );
 
-  if (nameController.text.isEmpty ||
-      selectedStartMonth == null ||
-      selectedEndMonth == null) {
+  // Validate selection
+  if (selectedYear == null || selectedStartMonth == null || selectedEndMonth == null) {
     return null;
   }
 
   return {
-    "name": nameController.text,
+    "name": selectedYear!,
     "start": selectedStartMonth!,
     "end": selectedEndMonth!,
   };
 }
-
   Future<void> _addTimeline() async {
     final product = ref.read(activeProductProvider);
     if (product == null) return;
@@ -295,15 +302,24 @@ void initState() {
   Future<void> _renamePart(String oldName) async {
     final product = ref.read(activeProductProvider);
     final timeline = ref.read(activeTimelineProvider);
-
     if (product == null || timeline == null) return;
 
     final newName = await showRenameDialog(context, oldName, "Rename Part");
     if (newName == null || newName.trim().isEmpty) return;
 
+    final oldKey = (product: product.name, part: oldName);
+    final oldState = ref.read(savedEmissionsProvider(oldKey));
+
+    final newKey = (product: product.name, part: newName);
     ref
-        .read(pieChartProvider((product: product, timeline: timeline)).notifier)
+        .read(savedEmissionsProvider(newKey).notifier)
+        .setResults(oldState);
+
+    ref.read(pieChartProvider((product: product, timeline: timeline)).notifier)
         .renamePart(oldName, newName);
+    ref.read(activePartProvider.notifier).setPart(newName);
+
+    ref.invalidate(savedEmissionsProvider(oldKey));
   }
     
   Future<void> _renameTimeline(String oldName) async {
@@ -669,19 +685,104 @@ void initState() {
                                   message: "Double click to rename part",
                                   child: GestureDetector(
                                     onDoubleTap: () => _renamePart(part),
-                                    child: ChoiceChip(
-                                      showCheckmark: false,
-                                      selectedColor: Apptheme.widgetsecondaryclr,
-                                      backgroundColor: Apptheme.widgettertiaryclr,
-                                      label: Textsinsidewidgetsdrysafe(
-                                        words: "$part = ${result.total.toStringAsFixed(2)}",
-                                        color: Apptheme.textclrdark,
-                                      ),
-                                      selected: ref.watch(activePartProvider) == part,
-                                      onSelected: (_) {
-                                        ref.read(activePartProvider.notifier).setPart(part);
-                                      },
-                                    ),
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        // ---------------- ChoiceChip ----------------
+                                        ChoiceChip(
+                                          label: Text(part),
+                                          selected: activePart == part,
+                                          selectedColor: Apptheme.widgetsecondaryclr,
+                                          backgroundColor: Apptheme.widgettertiaryclr,
+                                          showCheckmark: false,
+                                          onSelected: (_) => ref.read(activePartProvider.notifier).setPart(part),
+                                        ),
+
+                                        // ---------------- Delete Button ----------------
+                                        Positioned(
+                                          top: -6,
+                                          right: -6,
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              () async {
+              final activeProduct = ref.read(activeProductProvider);
+              final activePart = ref.read(activePartProvider);
+              final username = await ref.read(usernameProvider.future);
+
+              if (activeProduct == null ||
+                  activePart == null ||
+                  username == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Nothing to save!")),
+                );
+                return;
+              }
+
+              final key = (product: activeProduct.name, part: activePart);
+
+              try {
+                await saveProfile(
+                  ref,
+                  activeProduct.name,
+                  username,
+                  key,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Profile saved successfully!"),
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error saving profile: $e")),
+                );
+              }
+            };
+                                              // Confirm deletion
+                                              final confirmed = await showDialog<bool>(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: const Text("Delete Part?"),
+                                                  content: Text("Are you sure you want to delete '$part'?"),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
+                                                      child: const Text("Cancel"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () =>  Navigator.of(context, rootNavigator: true).pop(true),
+                                                      child: const Text("Delete"),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+
+                                              if (confirmed != true) return;
+
+                                              final product = ref.read(activeProductProvider);
+                                              final timeline = ref.read(activeTimelineProvider);
+                                              if (product == null || timeline == null) return;
+
+                                              // Clear active selection
+                                              ref.read(activePartProvider.notifier).setPart(null);
+                                              ref.read(pieChartProvider((product: product, timeline: timeline)).notifier).removePart(part);
+
+                                              // TODO: Remove from pie chart & backend
+                                              // await deletePartFromBackend(product.name, timeline, part);
+
+                                              // Invalidate cached emissions
+                                              ref.invalidate(savedEmissionsProvider((product: product.name, part: part)));
+                                            },
+                                            child: const CircleAvatar(
+                                              radius: 8,
+                                              backgroundColor: Colors.red,
+                                              child: Icon(Icons.close, size: 12, color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                   ),
                                 ),
                               );

@@ -1,11 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:test_app/app_logic/riverpod_account.dart';
+import 'package:test_app/app_logic/riverpod_profileswitch.dart';
 
 final secureStorage = FlutterSecureStorage();
 
 // -------------------  PAGE TRACKING  -------------------
 final currentPageProvider = StateProvider<int>((ref) => 0);
 final emissionsRefreshProvider = StateProvider<int>((ref) => 0);
+
+final emissionsHydratorProvider = Provider<void>((ref) {
+  final product = ref.watch(activeProductProvider);
+  final timeline = ref.watch(activeTimelineProvider);
+
+  if (product == null || timeline == null) return;
+
+  hydrateEmissions(ref, product, timeline);
+});
 
 // -------------------  TRACK WHETHER CUSTOM MATERIAL IS CHECKED  -------------------
 final customMaterialCheckedProvider = StateProvider<bool>((ref) => false);

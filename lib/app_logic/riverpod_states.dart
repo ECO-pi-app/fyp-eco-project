@@ -39,7 +39,7 @@ class NormalMaterialState {
   final List<String?> normalMaterials;
   final List<String?> countries;
   final List<String?> masses;
-  final List<String?> materialAllocationValues; 
+  final List<String?> materialAllocationValues;
 
   NormalMaterialState({
     required this.normalMaterials,
@@ -74,6 +74,7 @@ class NormalMaterialNotifier extends StateNotifier<NormalMaterialState> {
           ),
         );
 
+  /// Add a new empty row
   void addRow() {
     state = state.copyWith(
       normalMaterials: [...state.normalMaterials, ''],
@@ -83,20 +84,41 @@ class NormalMaterialNotifier extends StateNotifier<NormalMaterialState> {
     );
   }
 
+  /// Remove the last row (existing behavior)
   void removeRow() {
     if (state.normalMaterials.length > 1) {
-      state = state.copyWith(
-        normalMaterials: state.normalMaterials.sublist(0, state.normalMaterials.length - 1),
-        countries: state.countries.sublist(0, state.countries.length - 1),
-        masses: state.masses.sublist(0, state.masses.length - 1),
-        materialAllocationValues: state.materialAllocationValues.sublist(0, state.materialAllocationValues.length - 1),
-      );
+      removeRowAt(state.normalMaterials.length - 1);
     }
   }
 
+  /// Remove a specific row at [index]
+  void removeRowAt(int index) {
+    if (index < 0 || index >= state.normalMaterials.length) return;
+
+    state = state.copyWith(
+      normalMaterials: [
+        for (int i = 0; i < state.normalMaterials.length; i++)
+          if (i != index) state.normalMaterials[i],
+      ],
+      countries: [
+        for (int i = 0; i < state.countries.length; i++)
+          if (i != index) state.countries[i],
+      ],
+      masses: [
+        for (int i = 0; i < state.masses.length; i++)
+          if (i != index) state.masses[i],
+      ],
+      materialAllocationValues: [
+        for (int i = 0; i < state.materialAllocationValues.length; i++)
+          if (i != index) state.materialAllocationValues[i],
+      ],
+    );
+  }
+
+  /// Update a specific cell
   void updateCell({
     required int row,
-    required String column, // 'Material', 'Country', 'Mass', 'Notes'
+    required String column, // 'Material', 'Country', 'Mass', 'Allocation Value'
     required String? value,
   }) {
     final normalMaterials = [...state.normalMaterials];
@@ -127,8 +149,6 @@ class NormalMaterialNotifier extends StateNotifier<NormalMaterialState> {
     );
   }
 }
-
-
 // -------------------- MATERIAL --------------------
 class MaterialTableState {
   final List<String?> materials;

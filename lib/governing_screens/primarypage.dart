@@ -584,7 +584,6 @@ class _SaveProfileIconButtonState
                 await saveProfile(
                   ref,
                   activeProduct.name,
-                  widget.description,
                   username,
                   key,
                 );

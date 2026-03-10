@@ -187,6 +187,21 @@ class PieChartNotifier extends StateNotifier<PieChartState> {
     _migrateTable(oldName, newName, endOfLifeTableProvider, (part) => (product: product.name, part: part),);
   }
 
+void removePart(String partName) {
+  // Remove part from parts list
+  final updatedParts = List<String>.from(state.parts)..remove(partName);
+
+  // Remove corresponding value
+  final index = state.parts.indexOf(partName);
+  final updatedValues = List<double>.from(state.values);
+  if (index >= 0 && index < updatedValues.length) {
+    updatedValues.removeAt(index);
+  }
+
+  // Update state
+  state = state.copyWith(parts: updatedParts, values: updatedValues);
+}
+
   void _migrateTable<S, N extends StateNotifier<S>, K>(
     String oldName,
     String newName,

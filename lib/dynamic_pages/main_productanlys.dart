@@ -24,10 +24,28 @@ class _DynamicprdanalysisState extends ConsumerState<Dynamicprdanalysis> {
 
   bool showThreePageTabs = true;
 
-  @override
-  Widget build(BuildContext context) {
-    final product = ref.watch(activeProductProvider);
-    final part = ref.watch(activePartProvider);
+
+
+@override
+Widget build(BuildContext context) {
+  ref.listen(activeProductProvider, (prev, next) {
+    final timeline = ref.read(activeTimelineProvider);
+    if (next != null && timeline != null) {
+      hydrateEmissions(ref, next, timeline);
+    }
+  });
+
+  ref.listen(activeTimelineProvider, (prev, next) {
+    final product = ref.read(activeProductProvider);
+    if (product != null && next != null) {
+      hydrateEmissions(ref, product, next);
+    }
+  });
+
+  final product = ref.watch(activeProductProvider);
+  final part = ref.watch(activePartProvider);
+    final timeline = ref.watch(activeTimelineProvider);
+
 
     final parts = ref.watch(partsProvider);
     final results = List.generate(parts.length, (i) {
@@ -501,39 +519,19 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
 
   const NormalMaterialAttributesMenu({super.key, required this.productID});
 
-  
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(activeProductLoaderProvider);
-    ref.watch(emissionsRefreshProvider); // just watching it to rebuild
-
     final horizontalController = ScrollController();
-
 
     final materials = ref.watch(materialsProvider);
     final countries = ref.watch(countriesProvider);
 
     final product = ref.watch(activeProductProvider);
-    print('Active product: $product');
     final part = ref.watch(activePartProvider);
-    print('Active part: $part');
-
-    final parts = ref.watch(partsProvider);
-    final results = List.generate(parts.length, (i) {
-      final partName = parts[i];
-      return ref.watch(
-        savedEmissionsProvider((product: product!.name, part: partName)),
-      );
-    });
-
-    if (product == null || part == null) {
-      return const Text('Select a part');
-    }
+    if (product == null || part == null) return const SizedBox();
 
     final key = (product: product.name, part: part);
     final tableState = ref.watch(normalMaterialTableProvider(key));
-
     final tableNotifier = ref.read(normalMaterialTableProvider(key).notifier);
 
     final rowCount = [
@@ -541,36 +539,24 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
       tableState.countries.length,
       tableState.masses.length,
     ].reduce((a, b) => a > b ? a : b);
-
     final safeRowCount = rowCount == 0 ? 1 : rowCount;
 
+    // Rows for calculation
     List<RowFormat> rows = List.generate(
       safeRowCount,
       (i) => RowFormat(
         columnTitles: ['Material', 'Country', 'Mass (kg)'],
         isTextFieldColumn: [false, false, true],
         selections: [
-          i < tableState.normalMaterials.length
-              ? tableState.normalMaterials[i]
-              : '',
-          i < tableState.countries.length
-              ? tableState.countries[i]
-              : '',
-          i < tableState.masses.length
-              ? tableState.masses[i]
-              : '',
+          i < tableState.normalMaterials.length ? tableState.normalMaterials[i] : '',
+          i < tableState.countries.length ? tableState.countries[i] : '',
+          i < tableState.masses.length ? tableState.masses[i] : '',
         ],
       ),
     );
 
-    final emissionResults = ref.watch(savedEmissionsProvider((product: product.name, part: part)));
-
-    final totalNormalMaterial = emissionResults.materialNormal;
-    final totalMaterial = emissionResults.material;
-
     return Column(
       children: [
-        // ---------------- Table ----------------
         Align(
           alignment: Alignment.centerLeft,
           child: Scrollbar(
@@ -587,6 +573,8 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ---------------- Delete Button Column ----------------
+                      // Material
                       ResizableColumn(
                         title: 'Material',
                         values: tableState.normalMaterials,
@@ -595,6 +583,7 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                             tableNotifier.updateCell(row: row, column: 'Material', value: value),
                       ),
                       const SizedBox(width: 10),
+                      // Country
                       ResizableColumn(
                         title: 'Country',
                         values: tableState.countries,
@@ -603,12 +592,28 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                             tableNotifier.updateCell(row: row, column: 'Country', value: value),
                       ),
                       const SizedBox(width: 10),
+                      // Mass
                       ResizableColumn(
                         title: 'Mass (kg)',
                         values: tableState.masses,
                         isTextField: true,
                         onChanged: (row, value) =>
                             tableNotifier.updateCell(row: row, column: 'Mass', value: value),
+                      ),
+                      const SizedBox(width: 10),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 32),
+                        child: Column(
+                          children: List.generate(safeRowCount, (i) {
+                            return IconButton(
+                              icon: const Icon(Icons.delete, color: Apptheme.iconsdark),
+                              onPressed: () {
+                                tableNotifier.removeRowAt(i);
+                                ref.read(emissionsRefreshProvider.notifier).state++;
+                              },
+                            );
+                          }),
+                        ),
                       ),
                     ],
                   ),
@@ -617,12 +622,10 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
             ),
           ),
         ),
-
-        // ---------------- Calculate Button ----------------
+        // ---------------- Calculate + Row Controls ----------------
         Row(
           children: [
-            SizedBox(width: 20),
-
+            const SizedBox(width: 20),
             SizedBox(
               width: 200,
               height: 35,
@@ -645,21 +648,9 @@ class NormalMaterialAttributesMenu extends ConsumerWidget {
                 ),
               ),
             ),
-
-            SizedBox(width: 10),
-          
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: tableNotifier.addRow,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: tableNotifier.removeRow,
-                ),
-              ],
-            ),
+            const SizedBox(width: 10),
+            IconButton(icon: const Icon(Icons.add), onPressed: tableNotifier.addRow),
+            IconButton(icon: const Icon(Icons.remove), onPressed: tableNotifier.removeRow),
           ],
         ),
       ],

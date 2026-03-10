@@ -581,7 +581,6 @@ class _ProjectsPanelState extends ConsumerState<ProjectsPanel> {
                           
                                 final req = ProfileSaveRequest(
                                   profileName: name,
-                                  description: _profileDescCtrl.text.trim(),
                                   data: {"sample": "test"},
                                   username: username,
                                 );

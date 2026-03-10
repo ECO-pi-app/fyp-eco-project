@@ -20,7 +20,6 @@ Future<void> triggerSave(WidgetRef ref) async {
   await saveProfile(
     ref,
     activeProduct.name,
-    "Auto-save description",
     username,
     key,
   );
@@ -231,39 +230,60 @@ final hydrateDescriptionsProvider = Provider<void>((ref) {
 void hydrateEmissions(dynamic ref, Product product, String? timeline) {
   debugPrint("HYDRATE START: ${product.name} timeline=$timeline");
 
+  // Get the timeline data
   final timelineData =
       product.data["timelines"]?[timeline] as Map<String, dynamic>?;
 
   if (timelineData == null) return;
 
   final partsMap = timelineData["parts"] as Map<String, dynamic>?;
-
   if (partsMap == null) return;
 
+  // Loop over each part
   for (var partName in partsMap.keys) {
     final partData = partsMap[partName] as Map<String, dynamic>?;
-    if (partData == null) continue;
 
-    final emissionResults = partData["emission_results"];
-    if (emissionResults != null) {
-      ref
-          .read(savedEmissionsProvider((product: product.name, part: partName))
-              .notifier)
-          .updateField(
-            materialNormal: emissionResults["materialNormal"] ?? 0,
-            material: emissionResults["material"] ?? 0,
-            transport: emissionResults["transportUpstream"] ?? 0,
-            machining: emissionResults["machining"] ?? 0,
-            fugitive: emissionResults["fugitive"] ?? 0,
-            productionTransport: emissionResults["productionTransport"] ?? 0,
-            downstreamTransport: emissionResults["transportDownstream"] ?? 0,
-            waste: emissionResults["waste"] ?? 0,
-            usageCycle: emissionResults["usageCycle"] ?? 0,
-            endofLife: emissionResults["endOfLife"] ?? 0,
-          );
+    // --- Create the record key for this part ---
+    final key = (product: product.name, part: partName as String);
+
+    // --- Get the notifier (will create it if it doesn't exist yet) ---
+    final notifier = ref.read(savedEmissionsProvider(key).notifier);
+
+    // --- Initialize with zeros first ---
+    notifier.setResults(
+      EmissionResults(
+        material: 0,
+        materialNormal: 0,
+        transport: 0,
+        machining: 0,
+        fugitive: 0,
+        productionTransport: 0,
+        downstreamTransport: 0,
+        waste: 0,
+        usageCycle: 0,
+        endofLife: 0,
+      ),
+    );
+
+    // --- If actual emission results exist, update them ---
+    if (partData != null && partData["emission_results"] != null) {
+      final emissionResults = partData["emission_results"];
+      notifier.updateField(
+        materialNormal: emissionResults["materialNormal"] ?? 0,
+        material: emissionResults["material"] ?? 0,
+        transport: emissionResults["transportUpstream"] ?? 0,
+        machining: emissionResults["machining"] ?? 0,
+        fugitive: emissionResults["fugitive"] ?? 0,
+        productionTransport: emissionResults["productionTransport"] ?? 0,
+        downstreamTransport: emissionResults["transportDownstream"] ?? 0,
+        waste: emissionResults["waste"] ?? 0,
+        usageCycle: emissionResults["usageCycle"] ?? 0,
+        endofLife: emissionResults["endOfLife"] ?? 0,
+      );
     }
   }
 }
+
 // ---------------- PROFILE SAVE ----------------
 Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
   final product = ref.read(activeProductProvider);
@@ -388,13 +408,11 @@ Map<String, dynamic> collectProfileData(WidgetRef ref, TableKey key) {
 // ------------------ SAVE REQUEST MODEL ------------------
 class ProfileSaveRequest {
   final String profileName;
-  final String description;
   final Map<String, dynamic> data;
   final String username;
 
   ProfileSaveRequest({
     required this.profileName,
-    required this.description,
     required this.data,
     required this.username,
   });
@@ -402,7 +420,6 @@ class ProfileSaveRequest {
   Map<String, dynamic> toJson() {
     return {
       "profile_name": profileName,
-      "description": description,
       "data": data,
       "username": username,
     };
@@ -430,14 +447,12 @@ final saveProfileProvider =
 Future<void> saveProfile(
   WidgetRef ref,
   String profileName,
-  String description,
   String username,
   TableKey key,
 ) async {
   final data = collectProfileData(ref, key);
   final req = ProfileSaveRequest(
     profileName: profileName,
-    description: description,
     data: data,
     username: username,
   );
@@ -511,7 +526,24 @@ typedef SavedEmissionKey = ({String product, String part});
 /// ---------------- SAVED EMISSIONS NOTIFIER ----------------
 class SavedEmissionsNotifier extends StateNotifier<EmissionResults> {
   SavedEmissionsNotifier(this.ref, this.key) : super(EmissionResults.empty()) {
-    _init();
+    Future<void> _init() async {
+      try {
+        final totals = ref.read(emissionTotalsProvider((key.product, key.part)));
+        state = totals;
+
+        // Hydrate initial emissions from local product data
+        final product = ref.read(activeProductProvider);
+        final timeline = ref.read(activeTimelineProvider);
+        if (product != null && timeline != null) {
+          hydrateEmissions(ref, product, timeline);
+        }
+
+        // Optionally, refresh from backend
+        await refresh();
+      } catch (e, st) {
+        debugPrint("[SavedEmissionsNotifier._init] Error: $e\n$st");
+      }
+    }
   }
 
   final Ref ref;
@@ -528,6 +560,11 @@ class SavedEmissionsNotifier extends StateNotifier<EmissionResults> {
     } catch (e, st) {
       debugPrint("[SavedEmissionsNotifier._init] Error: $e\n$st");
     }
+  }
+
+  /// Directly set state (for renaming or restoring)
+  void setResults(EmissionResults results) {
+    state = results;
   }
 
   /// Update fields locally and refresh from backend
