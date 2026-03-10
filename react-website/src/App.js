@@ -13,6 +13,7 @@ import Profiles from "./components/pages/Profiles";
 import ProfileView from "./components/pages/ProfileView";
 import HowItWorks from './components/pages/HowItWorks';
 import Support from './components/pages/Support';
+import ExcelEditor from './components/pages/ExcelEditor';
 
 
 
@@ -24,6 +25,7 @@ function App() {
         <Switch>
           <Route path='/' exact component={Home} />
           <Route path='/methodology' component={Methodology} />
+          <Routh path='/excel' component={ExcelEditor} />
           <Route path='/contact' component={Contact} />
           <Route path='/about' component={About_us} />
           <Route path='/sign-up' component={SignUp} />
