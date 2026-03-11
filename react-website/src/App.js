@@ -25,7 +25,6 @@ function App() {
         <Switch>
           <Route path='/' exact component={Home} />
           <Route path='/methodology' component={Methodology} />
-          <Routh path='/excel' component={ExcelEditor} />
           <Route path='/contact' component={Contact} />
           <Route path='/about' component={About_us} />
           <Route path='/sign-up' component={SignUp} />
@@ -34,6 +33,7 @@ function App() {
           <Route path="/profiles" exact component={Profiles} />
           <Route path="/profiles/:name" component={ProfileView} />
           <Route path='/how-it-works' component={HowItWorks} />
+          <Route path="/excel" component={ExcelEditor} />
           <Route path='/support' component={Support} />
         </Switch>
       </Router>
