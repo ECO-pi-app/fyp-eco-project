@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from './components/Navbar';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css';
 import Home from './components/pages/Home';
 import About_us from './components/pages/About_us';
@@ -14,8 +14,6 @@ import ProfileView from "./components/pages/ProfileView";
 import HowItWorks from './components/pages/HowItWorks';
 import Support from './components/pages/Support';
 import ExcelEditor from './components/pages/ExcelEditor';
-
-
 
 function App() {
   return (
@@ -42,4 +40,3 @@ function App() {
 }
 
 export default App;
-

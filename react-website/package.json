@@ -2,7 +2,7 @@
   "name": "react-website",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Lohithroshan45.github.io/fyp-eco-project",
+  "homepage": "https://eco-pi-app.github.io/fyp-eco-project",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@handsontable/react": "^16.2.0",
