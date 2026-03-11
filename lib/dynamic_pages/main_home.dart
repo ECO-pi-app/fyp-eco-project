@@ -387,122 +387,101 @@ Future<Map<String, String>?> _showTimelineDialog() async {
             Row(
               children: [
                 if (product != null && timelines != null)
-
-
-
-
-Expanded(
-  flex: 2,
-  child: SizedBox(
-    height: 200,
-    child: (product == null ||
-            timelines == null ||
-            timelines.timelines.isEmpty)
-        ? const Center(child: Text("No timeline data"))
-        : Builder(
-            builder: (context) {
-              final timelineList = timelines.timelines;
-
-              return BarChart(
-                key: ValueKey("timeline_${timelines.timelines.length}"),
-                BarChartData(
-                  maxY: maxTimelineY,
-                  alignment: BarChartAlignment.spaceAround,
-                  titlesData: FlTitlesData(
-                    topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 40,
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (val, meta) {
-                          final idx = val.toInt();
-                          if (idx < 0 || idx >= timelineList.length) {
-                            return const SizedBox();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(
-                              timelineList[idx],
-                              style: const TextStyle(fontSize: 10),
-                              overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      height: 200,
+                      child: BarChart(
+                        BarChartData(
+                          maxY: maxTimelineY,
+                          alignment: BarChartAlignment.spaceAround,
+                          titlesData: FlTitlesData(
+                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                              ),
                             ),
-                          );
-                        },
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (val, meta) {
+                                  final idx = val.toInt();
+                                  if (idx < 0 || idx >= timelines.timelines.length) {
+                                    return const SizedBox();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Text(
+                                      timelines.timelines[idx],
+                                      style: const TextStyle(fontSize: 10),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+
+                          barGroups: List.generate(timelines.timelines.length, (i) {
+                            final timelineName = timelines.timelines[i];
+
+                            final parts = ref
+                                .watch(pieChartProvider((product: product, timeline: timelineName)))
+                                .parts;
+
+                            double runningTotal = 0;
+
+                            const colors = [
+                              Apptheme.piechart1,
+                              Apptheme.piechart2,
+                              Apptheme.piechart3,
+                              Apptheme.piechart4,
+                              Apptheme.piechart5,
+                              Apptheme.piechart6,
+                              Apptheme.piechart7,
+                              Apptheme.piechart8,
+                            ];
+
+                            final stacks = <BarChartRodStackItem>[];
+
+                            for (int p = 0; p < parts.length; p++) {
+                              final partName = parts[p];
+                              final result =
+                                  ref.watch(savedEmissionsProvider((product:product.name,part: partName)));
+
+                              final value = result.total;
+
+                              stacks.add(
+                                BarChartRodStackItem(
+                                  runningTotal,
+                                  runningTotal + value,
+                                  colors[p % colors.length],
+                                ),
+                              );
+
+                              runningTotal += value;
+                            }
+
+                            return BarChartGroupData(
+                              x: i,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: runningTotal,
+                                  rodStackItems: stacks,
+                                  width: 18,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
                       ),
+
                     ),
                   ),
-                  barGroups: List.generate(timelineList.length, (i) {
-                    final timelineName = timelineList[i];
-
-                    final parts = ref
-                        .watch(pieChartProvider(
-                            (product: product, timeline: timelineName)))
-                        .parts;
-
-                    double runningTotal = 0;
-                    final stacks = <BarChartRodStackItem>[];
-
-                    const colors = [
-                      Apptheme.piechart1,
-                      Apptheme.piechart2,
-                      Apptheme.piechart3,
-                      Apptheme.piechart4,
-                      Apptheme.piechart5,
-                      Apptheme.piechart6,
-                      Apptheme.piechart7,
-                      Apptheme.piechart8,
-                    ];
-
-                    for (int p = 0; p < parts.length; p++) {
-                      final partName = parts[p];
-
-                      final result = ref.watch(
-                        savedEmissionsProvider(
-                            (product: product.name, part: partName)),
-                      );
-
-                      final value = result.total;
-
-                      stacks.add(
-                        BarChartRodStackItem(
-                          runningTotal,
-                          runningTotal + value,
-                          colors[p % colors.length],
-                        ),
-                      );
-
-                      runningTotal += value;
-                    }
-
-                    return BarChartGroupData(
-                      x: i,
-                      barRods: [
-                        BarChartRodData(
-                          toY: runningTotal,
-                          rodStackItems: stacks,
-                          width: 18,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              );
-            },
-          ),
-  ),
-),
-                
-                
-                
                 const SizedBox(width: 16),
                 Expanded(
                   flex: 1,
@@ -575,83 +554,67 @@ Expanded(
                   children: [
 
                     
-Expanded(
-  flex: 2,
-  child: parts.isEmpty
-      ? const Center(child: Text("No parts to display"))
-      : Builder(
-          builder: (context) {
-            final safeLength = results.length < parts.length
-                ? results.length
-                : parts.length;
-
-            if (safeLength == 0) {
-              return const Center(child: Text("No data"));
-            }
-
-            final maxValue = results
-                .take(safeLength)
-                .map((r) => r.materialNormal + r.material)
-                .reduce((a, b) => a > b ? a : b);
-
-            return BarChart(
-              key: ValueKey("parts_${parts.length}"),
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxValue * 1.2,
-                titlesData: FlTitlesData(
-                  topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
+                    Expanded(
+                      flex: 2,
+                      child: parts.isEmpty
+                          ? Center(child: Text("No parts to display", style: TextStyle(color: Apptheme.textclrdark)))
+                          : BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                maxY: results.isEmpty
+                                    ? 1
+                                    : results.map((r) => (r.materialNormal + r.material)).reduce((a, b) => a > b ? a : b) * 1.2,
+                                titlesData: FlTitlesData(
+                                                topTitles: AxisTitles(
+                                                  sideTitles: SideTitles(showTitles: false),
+                                                ),
+                                                rightTitles: AxisTitles(
+                                                  sideTitles: SideTitles(showTitles: false),
+                                                ),
+                                                leftTitles: AxisTitles(
+                                                  sideTitles: SideTitles(
+                                                    showTitles: true,
+                                                    reservedSize: 40,
+                                                  ),
+                                                ),
+                                                bottomTitles: AxisTitles(
+                                                  sideTitles: SideTitles(
+                                                    showTitles: true,
+                                                    getTitlesWidget: (value, meta) {
+                                                      final idx = value.toInt();
+                                                      if (idx < 0 || idx >= parts.length) {
+                                                        return const SizedBox();
+                                                      }
+                                                      return Padding(
+                                                        padding: const EdgeInsets.only(top: 4),
+                                                        child: Text(
+                                                          parts[idx],
+                                                          style: const TextStyle(fontSize: 9),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                barGroups: List.generate(parts.length, (i) {
+                                  final r = results[i];
+                                  final materialTotal = r.materialNormal + r.material;
+                                  return BarChartGroupData(
+                                    x: i,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: materialTotal,
+                                        width: 14,
+                                        color: Apptheme.piechart2,
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                              ),
+                            ),
                     ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx < 0 || idx >= safeLength) {
-                          return const SizedBox();
-                        }
-
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            parts[idx],
-                            style: const TextStyle(fontSize: 9),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                barGroups: List.generate(safeLength, (i) {
-                  final r = results[i];
-                  final materialTotal = r.materialNormal + r.material;
-
-                  return BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: materialTotal,
-                        width: 14,
-                        color: Apptheme.piechart2,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-            );
-          },
-        ),
-),
                     // ---------------- Pie Chart ----------------
                     Expanded(
                       flex: 2,
