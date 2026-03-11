@@ -21,53 +21,18 @@ function App() {
       <Router>
         <Navbar />
         <Switch>
-          <Route path='/' exact>
-            <Home />
-          </Route>
-
-          <Route path='/methodology' exact>
-            <Methodology />
-          </Route>
-
-          <Route path='/contact' exact>
-            <Contact />
-          </Route>
-
-          <Route path='/about' exact>
-            <About_us />
-          </Route>
-
-          <Route path='/sign-up' exact>
-            <SignUp />
-          </Route>
-
-          <Route path='/sign-in' exact>
-            <SignIn />
-          </Route>
-
-          <Route path='/dashboard' exact>
-            <Dashboard />
-          </Route>
-
-          <Route path='/profiles' exact>
-            <Profiles />
-          </Route>
-
-          <Route path='/profiles/:name' exact>
-            <ProfileView />
-          </Route>
-
-          <Route path='/how-it-works' exact>
-            <HowItWorks />
-          </Route>
-
-          <Route path='/excel' exact>
-            <ExcelEditor />
-          </Route>
-
-          <Route path='/support' exact>
-            <Support />
-          </Route>
+          <Route path='/' exact component={Home} />
+          <Route path='/methodology' component={Methodology} />
+          <Route path='/contact' component={Contact} />
+          <Route path='/about' component={About_us} />
+          <Route path='/sign-up' component={SignUp} />
+          <Route path="/sign-in" component={SignIn} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/profiles" exact component={Profiles} />
+          <Route path="/profiles/:name" component={ProfileView} />
+          <Route path='/how-it-works' component={HowItWorks} />
+          <Route path="/excel" component={ExcelEditor} />
+          <Route path='/support' component={Support} />
         </Switch>
       </Router>
     </>
